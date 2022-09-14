@@ -29,12 +29,12 @@ jobs:
     - name: Create coverage report
       run: |
         coverage run -m pytest
-        coverage lcov
+        coverage xml
         a=$(coverage report | grep "TOTAL")
         echo "Coverage:" ${a##T* }
         
     - name: Sending report
       run: |
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.lcov
+        bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.xml
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
