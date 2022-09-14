@@ -27,11 +27,14 @@ jobs:
         pip install coverage pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Create coverage report
-      - run: |
+      run: |
         coverage run -m pytest
         coverage lcov
         a=$(coverage report | grep "TOTAL")
         echo "Coverage:" ${a##T* }
-      - run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.lcov
+        
+    - name: Sending report
+      run: |
+        bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.lcov
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
