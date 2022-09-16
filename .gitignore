@@ -51,6 +51,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 *.lcov
+bandit.html
 
 # Translations
 *.mo
