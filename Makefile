@@ -9,7 +9,7 @@ PYTHON=""
 
 ifeq ($(OS),Windows_NT)
     NULL=nul
-	RM=FOR /d /r . %d IN (backdrops) DO @IF EXIST "%d" rd /s /q "%d"
+	RM=FOR /d /r . %%d IN ("__pycache__") DO @IF EXIST "%%d" rd /s /q "%%d"
 	CONDA_SCRIPT=call conda.bat
 	CONDA_ACTIVATE=activate ./venv
 	ifeq (,$(shell python3 --version 2>nul))
@@ -38,7 +38,6 @@ test:
 	make clean
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m pytest
-	conda deactivate
 
 coverage:
 	make clean
