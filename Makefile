@@ -2,26 +2,34 @@
 
 .ONESHELL:
 SHELL=/bin/bash
-CONDA_SCRIPT=source $$(conda info --base)/etc/profile.d/conda.sh ;
-CONDA_ACTIVATE=$(CONDA_SCRIPT) conda activate ; conda activate ./venv
+CONDA_SCRIPT=""
+CONDA_ACTIVATE=""
 
 PYTHON=""
 
 ifeq ($(OS),Windows_NT)
+    NULL=nul
+	RM=del /f /q /s
+	CONDA_SCRIPT=call conda.bat
+	CONDA_ACTIVATE=activate ./venv
 	ifeq (,$(shell python3 --version 2>nul))
-    	PYTHON:=python3
+    	PYTHON:=python
 	else
-		PYTHON:=python
+		PYTHON:=python3
 	endif
 else
+	NULL=/dev/null
+	RM=rm -rf
     PYTHON:=python3
+	CONDA_SCRIPT:=source $$(conda info --base)/etc/profile.d/conda.sh ;conda
+	CONDA_ACTIVATE:=$(CONDA_SCRIPT) activate ; conda activate ./venv
 endif
 
 .PHONY: test
 
 init:
 	$(PYTHON) -m pip install --upgrade pip
-	pip install conda
+#pip install conda
 	conda update -n base -c defaults conda
 	conda create -p ./venv python=3.9
 	$(CONDA_ACTIVATE)
@@ -37,9 +45,9 @@ test:
 coverage:
 	make clean
 	$(CONDA_ACTIVATE)
-	$(PYTHON) -m coverage erase >/dev/null
-	$(PYTHON) -m coverage run -m pytest >/dev/null
-	$(PYTHON) -m coverage html --skip-empty >/dev/null
+	$(PYTHON) -m coverage erase >$(NULL)
+	$(PYTHON) -m coverage run -m pytest >$(NULL)
+	$(PYTHON) -m coverage html --skip-empty >$(NULL)
 	$(PYTHON) -m coverage report -m --skip-covered --skip-empty
 	conda deactivate
 
@@ -60,12 +68,11 @@ run:
 	conda deactivate
 
 reset:
-	$(CONDA_SCRIPT) conda env remove -p ./venv
+	$(CONDA_SCRIPT) env remove -p ./venv
 
 clean:
-	rm __pycache__/*
-	rm ./__pycache__/*
-	rm ./*/__pycache__/*
+	$(RM) __pycache__
+#$(RM) ./*/__pycache__ TODO:windaube
 
 help:
 	echo "make <command>"
