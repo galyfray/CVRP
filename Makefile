@@ -9,7 +9,7 @@ PYTHON=""
 
 ifeq ($(OS),Windows_NT)
     NULL=nul
-	RM=del /f /q /s
+	RM=FOR /d /r . %d IN (backdrops) DO @IF EXIST "%d" rd /s /q "%d"
 	CONDA_SCRIPT=call conda.bat
 	CONDA_ACTIVATE=activate ./venv
 	ifeq (,$(shell python3 --version 2>nul))
@@ -19,7 +19,7 @@ ifeq ($(OS),Windows_NT)
 	endif
 else
 	NULL=/dev/null
-	RM=rm -rf
+	RM=rm -rf ./**/__pycache__;rm -rf __pycache__
     PYTHON:=python3
 	CONDA_SCRIPT:=source $$(conda info --base)/etc/profile.d/conda.sh ;conda
 	CONDA_ACTIVATE:=$(CONDA_SCRIPT) activate ; conda activate ./venv
@@ -29,12 +29,10 @@ endif
 
 init:
 	$(PYTHON) -m pip install --upgrade pip
-#pip install conda
 	conda update -n base -c defaults conda
 	conda create -p ./venv python=3.9
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m pip install -r requirements.txt
-	conda deactivate
 
 test:
 	make clean
@@ -49,30 +47,25 @@ coverage:
 	$(PYTHON) -m coverage run -m pytest >$(NULL)
 	$(PYTHON) -m coverage html --skip-empty >$(NULL)
 	$(PYTHON) -m coverage report -m --skip-covered --skip-empty
-	conda deactivate
 
 update:
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m pip install -r requirements.txt
-	conda deactivate
 
 export:
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m pip freeze | grep -v "@ file" >requirements.txt;
-	conda deactivate
 
 run:
 	make clean
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m main.py
-	conda deactivate
 
 reset:
 	$(CONDA_SCRIPT) env remove -p ./venv
 
 clean:
-	$(RM) __pycache__
-#$(RM) ./*/__pycache__ TODO:windaube
+	$(RM)
 
 help:
 	echo "make <command>"
