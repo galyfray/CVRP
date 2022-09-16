@@ -4,6 +4,7 @@
 SHELL=/bin/bash
 CONDA_SCRIPT=source $$(conda info --base)/etc/profile.d/conda.sh ;
 CONDA_ACTIVATE=$(CONDA_SCRIPT) conda activate ; conda activate ./venv
+.PHONY: test
 
 init:
 	python3 -m pip install --upgrade pip
