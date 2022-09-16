@@ -4,46 +4,59 @@
 SHELL=/bin/bash
 CONDA_SCRIPT=source $$(conda info --base)/etc/profile.d/conda.sh ;
 CONDA_ACTIVATE=$(CONDA_SCRIPT) conda activate ; conda activate ./venv
+
+PYTHON=""
+
+ifeq ($(OS),Windows_NT)
+	ifeq (,$(shell python3 --version 2>nul))
+    	PYTHON:=python3
+	else
+		PYTHON:=python
+	endif
+else
+    PYTHON:=python3
+endif
+
 .PHONY: test
 
 init:
-	python3 -m pip install --upgrade pip
+	$(PYTHON) -m pip install --upgrade pip
 	pip install conda
 	conda update -n base -c defaults conda
 	conda create -p ./venv python=3.9
 	$(CONDA_ACTIVATE)
-	python3 -m pip install -r requirements.txt
+	$(PYTHON) -m pip install -r requirements.txt
 	conda deactivate
 
 test:
 	make clean
 	$(CONDA_ACTIVATE)
-	python3 -m pytest
+	$(PYTHON) -m pytest
 	conda deactivate
 
 coverage:
 	make clean
 	$(CONDA_ACTIVATE)
-	python3 -m coverage erase >/dev/null
-	python3 -m coverage run -m pytest >/dev/null
-	python3 -m coverage html --skip-empty >/dev/null
-	python3 -m coverage report -m --skip-covered --skip-empty
+	$(PYTHON) -m coverage erase >/dev/null
+	$(PYTHON) -m coverage run -m pytest >/dev/null
+	$(PYTHON) -m coverage html --skip-empty >/dev/null
+	$(PYTHON) -m coverage report -m --skip-covered --skip-empty
 	conda deactivate
 
 update:
 	$(CONDA_ACTIVATE)
-	python3 -m pip install -r requirements.txt
+	$(PYTHON) -m pip install -r requirements.txt
 	conda deactivate
 
 export:
 	$(CONDA_ACTIVATE)
-	python3 -m pip freeze | grep -v "@ file" >requirements.txt;
+	$(PYTHON) -m pip freeze | grep -v "@ file" >requirements.txt;
 	conda deactivate
 
 run:
 	make clean
 	$(CONDA_ACTIVATE)
-	python3 -m main.py
+	$(PYTHON) -m main.py
 	conda deactivate
 
 reset:
