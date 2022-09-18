@@ -53,6 +53,7 @@ coverage.xml
 *.lcov
 bandit.html
 pylint.txt
+flake8.tkt
 
 # Translations
 *.mo

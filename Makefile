@@ -70,6 +70,7 @@ lint:
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m bandit -r -f html -o bandit.html .
 	$(PYTHON) -m pylint ./**/*.py >pylint.txt
+	$(PYTHON) -m flake8 . --output-file=flake8.txt
 
 
 help:
@@ -83,3 +84,4 @@ help:
 	echo "coverage| create a coverage report. A brief version will showed in the console a nicer and more compleate one can be found at htmlcov/index.html"
 	echo "run     | run the main.py script"
 	echo "clean   | empty all pycaches"
+	echo "lint    | will run bandit, pylint and flake8 accros the whole project. Outputs are bandit.html, pylint.txt, flake8.txt"
