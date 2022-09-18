@@ -66,6 +66,12 @@ reset:
 clean:
 	$(RM)
 
+lint:
+	$(CONDA_ACTIVATE)
+	$(PYTHON) -m bandit -r -f html -o bandit.html .
+	$(PYTHON) -m pylint ./**/*.py >pylint.txt
+
+
 help:
 	echo "make <command>"
 	echo "make available commads :"
