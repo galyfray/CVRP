@@ -54,6 +54,7 @@ coverage.xml
 bandit.html
 pylint.txt
 flake8.tkt
+pydocstyle.txt
 
 # Translations
 *.mo

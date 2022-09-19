@@ -71,17 +71,19 @@ lint:
 	$(PYTHON) -m bandit -r -f html -o bandit.html .
 	$(PYTHON) -m pylint --exit-zero cvrp test >pylint.txt
 	$(PYTHON) -m flake8 . --output-file=flake8.txt
+	$(PYTHON) -m pydocstyle . -e -s > pydocstyle.txt || exit 0
+	
 
 
 help:
-	echo "make <command>"
-	echo "make available commads :"
-	echo "init    | install conda, create a virtual environment and install all require depencies"
-	echo "reset   | delete the current venv"
-	echo "update  | update the venv to make sure it contains all the latest required depencies"
-	echo "export  | export the curent state of the venv to share new required depencies. make sure your venv is clean before doing that"
-	echo "test    | run all tests"
-	echo "coverage| create a coverage report. A brief version will showed in the console a nicer and more compleate one can be found at htmlcov/index.html"
-	echo "run     | run the main.py script"
-	echo "clean   | empty all pycaches"
-	echo "lint    | will run bandit, pylint and flake8 accros the whole project. Outputs are bandit.html, pylint.txt, flake8.txt"
+	echo "make <command>" &&
+	echo "make available commads :" && 
+	echo "init    | install conda, create a virtual environment and install all require depencies" &&
+	echo "reset   | delete the current venv" &&
+	echo "update  | update the venv to make sure it contains all the latest required depencies" && 
+	echo "export  | export the curent state of the venv to share new required depencies. make sure your venv is clean before doing that" &&
+	echo "test    | run all tests" &&
+	echo "coverage| create a coverage report. A brief version will showed in the console a nicer and more compleate one can be found at htmlcov/index.html" &&
+	echo "run     | run the main.py script" &&
+	echo "clean   | empty all pycaches" &&
+	echo "lint    | will run bandit, pydocstyle, pylint and flake8 accros the whole project. Outputs are bandit.html, pydocstyle.txt, pylint.txt, flake8.txt"
