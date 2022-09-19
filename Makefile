@@ -69,7 +69,7 @@ clean:
 lint:
 	$(CONDA_ACTIVATE)
 	$(PYTHON) -m bandit -r -f html -o bandit.html .
-	$(PYTHON) -m pylint ./**/*.py >pylint.txt
+	$(PYTHON) -m pylint --exit-zero ./**/*.py >pylint.txt
 	$(PYTHON) -m flake8 . --output-file=flake8.txt
 
 
