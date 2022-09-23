@@ -12,17 +12,17 @@ ifeq ($(OS),Windows_NT)
 	RM=FOR /d /r . %%d IN ("__pycache__") DO @IF EXIST "%%d" rd /s /q "%%d"
 	CONDA_SCRIPT=call conda.bat
 	CONDA_ACTIVATE=activate ./venv
-	GREP=findstr /v ERROR
 	ifeq (,$(shell python3 --version 2>nul))
     	PYTHON:=python
 	else
 		PYTHON:=python3
 	endif
+	CMD_EXPORT=$(PYTHON) -m pip freeze >requirements.txt; findstr /v "@ file" requirements.txt >requirements.txt;del requirement.txt
 else
 	NULL=/dev/null
-	GREP=grep -v "@ file"
 	RM=rm -rf ./**/__pycache__;rm -rf __pycache__
-    PYTHON:=python3
+        PYTHON:=python3
+	CMD_EXPORT= $$(PYTHON) -m pip freeze | grep -v "@ file" >requirements.txt;
 	CONDA_SCRIPT:=source $$(conda info --base)/etc/profile.d/conda.sh ;conda
 	CONDA_ACTIVATE:=$(CONDA_SCRIPT) activate ; conda activate ./venv
 endif
@@ -55,7 +55,7 @@ update:
 
 export:
 	$(CONDA_ACTIVATE)
-	$(PYTHON) -m pip freeze | $(GREP) >requirements.txt;
+	$(CMD_EXPORT)
 
 run:
 	make clean
