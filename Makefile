@@ -17,7 +17,7 @@ ifeq ($(OS),Windows_NT)
 	else
 		PYTHON:=python3
 	endif
-	CMD_EXPORT=$(PYTHON) -m pip freeze >requirements.txt; findstr /v "@ file" requirements.txt >requirements.txt;del requirement.txt
+	CMD_EXPORT=$(PYTHON) -m pip freeze >requirement.txt; findstr /v "@ file" requirement.txt >requirements.txt;del .\requirement.txt
 else
 	NULL=/dev/null
 	RM=rm -rf ./**/__pycache__;rm -rf __pycache__
