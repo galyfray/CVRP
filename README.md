@@ -16,3 +16,11 @@ Made by :
 <a href=https://github.com/galyfray>Cyril Obrecht</a>,
 <a href=https://github.com/m-aspro>Marie Aspro</a>,
 <a href=https://github.com/nexowo>Jean Maccou</a>
+
+# Developement environment. 
+
+In order to setup the developpement environment you will first need to install anaconda (conda not miniconda. Installing through pip won't work) and make. For windows user make sure that the make executable is in your path.
+
+Windows user will be needed to use the conda powershell prompt for the following command to work.
+
+Then run `make init` to initialize the virtual environment and `make run` to start the program. Refer to `make help` for a complete and up to date list of the commands.

@@ -51,6 +51,10 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 *.lcov
+bandit.html
+pylint.txt
+flake8.tkt
+pydocstyle.txt
 
 # Translations
 *.mo
