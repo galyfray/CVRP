@@ -152,6 +152,7 @@ disable=raw-checker-failed,
         suppressed-message,
         deprecated-pragma,
         use-symbolic-message-instead,
+        unknown-option-value,
         django-not-configured
 
 # Enable the message, report, category or checker with the given id(s). You can
