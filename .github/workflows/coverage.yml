@@ -2,7 +2,7 @@ name: Report Coverage
 
 on:
   push:
-    branches: [ "master","structUpdate" ]
+    branches: [ "master" ]
 
 permissions:
   contents: read
