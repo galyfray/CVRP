@@ -42,8 +42,9 @@ jobs:
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
     - name: Create TS coverage report 
-    - run: npm ci
-    - run: npm run coverage-ci
+      run: | 
+        npm ci
+        npm run coverage-ci
     - name: Sending TS report
       run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage/lcov.info --partial
       env:
