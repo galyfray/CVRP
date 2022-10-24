@@ -64,6 +64,7 @@ wexport:
 	findstr /v "@ file" requirement.txt >requirements.txt
 	del .\requirement.txt
 
+# TODO: re create the make run command
 run:
 	make clean
 	$(PY_CONDA) -m main.py
@@ -76,7 +77,7 @@ clean:
 
 lint:
 	$(PY_CONDA) -m bandit -c ./bandit.yaml -r -f html -o bandit.html .
-	$(PY_CONDA) -m pylint --exit-zero cvrp test >pylint.txt
+	$(PY_CONDA) -m pylint --exit-zero src/cvrp src/server test/ >pylint.txt
 	$(PY_CONDA) -m flake8 . --output-file=flake8.txt
 	$(PY_CONDA) -m pydocstyle . -e -s > pydocstyle.txt || exit 0
 	
