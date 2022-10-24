@@ -4,3 +4,4 @@ exclude =
     __pycache__,
     venv,
     src/web_app
+max-line-length = 120
