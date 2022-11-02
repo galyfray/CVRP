@@ -19,20 +19,40 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-    - name: Install dependencies
+    - name: Set up node 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: 'npm'
+        cache-dependency-path: 'src/web_app/package-lock.json' 
+    - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install coverage pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Create coverage report
+    - name: Create python coverage report
       run: |
         coverage run -m pytest
         coverage xml
         a=$(coverage report | grep "TOTAL")
         echo "Coverage:" ${a##T* }
         
-    - name: Sending report
+    - name: Sending python report
       run: |
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.xml
+        bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage.xml --partial
+      env:
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+    - name: Create TS coverage report 
+      working-directory: ./src/web_app
+      run: | 
+        npm ci
+        npm run coverage-ci
+    - name: Sending TS report
+      working-directory: ./src/web_app
+      run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report --project-token $CODACY_PROJECT_TOKEN -r coverage/lcov.info --partial
+      env:
+        CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+    - name : Closing reports
+      run: bash <(curl -Ls https://coverage.codacy.com/get.sh) final --project-token $CODACY_PROJECT_TOKEN
       env:
         CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}

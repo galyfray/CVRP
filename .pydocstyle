@@ -1,2 +1,2 @@
 [pydocstyle]
-match-dir=cvrp
+match-dir=src/cvrp, src/server
