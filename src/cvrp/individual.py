@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" This module holds the abstract class Individual.
+""" This module holds the abstract class Individual and the ConstraintValidator interface
 This class represent a generic individual that is deseigned to be used
 with our current genetic algorithm implementation
 
@@ -33,6 +33,17 @@ from typing import TypeVar, Generic
 TypeIndividual = TypeVar("TypeIndividual", bound="Individual")
 
 
+# According to the class diagram aprooved by the team this is normal.
+# pylint: disable=too-few-public-methods
+class ConstraintValidator(ABC, Generic[TypeIndividual]):
+    """ Interface providing a standard methods to check if an Individual holds a valid solution
+    """
+
+    @abstractmethod
+    def is_valid(self, individual: TypeIndividual) -> bool:
+        pass
+
+
 class Individual(Generic[TypeIndividual], ABC):
     """
     Abstract class handling the concept of individual in our implementation of a Genetic algorithm
@@ -62,7 +73,3 @@ class Individual(Generic[TypeIndividual], ABC):
     @abstractmethod
     def __copy__(self) -> TypeIndividual:
         pass
-
-
-# pylint: disable=wrong-import-position
-from .constraint_validator import ConstraintValidator  # noqa: E402
