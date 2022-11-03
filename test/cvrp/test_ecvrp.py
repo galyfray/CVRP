@@ -33,14 +33,18 @@ from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 
 test_instance = ECVRPInstance(
     [
-        [0, 1, 2],
-        [3, 0, 1],
-        [1, 2, 0]
+        [0, 1, 2, 2, 2],
+        [3, 0, 1, 3, 2],
+        [1, 2, 0, 2, 1],
+        [3, 1, 1, 0, 1],
+        [1, 3, 2, 2, 0]
     ],
     0,
     {1},
     {
-        2: 5
+        2: 5,
+        3: 4,
+        4: 6
     }
 )
 
@@ -77,6 +81,11 @@ def test_road_content():
         roads = [r.get_points() for r in instance.get_roads()]
         for i, road in enumerate(expected["roads"]):
             assert road == roads[i]
+
+
+def test_fitness():
+    instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance)
+    assert instance.get_fitness() == 8
 
 
 def test_d_matrix():

@@ -73,7 +73,22 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return roads
 
     def get_fitness(self) -> float:
-        pass
+        """ Compute the fitness of the solution held in this individual
+            The fitness is here defined as the maximum amount
+            of time taken by an EV to travel a road.
+            The time taken to go from the town A to B is equals to the distance between those towns
+        """
+        latest = self._solution[0]
+        max_time = 0
+        current = 0
+        for i in self._solution:
+            current += self.get_instance().get_distance(latest, i)
+            if self.get_instance().is_depot(i):
+                if max_time < current:
+                    max_time = current
+                current = 0
+            latest = i
+        return max_time
 
     def mutate(self) -> None:
         """ Mutate the current individual according to its internal rules.
