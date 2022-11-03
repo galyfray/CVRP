@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """ This module holds the abstract class Individual and the ConstraintValidator interface
-This class represent a generic individual that is deseigned to be used
-with our current genetic algorithm implementation
+The Individual class represent a generic individual that is deseigned to be used
+with our current genetic algorithm implementation. Constraint Validators offer a generic,
+and modulable way to check if an individual holds a valid solution.
 
 @author: Cyril Obrecht
 @license: GPL-3
@@ -41,7 +42,9 @@ class ConstraintValidator(ABC, Generic[TypeIndividual]):
 
     @abstractmethod
     def is_valid(self, individual: TypeIndividual) -> bool:
-        pass
+        """
+            Check the validity of an individual according to the rules this instance implement
+        """
 
 
 class Individual(Generic[TypeIndividual], ABC):
@@ -55,8 +58,10 @@ class Individual(Generic[TypeIndividual], ABC):
 
     @abstractmethod
     def get_fitness(self) -> float:
-        pass
+        """ Return the fitness of the individual.
+        """
 
+    @abstractmethod
     def mutate(self) -> None:
         """ Mutate the current individual according to its internal rules.
             This changement is done in place.
@@ -72,4 +77,5 @@ class Individual(Generic[TypeIndividual], ABC):
 
     @abstractmethod
     def __copy__(self) -> TypeIndividual:
-        pass
+        """ Produce a copy of the individual.
+        """
