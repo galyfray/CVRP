@@ -28,7 +28,10 @@ This module holds tests for the cvrp.constraint_validators module.
 
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
-from src.cvrp.constraints_validators import CapacityValidator,VehiculeCountValidator
+from src.cvrp.constraints_validators import \
+    CapacityValidator,\
+    VehiculeCountValidator,\
+    TownUnicityValidator
 
 test_instance = ECVRPInstance(
     [
@@ -70,3 +73,16 @@ def test_vehicule_count():
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 0], test_instance))
+
+
+def test_town_unicity():
+    """ Test if the vehicule count validator works
+    """
+    validator = TownUnicityValidator()
+
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0], test_instance))
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 0], test_instance))
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 1, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 4, 1, 0, 0, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 4, 0], test_instance))

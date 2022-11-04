@@ -53,3 +53,21 @@ class CapacityValidator(ConstraintValidator[ECVRPSolution]):
 class VehiculeCountValidator(ConstraintValidator[ECVRPSolution]):
     def is_valid(self, individual: ECVRPSolution) -> bool:
         return len(individual.get_roads()) <= individual.get_instance().get_ev_count()
+
+
+# pylint: disable=too-few-public-methods
+class TownUnicityValidator(ConstraintValidator[ECVRPSolution]):
+    """ Class in charge of checking if each town is only present once in the road.
+        This validator has a terrible complexity and is not intended to be used during the GA.
+        It is intended to be used to check if the first generation is valid,
+        the following generation should be build valdid according to this class.
+    """
+    def is_valid(self, individual: ECVRPSolution) -> bool:
+        instance = individual.get_instance()
+        visited = set()
+        for road in individual.get_roads():
+            for i in road:
+                if not (instance.is_charger(i) or instance.is_depot(i)) and i in visited:
+                    return False
+                visited.add(i)
+        return True
