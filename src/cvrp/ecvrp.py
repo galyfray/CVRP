@@ -44,6 +44,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         super().__init__(validators)
         self._solution = solution
         self.__instance = instance
+        self._roads = None
+        self._fitness = None
 
     def get_instance(self) -> "ECVRPInstance":
         return self.__instance
@@ -51,10 +53,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_points(self) -> tuple[int]:
         return tuple(self._solution)
 
-    def get_roads(self) -> list["ECVRPSolution.__Road"]:
+    def get_roads(self) -> tuple[tuple[int]]:
         """ Split the solution in individual roads that can be manipulated
             without altering the main object.
         """
+        if self._roads is not None:
+            return self._roads
+
         i = 0
         roads = []
         while i < len(self._solution) - 1:
@@ -66,11 +71,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 i += 1
 
             current.append(current[0])
-            roads.append(ECVRPSolution.__Road(
-                (0, 0),
-                current
-            ))
-        return roads
+            roads.append(tuple(current))
+        self._roads = tuple(roads)
+        return self._roads
 
     def get_fitness(self) -> float:
         """ Compute the fitness of the solution held in this individual
@@ -78,17 +81,24 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             of time taken by an EV to travel a road.
             The time taken to go from the town A to B is equals to the distance between those towns
         """
-        latest = self._solution[0]
+        if self._fitness is not None:
+            return self._fitness
         max_time = 0
         current = 0
-        for i in self._solution:
-            current += self.get_instance().get_distance(latest, i)
-            if self.get_instance().is_depot(i):
-                if max_time < current:
-                    max_time = current
-                current = 0
+        for road in self.get_roads():
+            current = self._compute_road_fitness(road)
+            if current > max_time:
+                max_time = current
+        self._fitness = max_time
+        return self._fitness
+
+    def _compute_road_fitness(self, road: tuple[int]) -> float:
+        road_time = 0
+        latest = road[0]
+        for i in road:
+            road_time += self.get_instance().get_distance(latest, i)
             latest = i
-        return max_time
+        return road_time
 
     def mutate(self) -> None:
         """ Mutate the current individual according to its internal rules.
@@ -108,23 +118,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def __copy__(self) -> TypeIndividual:
         pass
 
-    # Private class name's aren't considered as valid class names by pylint.
-    # pylint: disable=invalid-name
-    class __Road:
-        """ This class represent a road. A road is the path used by a vehicule in a solution.
-            each road starts and stops at the depot.
-        """
-
-        def __init__(self, electric_vehicule: tuple[float, float], points: list[int]) -> None:
-            self.__ev = electric_vehicule
-            self.__points = points
-
-        def get_ev(self) -> tuple[float, float]:
-            return tuple(self.__ev)
-
-        def get_points(self) -> tuple[float]:
-            return tuple(self.__points)
-
 
 class ECVRPInstance:
     """
@@ -135,12 +128,22 @@ class ECVRPInstance:
             distance_matrix: list[list[float]],
             depot_id: int,
             chargers: set[int],
-            demands: dict[int, int]
+            demands: dict[int, int],
+            batterie_cost_factor: float,
+            batterie_charge_rate: float,
+            ev_count: int,
+            ev_capacity: float,
+            ev_battery: float
             ) -> None:
         self.__d_matrix = distance_matrix
         self.__depot = depot_id
         self.__chargers = chargers
         self.__demands = demands
+        self.__bat_cost = batterie_cost_factor
+        self.__bat_charge = batterie_charge_rate
+        self.__ev_count = ev_count
+        self.__ev_battery = ev_battery
+        self.__ev_capacity = ev_capacity
 
     def is_depot(self, index: int) -> bool:
         return index == self.__depot
@@ -148,8 +151,23 @@ class ECVRPInstance:
     def get_distance(self, start: int, end: int) -> float:
         return self.__d_matrix[start][end]
 
-    def is_charger(self, index: int) -> float:
+    def is_charger(self, index: int) -> bool:
         return index in self.__chargers
 
     def get_demand(self, index: int) -> int:
         return self.__demands[index]
+
+    def get_batterie_consuption(self, start: int, end: int) -> int:
+        return self.get_distance(start, end) * self.__bat_cost
+
+    def get_batterie_charging_rate(self) -> float:
+        return self.__bat_charge
+
+    def get_ev_count(self) -> float:
+        return self.__ev_count
+
+    def get_ev_capacity(self) -> float:
+        return self.__ev_capacity
+
+    def get_ev_battery(self) -> float:
+        return self.__ev_battery

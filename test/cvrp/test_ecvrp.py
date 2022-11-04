@@ -45,7 +45,12 @@ test_instance = ECVRPInstance(
         2: 5,
         3: 4,
         4: 6
-    }
+    },
+    1,
+    3,
+    3,
+    10,
+    10
 )
 
 
@@ -78,14 +83,22 @@ def test_road_content():
 
     for expected in roads_expected:
         instance = ECVRPSolution([], expected["source"], test_instance)
-        roads = [r.get_points() for r in instance.get_roads()]
+        roads = instance.get_roads()
         for i, road in enumerate(expected["roads"]):
             assert road == roads[i]
 
 
 def test_fitness():
+    """ Test if the fitness computation is good
+    """
     instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance)
     assert instance.get_fitness() == 8
+
+    instance = ECVRPSolution([], [0, 2, 3, 4, 1, 0], test_instance)
+    assert instance.get_fitness() == 11
+
+    instance = ECVRPSolution([], [0, 4, 3, 0, 2, 1, 0], test_instance)
+    assert instance.get_fitness() == 7
 
 
 def test_d_matrix():
