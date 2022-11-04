@@ -28,7 +28,7 @@ This module holds tests for the cvrp.constraint_validators module.
 
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
-from src.cvrp.constraints_validators import CapacityValidator
+from src.cvrp.constraints_validators import CapacityValidator,VehiculeCountValidator
 
 test_instance = ECVRPInstance(
     [
@@ -54,9 +54,19 @@ test_instance = ECVRPInstance(
 
 
 def test_battery_validator():
-    """ Test id the battery validator works
+    """ Test if the battery validator works
     """
     validator = CapacityValidator()
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
 
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 4, 0, 1, 0], test_instance))
+
+
+def test_vehicule_count():
+    """ Test if the vehicule count validator works
+    """
+    validator = VehiculeCountValidator()
+
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 0], test_instance))

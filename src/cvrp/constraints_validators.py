@@ -47,3 +47,9 @@ class CapacityValidator(ConstraintValidator[ECVRPSolution]):
                     battery = instance.get_ev_battery()
                 latest = i
         return True
+
+
+# pylint: disable=too-few-public-methods
+class VehiculeCountValidator(ConstraintValidator[ECVRPSolution]):
+    def is_valid(self, individual: ECVRPSolution) -> bool:
+        return len(individual.get_roads()) <= individual.get_instance().get_ev_count()
