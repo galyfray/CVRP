@@ -113,10 +113,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
 
     def is_valid(self) -> bool:
-        return True
+        return len([v for v in self._validators if not v.is_valid(self)]) == 0
 
     def __copy__(self) -> TypeIndividual:
-        pass
+        copy = ECVRPSolution(list(self._validators), list(self._solution), self.__instance)
+        copy._fitness = self._fitness
+        copy._roads = self._roads
+        return copy
 
 
 class ECVRPInstance:

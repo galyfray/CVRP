@@ -26,10 +26,14 @@ This module holds tests for the cvrp.ecvrp module.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from copy import copy
 import pytest
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
-
+from src.cvrp.constraints_validators import\
+    VehiculeCountValidator,\
+    TownUnicityValidator,\
+    CapacityValidator
 
 test_instance = ECVRPInstance(
     [
@@ -104,6 +108,78 @@ def test_fitness():
 
     instance = ECVRPSolution([], [0, 4, 3, 0, 2, 1, 0], test_instance)
     assert instance.get_fitness() == 7
+
+
+def test_is_valid():
+    """ test if the is_valid method works as expected
+    """
+    town = TownUnicityValidator()
+    capacity = CapacityValidator()
+    count = VehiculeCountValidator()
+
+    assert ECVRPSolution(
+        [town],
+        [0, 4, 3, 0, 2, 1, 0],
+        test_instance
+    ).is_valid()
+    assert ECVRPSolution(
+        [town, capacity],
+        [0, 4, 3, 0, 2, 1, 0],
+        test_instance
+    ).is_valid()
+    assert ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 0, 2, 1, 0],
+        test_instance
+    ).is_valid()
+
+    assert not ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 0, 2, 1, 2, 0],
+        test_instance
+    ).is_valid()
+
+    assert not ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 1, 2, 0],
+        test_instance
+    ).is_valid()
+
+    assert not ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 0, 2, 1, 0, 0, 0],
+        test_instance
+    ).is_valid()
+
+
+def test_copy():
+    """ Test if the copy keyword works as expected
+    """
+    town = TownUnicityValidator()
+    capacity = CapacityValidator()
+    count = VehiculeCountValidator()
+    instance_1 = ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 0, 2, 1, 0],
+        test_instance
+    )
+    instance_2 = ECVRPSolution(
+        [town, capacity, count],
+        [0, 4, 3, 1, 2, 0],
+        test_instance
+    )
+
+    instance_1_copy = copy(instance_1)
+    instance_2_copy = copy(instance_2)
+
+    assert instance_1.get_fitness() == instance_1_copy.get_fitness()
+    assert instance_1.is_valid() == instance_1_copy.is_valid()
+
+    assert instance_2.get_fitness() == instance_2_copy.get_fitness()
+    assert instance_2.is_valid() == instance_2_copy.is_valid()
+
+    assert copy(instance_1_copy).get_fitness() == instance_1_copy.get_fitness()
+    assert copy(instance_1_copy).is_valid() == instance_1_copy.is_valid()
 
 
 def test_d_matrix():
