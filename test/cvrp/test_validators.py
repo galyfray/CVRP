@@ -25,11 +25,12 @@ This module holds tests for the cvrp.constraint_validators module.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
 
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 from src.cvrp.constraints_validators import \
-    CapacityValidator,\
+    BatteryTWValidator,\
     VehiculeCountValidator,\
     TownUnicityValidator
 
@@ -52,17 +53,32 @@ test_instance = ECVRPInstance(
     3,
     3,
     10,
-    10
+    10,
+    {
+        2: (0, math.inf),
+        3: (0, math.inf),
+        4: (5, 7)
+    }
 )
 
 
 def test_battery_validator():
-    """ Test if the battery validator works
+    """ Test if the battery validatation works
     """
-    validator = CapacityValidator()
-    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
+    validator = BatteryTWValidator()
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0], test_instance))
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 2, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 4, 2, 3, 2, 3, 0, 1, 0], test_instance))
 
-    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 4, 0, 1, 0], test_instance))
+
+def test_time_windows():
+    """ Test if the time window validation works
+    """
+    validator = BatteryTWValidator()
+
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 1, 4, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 1, 2, 1, 4, 0], test_instance))
 
 
 def test_vehicule_count():

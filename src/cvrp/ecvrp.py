@@ -133,7 +133,8 @@ class ECVRPInstance:
             batterie_charge_rate: float,
             ev_count: int,
             ev_capacity: float,
-            ev_battery: float
+            ev_battery: float,
+            time_windows: dict[int, tuple[float, float]]
             ) -> None:
         self.__d_matrix = distance_matrix
         self.__depot = depot_id
@@ -144,11 +145,15 @@ class ECVRPInstance:
         self.__ev_count = ev_count
         self.__ev_battery = ev_battery
         self.__ev_capacity = ev_capacity
+        self.__time_windows = time_windows
 
     def is_depot(self, index: int) -> bool:
         return index == self.__depot
 
     def get_distance(self, start: int, end: int) -> float:
+        return self.__d_matrix[start][end]
+
+    def get_time_used(self, start: int, end: int) -> float:
         return self.__d_matrix[start][end]
 
     def is_charger(self, index: int) -> bool:
@@ -171,3 +176,6 @@ class ECVRPInstance:
 
     def get_ev_battery(self) -> float:
         return self.__ev_battery
+
+    def get_tw(self, index: int):
+        return self.__time_windows[index]

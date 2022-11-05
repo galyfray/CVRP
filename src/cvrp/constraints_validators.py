@@ -31,7 +31,7 @@ from .ecvrp import ECVRPSolution
 
 
 # pylint: disable=too-few-public-methods
-class CapacityValidator(ConstraintValidator[ECVRPSolution]):
+class BatteryTWValidator(ConstraintValidator[ECVRPSolution]):
     """ Class in charge of checking the battery capacity is never exeded
     """
     def is_valid(self, individual: ECVRPSolution) -> bool:
@@ -39,12 +39,25 @@ class CapacityValidator(ConstraintValidator[ECVRPSolution]):
         for road in individual.get_roads():
             latest = road[0]
             battery = instance.get_ev_battery()
+            time = 0
             for i in road:
                 battery -= instance.get_batterie_consuption(latest, i)
                 if battery < 0:
                     return False
+
+                time += instance.get_time_used(latest, i)
+
                 if instance.is_charger(i):
+                    time += instance.get_batterie_charging_rate() * \
+                        (instance.get_ev_battery() - battery)
                     battery = instance.get_ev_battery()
+
+                elif not instance.is_depot(i):
+                    time_w = instance.get_tw(i)
+                    if time > time_w[1]:
+                        return False
+                    time = max(time, time_w[0])
+
                 latest = i
         return True
 

@@ -50,7 +50,12 @@ test_instance = ECVRPInstance(
     3,
     3,
     10,
-    10
+    10,
+    {
+        2: (),
+        3: (),
+        4: ()
+    }
 )
 
 
