@@ -103,6 +103,7 @@ def test_town_unicity():
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 1, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 4, 1, 0, 0, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 4, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 1, 0, 0, 1, 0], test_instance))
 
 
 def test_capacity():

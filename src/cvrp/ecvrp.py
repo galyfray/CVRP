@@ -177,5 +177,10 @@ class ECVRPInstance:
     def get_ev_battery(self) -> float:
         return self.__ev_battery
 
-    def get_tw(self, index: int):
+    def get_tw(self, index: int) -> tuple[float, float]:
         return self.__time_windows[index]
+
+    def get_towns(self) -> list[int]:
+        return [
+            i for i in range(len(self.__d_matrix)) if not (self.is_depot(i) or self.is_charger(i))
+        ]
