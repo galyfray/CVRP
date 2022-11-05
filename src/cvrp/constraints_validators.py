@@ -84,3 +84,18 @@ class TownUnicityValidator(ConstraintValidator[ECVRPSolution]):
                     return False
                 visited.add(i)
         return True
+
+
+class CapacityValidator(ConstraintValidator[ECVRPSolution]):
+    """ Class in charge of checking if the cargo capacity of the EVs is not exceeded
+    """
+    def is_valid(self, individual: ECVRPSolution) -> bool:
+        instance = individual.get_instance()
+        for road in individual.get_roads():
+            capacity = instance.get_ev_capacity()
+            for i in road:
+                if not (instance.is_charger(i) or instance.is_depot(i)):
+                    capacity -= instance.get_demand(i)
+                    if capacity < 0:
+                        return False
+        return True

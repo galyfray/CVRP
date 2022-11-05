@@ -32,7 +32,8 @@ from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 from src.cvrp.constraints_validators import \
     BatteryTWValidator,\
     VehiculeCountValidator,\
-    TownUnicityValidator
+    TownUnicityValidator,\
+    CapacityValidator
 
 test_instance = ECVRPInstance(
     [
@@ -102,3 +103,11 @@ def test_town_unicity():
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 1, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 4, 1, 0, 0, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0, 0, 4, 0], test_instance))
+
+
+def test_capacity():
+    """ Test if the vehicule capacity validator works
+    """
+    validator = CapacityValidator()
+    assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 0], test_instance))
+    assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 4, 0], test_instance))
