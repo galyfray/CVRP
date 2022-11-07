@@ -39,7 +39,7 @@ class BatteryTWValidator(ConstraintValidator[ECVRPSolution]):
         for road in individual.get_roads():
             latest = road[0]
             battery = instance.get_ev_battery()
-            time = 0
+            time = 0.
             for i in road:
                 battery -= instance.get_batterie_consuption(latest, i)
                 if battery < 0:

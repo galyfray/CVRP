@@ -50,10 +50,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_instance(self) -> "ECVRPInstance":
         return self.__instance
 
-    def get_points(self) -> tuple[int]:
+    def get_points(self) -> tuple[int, ...]:
         return tuple(self._solution)
 
-    def get_roads(self) -> tuple[tuple[int]]:
+    def get_roads(self) -> tuple[tuple[int, ...], ...]:
         """ Split the solution in individual roads that can be manipulated
             without altering the main object.
         """
@@ -83,8 +83,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         if self._fitness is not None:
             return self._fitness
-        max_time = 0
-        current = 0
+        max_time = 0.
+        current = 0.
         for road in self.get_roads():
             current = self._compute_road_fitness(road)
             if current > max_time:
@@ -93,7 +93,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return self._fitness
 
     def _compute_road_fitness(self, road: tuple[int]) -> float:
-        road_time = 0
+        road_time = 0.
         latest = road[0]
         for i in road:
             road_time += self.get_instance().get_distance(latest, i)
@@ -166,7 +166,7 @@ class ECVRPInstance:
         return self.__demands[index]
 
     def get_batterie_consuption(self, start: int, end: int) -> int:
-        return self.get_distance(start, end) * self.__bat_cost
+        return round(self.get_distance(start, end) * self.__bat_cost)
 
     def get_batterie_charging_rate(self) -> float:
         return self.__bat_charge
