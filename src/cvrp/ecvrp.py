@@ -39,6 +39,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
     _roads: Union[tuple[tuple[int, ...], ...], None]
     _fitness: Union[float, None]
+    _solution: list[int]
+    __instance: "ECVRPInstance"
 
     def __init__(
             self,
@@ -89,7 +91,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         if self._fitness is not None:
             return self._fitness
         max_time = 0.
-        current = 0.
         for road in self.get_roads():
             current = self._compute_road_fitness(road)
             if current > max_time:
@@ -120,7 +121,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def is_valid(self) -> bool:
         return len([v for v in self._validators if not v.is_valid(self)]) == 0
 
-    def __copy__(self) -> TypeIndividual:
+    def __copy__(self) -> "ECVRPSolution":
         copy = ECVRPSolution(list(self._validators), list(self._solution), self.__instance)
         copy._fitness = self._fitness
         copy._roads = self._roads
@@ -131,6 +132,18 @@ class ECVRPInstance:
     """
         holding class for most of the information that describe an instance of the ECVRP problem
     """
+
+    __d_matrix: list[list[float]]
+    __depot: int
+    __chargers: set[int]
+    __demands: dict[int, int]
+    __bat_cost: float
+    __bat_charge: float
+    __ev_count: int
+    __ev_battery: float
+    __ev_capacity: float
+    __time_windows: dict[int, tuple[float, float]]
+
     def __init__(
             self,
             distance_matrix: list[list[float]],
