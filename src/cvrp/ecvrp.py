@@ -26,6 +26,8 @@ the genetic algorithm applyed to the ECVRP problem.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from typing import Union
 from .individual import Individual, TypeIndividual, ConstraintValidator
 
 
@@ -34,6 +36,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         Mutations is either done via 2-opt or a special algorithm.
         See the mutate method for more information on this subject
     """
+
+    _roads: Union[tuple[tuple[int, ...], ...], None]
+    _fitness: Union[float, None]
 
     def __init__(
             self,

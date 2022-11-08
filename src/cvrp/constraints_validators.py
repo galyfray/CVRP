@@ -32,7 +32,9 @@ from .ecvrp import ECVRPSolution
 
 # pylint: disable=too-few-public-methods
 class BatteryTWValidator(ConstraintValidator[ECVRPSolution]):
-    """ Class in charge of checking the battery capacity is never exeded
+    """
+    Class in charge of checking if the battery capacity is never exeded
+    and if the time windows are respected
     """
     def is_valid(self, individual: ECVRPSolution) -> bool:
         instance = individual.get_instance()
