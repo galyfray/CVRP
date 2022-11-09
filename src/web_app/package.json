@@ -26,7 +26,7 @@
     "test": "react-scripts test",
     "coverage": "react-scripts test --no-watchman --reporter=html --coverage --watchAll=false",
     "coverage-ci": "react-scripts test --no-watchman --reporter=lcovonly --coverage --watchAll=false",
-    "lint": "eslint ./**/*.ts ./**/*.tsx --fix"
+    "lint": "eslint './**/*.ts' './**/*.tsx' --fix"
   },
   "browserslist": {
     "production": [
