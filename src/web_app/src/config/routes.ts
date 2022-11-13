@@ -3,6 +3,8 @@ import { AlgoChoosingPage } from "../pages/algo_choosing";
 import { AlHyperParamsPage } from "../pages/al_hyperParams";
 import { DrlHyperParamsPage } from "../pages/drl_hyperParams";
 import { HomePage } from "../pages/home";
+import { OperationPage } from "../pages/operation";
+import { ResultPage } from "../pages/result";
 import { RunPage } from "../pages/run";
 
 type Route = {
@@ -55,13 +57,33 @@ const routes = [
     },
     {
         'name': 'al_hyperparams',
-        'path': '/run/:type/algo_choice/algo_gene/',
+        'path': '/run/:type/algo_choice/ag/',
         'component': AlHyperParamsPage,
     },
     {
         'name': 'drl_hyperparams',
         'path': '/run/:type/algo_choice/drl/',
         'component': DrlHyperParamsPage,
+    },
+    {
+        'name': 'al_hyperparams',
+        'path': '/run/:type/algo_choice/ag/operation/',
+        'component': OperationPage,
+    },
+    {
+        'name': 'drl_hyperparams',
+        'path': '/run/:type/algo_choice/drl/operation/',
+        'component': OperationPage,
+    },
+    {
+        'name': 'al_hyperparams',
+        'path': '/run/:type/algo_choice/ag/operation/result',
+        'component': ResultPage,
+    },
+    {
+        'name': 'drl_hyperparams',
+        'path': '/run/:type/algo_choice/drl/operation/result',
+        'component': ResultPage,
     },
 
  ];

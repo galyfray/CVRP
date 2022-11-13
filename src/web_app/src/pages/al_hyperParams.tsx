@@ -4,19 +4,57 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { AppbarStyle } from "../components/appBar";
 import Container from "@mui/material/Container";
 import logging from "../config/logging";
-import { useRouteMatch } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import {Types} from '../types/data';
+import axios from "axios";
 
 export function AlHyperParamsPage() {
     let {url} = useRouteMatch();
+    const dataset_choice = url.split("/")[2]
+    const history = useHistory();
+    const [nb_epochs, setNb_epochs] = React.useState<number>(1000)
+    const [pop_size, setPop_size] = React.useState<number>(512)
+    const [crossover_rate, setCrossover_rate] = React.useState<number>(0.5)
+    const [mutation_rate, setMutation_rate] = React.useState<number>(0.2)
+    const [param, setParam] = React.useState<Types.AG_hyper_parameters>({
+        "nb_epochs" : 1000,
+        "pop_size" : 512,
+        "crossover_rate" : 0.5,
+        "mutation_rate" : 0.2
+    });
 
     useEffect(() => {
         logging.info(`Loading ${url}`);
     })
+
+    const handleClickNext = async() => {
+        setParam({
+            "nb_epochs" : nb_epochs,
+            "pop_size" : pop_size,
+            "crossover_rate" : crossover_rate,
+            "mutation_rate" : mutation_rate
+        })
+
+        axios.post("http://127.0.0.1:5000/operation_params/ag", {
+            'd_c': dataset_choice, 
+            'hyper_params' : JSON.stringify(param)
+        }, {
+                headers: {
+                    'Content-Type': "multipart/form-data" 
+                }
+        })
+        .then(() => {
+            history.push(url + "/operation");
+        })
+        .catch(error => {
+            console.log(error.response)
+        });
+    }
 
     return (
       <React.Fragment>
@@ -45,11 +83,15 @@ export function AlHyperParamsPage() {
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                    <TextField id="filled-basic" variant="filled" defaultValue={1000}>
+                    <TextField id="filled-basic" variant="filled" 
+                    defaultValue={param.nb_epochs}
+                    onChange={e => setNb_epochs(parseInt(e.target.value))}>
                     </TextField>
                 </Grid>
                 <Grid item xs={6}>
-                    <TextField id="filled-basic" variant="filled" defaultValue={512}>
+                    <TextField id="filled-basic" variant="filled" 
+                    defaultValue={param.pop_size}
+                    onChange={e => setPop_size(parseInt(e.target.value))}>
                     </TextField>
                 </Grid>
                 <Grid item xs={6} sx = {{mt: 3}}>
@@ -63,11 +105,15 @@ export function AlHyperParamsPage() {
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                    <TextField id="filled-basic" variant="filled" defaultValue={0.5}>
+                    <TextField id="filled-basic" variant="filled" 
+                    defaultValue={param.crossover_rate}
+                    onChange={e => setCrossover_rate(parseInt(e.target.value))}>
                     </TextField>
                 </Grid>
                 <Grid item xs={6}>
-                    <TextField id="filled-basic" variant="filled" defaultValue={0.2}>
+                    <TextField id="filled-basic" variant="filled" 
+                    defaultValue={param.mutation_rate}
+                    onChange={e => setMutation_rate(parseInt(e.target.value))}>
                     </TextField>
                 </Grid>
             </Grid>
@@ -77,8 +123,10 @@ export function AlHyperParamsPage() {
               direction="row"
               justifyContent="center"
             >
-              <Button variant="contained" sx={{ height: 40, width:120 }} 
-                href={url+ "resolution"} >
+              <Button variant="contained" sx={{ height: 40, width:120 }}              
+                href={url+ "operation"}
+                onClick= {handleClickNext}
+                >
                 Suivant
               </Button>
             </Stack>
