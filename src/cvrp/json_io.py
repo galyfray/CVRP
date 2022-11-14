@@ -76,7 +76,7 @@ class JsonWriter:
             "snapshots": self.__snapshots
         }
         with BZ2File(str(self.__root.joinpath(f"{self.__name}.json.bz2")), "wb") as file:
-            dump = json.dumps(data).encode("ascii")
+            dump = json.dumps(data, separators=(',', ':')).encode("U7")
             file.write(dump)
             file.close()
 
@@ -92,4 +92,4 @@ def read_json(root: str, name: str) -> dict[str, any]:
         data = file.read()
         file.close()
 
-    return json.loads(data.decode("ascii"))
+    return json.loads(data.decode("U7"))
