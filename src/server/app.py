@@ -3,7 +3,7 @@ import logging
 #from flask_restful import Api, Resource, reqparse
 from flask_cors import CORS
 #from FlaskApp.api_layer.HelloApiHandler import HelloApiHandler
-from flask import abort, render_template, request, redirect, url_for, jsonify, json
+from flask import abort, render_template, request, redirect, url_for, jsonify, json, make_response, escape
 from DRL_parameters import DRL_parameters
 from GA_parameters import GA_parameters
 from Utils.utils import choose_data, read_data, sending_to_solver
@@ -16,12 +16,10 @@ CORS(app) #comment this on deployment
 
 @app.route('/test', methods = ['POST'] )
 def hello():
-    return request.form['hyper_params']
+    return make_response(escape(request.form['hyper_params']))
 
 @app.route('/operation_params/ag', methods = ['POST'] )
 def parameter_ag():
-    #request_data = json.load(request.data)
-    #print("The algo is " + str(request_data['content']))
     if request.method == 'POST':
         dataset_choice_nb = request.form['d_c']
         hyper_params = json.loads(request.form['hyper_params'])
