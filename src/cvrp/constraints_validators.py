@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module holds the various constraint validators used to configure the ECVRP
+This module holds the various constraint validators used to configure the ECVRP.
 
 @author: Cyril Obrecht
 @license: GPL-3
@@ -32,11 +32,11 @@ from .ecvrp import ECVRPSolution
 
 # pylint: disable=too-few-public-methods
 class BatteryTWValidator(ConstraintValidator[ECVRPSolution]):
-    """
-    Class in charge of checking if the battery capacity is never exceeded
-    and if the time windows are respected
-    """
+    """Class in charge of checking if the battery capacity is never exceeded \
+    and if the time windows are respected."""
+
     def is_valid(self, individual: ECVRPSolution) -> bool:
+        """Check the validity of an individual according to the rules this instance implement."""
         instance = individual.get_instance()
         for road in individual.get_roads():
             latest = road[0]
@@ -66,19 +66,26 @@ class BatteryTWValidator(ConstraintValidator[ECVRPSolution]):
 
 # pylint: disable=too-few-public-methods
 class VehiculeCountValidator(ConstraintValidator[ECVRPSolution]):
+    """Class in charge of checking if the number of vehicule used is conform."""
+
     def is_valid(self, individual: ECVRPSolution) -> bool:
+        """Check the validity of an individual according to the rules this instance implement."""
         return len(individual.get_roads()) <= individual.get_instance().get_ev_count()
 
 
 # pylint: disable=too-few-public-methods
 class TownUnicityValidator(ConstraintValidator[ECVRPSolution]):
-    """ Class in charge of checking if each town is only present exactly one time in the solution.
-        Depots and chargers are ignored.
-        This validator has a terrible complexity and is not intended to be used during the GA.
-        It is intended to be used to check if the first generation is valid,
-        the following generation should be build valdid according to this class.
     """
+    Class in charge of checking if each town is only present exactly one time in the solution.
+
+    Depots and chargers are ignored.
+    This validator has a terrible complexity and is not intended to be used during the GA.
+    It is intended to be used to check if the first generation is valid,
+    the following generation should be build valdid according to this class.
+    """
+
     def is_valid(self, individual: ECVRPSolution) -> bool:
+        """Check the validity of an individual according to the rules this instance implement."""
         instance = individual.get_instance()
         visited = set()
         for i in individual.get_points():
@@ -90,9 +97,10 @@ class TownUnicityValidator(ConstraintValidator[ECVRPSolution]):
 
 
 class CapacityValidator(ConstraintValidator[ECVRPSolution]):
-    """ Class in charge of checking if the cargo capacity of the EVs is not exceeded
-    """
+    """Class in charge of checking if the cargo capacity of the EVs is not exceeded."""
+
     def is_valid(self, individual: ECVRPSolution) -> bool:
+        """Check the validity of an individual according to the rules this instance implement."""
         instance = individual.get_instance()
         for road in individual.get_roads():
             capacity = instance.get_ev_capacity()

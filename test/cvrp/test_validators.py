@@ -64,8 +64,7 @@ test_instance = ECVRPInstance(
 
 
 def test_battery_validator():
-    """ Test if the battery validatation works
-    """
+    """ Test if the battery validatation works."""
     validator = BatteryTWValidator()
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0], test_instance))
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 2, 0], test_instance))
@@ -73,8 +72,7 @@ def test_battery_validator():
 
 
 def test_time_windows():
-    """ Test if the time window validation works
-    """
+    """ Test if the time window validation works."""
     validator = BatteryTWValidator()
 
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
@@ -83,8 +81,7 @@ def test_time_windows():
 
 
 def test_vehicule_count():
-    """ Test if the vehicule count validator works
-    """
+    """ Test if the vehicule count validator works."""
     validator = VehiculeCountValidator()
 
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
@@ -93,8 +90,7 @@ def test_vehicule_count():
 
 
 def test_town_unicity():
-    """ Test if the vehicule count validator works
-    """
+    """ Test if the vehicule count validator works."""
     validator = TownUnicityValidator()
 
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance))
@@ -107,8 +103,7 @@ def test_town_unicity():
 
 
 def test_capacity():
-    """ Test if the vehicule capacity validator works
-    """
+    """ Test if the vehicule capacity validator works."""
     validator = CapacityValidator()
     assert validator.is_valid(ECVRPSolution([], [0, 2, 3, 0, 4, 0], test_instance))
     assert not validator.is_valid(ECVRPSolution([], [0, 2, 3, 4, 0], test_instance))

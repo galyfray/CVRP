@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module holds parts of the implementation of
-the genetic algorithm applyed to the ECVRP problem.
+This module holds the IO handlers for our data storage.
 
 @author: Cyril Obrecht
 @license: GPL-3
@@ -36,14 +35,23 @@ from .ecvrp import ECVRPSolution
 class JsonWriter:
     """
     Class handling the writing of information to a specific JSON file with pre defined structure.
+
     In order to limit the space cost of those files they are compressed with bz2.
     """
+
     def __init__(
                 self,
                 root: str,
                 name: str,
                 bench_name: str
             ):
+        """
+        Initialize the JsonWriter class.
+
+        :param root: Base folder to save files to.
+        :param name: Name of the file to store the data in.
+        :param bench_id: The unique ID of the benchmark that produced this result.
+        """
         self.__snapshots = []
         self.__root = Path(root)
         self.__name = name
@@ -51,8 +59,9 @@ class JsonWriter:
 
     def add_snapshot(self, snapshot: list[ECVRPSolution], time: float):
         """
-        Adds a snapshot to the structure. T
-        he snapshots are dumped in the same order as provided.
+        Add a snapshot to the structure.
+
+        The snapshots are dumped in the same order as provided.
         Hence if you want to retrosctively add new snapshots between existing,
         make sure that you handle this at read time.
         """
@@ -68,7 +77,8 @@ class JsonWriter:
 
     def dump(self):
         """
-        Dumps all the collected data to the file name `root/name.json.bz2`.
+        Dump all the collected data to the file name `root/name.json.bz2`.
+
         This method will override any existing file without warning.
         """
         data = {
@@ -76,15 +86,13 @@ class JsonWriter:
             "snapshots": self.__snapshots
         }
         with BZ2File(str(self.__root.joinpath(f"{self.__name}.json.bz2")), "wb") as file:
-            dump = json.dumps(data, separators=(',', ':')).encode("U7")
+            dump = json.dumps(data, separators=(",", ":")).encode("U7")
             file.write(dump)
             file.close()
 
 
 def read_json(root: str, name: str) -> dict[str, any]:
-    """
-    Read a JSON file and recover snapshots.
-    """
+    """Read a JSON file and recover snapshots."""
     root = Path(root)
     data: bytes
 

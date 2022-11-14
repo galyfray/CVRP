@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module holds parts of the implementation of
+This module holds parts of the implementation of \
 the genetic algorithm applyed to the ECVRP problem.
 
 @author: Cyril Obrecht
@@ -33,8 +33,10 @@ from .individual import TypeIndividual
 
 
 class GA(Generic[TypeIndividual]):
-    """ Class in charge of the main logic.
-        This class will breed and select various individual accros many generations
+    """
+    Class in charge of the main logic.
+
+    This class will breed and select various individual accros many generations.
     """
 
     def __init__(
@@ -43,7 +45,13 @@ class GA(Generic[TypeIndividual]):
                 mutation_rate: float,
                 seed: int = None
             ):
+        """
+        Initialize the GA class.
 
+        :param initial: The initial state of the GA: the first generation of individuals.
+        :param mutation_rate: The percents of chance that a child is mutated.
+        :param seed: The seed used to seed the random generator used by this class.
+        """
         self._current_pop = initial
 
         if not 0 < mutation_rate < 1:
@@ -58,8 +66,10 @@ class GA(Generic[TypeIndividual]):
         self._len = 0
 
     def run(self, generations: int):
-        """ Runs the Ga algorithm.
-            this method will breed n generation and return each generation
+        """
+        Run the Ga algorithm.
+
+        this method will breed n generation and return each generation.
         """
         self._len = generations
 
@@ -106,10 +116,11 @@ class GA(Generic[TypeIndividual]):
         return children
 
     def _mutate(self, children: list[TypeIndividual]) -> list[TypeIndividual]:
-        for c in children:
+        for child in children:
             if random.random() < self._mutation_rate:
-                c.mutate()
+                child.mutate()
         return children
 
     def __len__(self):
+        """Rturns he number of iteration given to the run method."""
         return self._len
