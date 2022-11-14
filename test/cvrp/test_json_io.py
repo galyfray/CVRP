@@ -29,7 +29,7 @@ This module holds tests for the cvrp.json_io module.
 import time
 from pathlib import Path
 # pylint: disable=E0401 # False positive. This import works fine.
-from src.cvrp.json_io import JsonWriter
+from src.cvrp.json_io import JsonWriter, read_json
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 
 
@@ -108,3 +108,36 @@ def test_snapshots_writting(tmpdir: Path):
     writer.dump()
 
     assert True
+
+
+def test_snapshots_io(tmpdir: Path):
+    """ writes meta data and snapshots to the JSON file format
+    """
+    writer = JsonWriter(
+        str(tmpdir),
+        "writter_snaps",
+        "bench_test"
+    )
+    for _ in range(9):
+        writer.add_snapshot([
+            ECVRPSolution([], [0, 1, 2, 3, 0, 4, 0], test_instance),
+            ECVRPSolution([], [0, 1, 0, 2, 0, 3, 0, 4, 0], test_instance),
+            ECVRPSolution([], [0, 1, 0, 2, 0, 3, 0], test_instance)
+        ], time.thread_time())
+    writer.dump()
+
+    data = read_json(str(tmpdir), "writter_snaps")
+
+    assert data["bench_id"] == "bench_test"
+    assert len(data["snapshots"]) == 9
+
+    assert "individuals" in data["snapshots"][0]
+    assert "time" in data["snapshots"][0]
+
+    assert len(data["snapshots"][0]["individuals"]) == 3
+    assert "solution" in data["snapshots"][0]["individuals"][0]
+    assert "fitness" in data["snapshots"][0]["individuals"][0]
+
+    assert data["snapshots"][0]["individuals"][0]["solution"] == [0, 1, 2, 3, 0, 4, 0]
+    assert data["snapshots"][0]["individuals"][1]["solution"] == [0, 1, 0, 2, 0, 3, 0, 4, 0]
+    assert data["snapshots"][0]["individuals"][2]["solution"] == [0, 1, 0, 2, 0, 3, 0]

@@ -76,6 +76,20 @@ class JsonWriter:
             "snapshots": self.__snapshots
         }
         with BZ2File(str(self.__root.joinpath(f"{self.__name}.json.bz2")), "wb") as file:
-            dump = bytearray(json.dumps(data).encode("ascii"))
+            dump = json.dumps(data).encode("ascii")
             file.write(dump)
             file.close()
+
+
+def read_json(root: str, name: str) -> dict[str, any]:
+    """
+    Read a JSON file and recover snapshots.
+    """
+    root = Path(root)
+    data: bytes
+
+    with BZ2File(str(root.joinpath(f"{name}.json.bz2")), "rb") as file:
+        data = file.read()
+        file.close()
+
+    return json.loads(data.decode("ascii"))
