@@ -29,7 +29,7 @@ This module holds tests for the cvrp.json_io module.
 import time
 from pathlib import Path
 # pylint: disable=E0401 # False positive. This import works fine.
-from src.cvrp.json_io import json_writer
+from src.cvrp.json_io import JsonWriter
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 
 
@@ -64,7 +64,7 @@ test_instance = ECVRPInstance(
 def test_meta_writing(tmpdir: Path):
     """ writes meta data to the JSON file format
     """
-    writer = json_writer(
+    writer = JsonWriter(
         str(tmpdir),
         "writter",
         "bench_test"
@@ -75,7 +75,7 @@ def test_meta_writing(tmpdir: Path):
 def test_snapshot_writting(tmpdir: Path):
     """ writes meta data and a snapshot to the JSON file format
     """
-    writer = json_writer(
+    writer = JsonWriter(
         str(tmpdir),
         "writter_snap",
         "bench_test"
@@ -94,7 +94,7 @@ def test_snapshot_writting(tmpdir: Path):
 def test_snapshots_writting(tmpdir: Path):
     """ writes meta data and snapshots to the JSON file format
     """
-    writer = json_writer(
+    writer = JsonWriter(
         str(tmpdir),
         "writter_snaps",
         "bench_test"

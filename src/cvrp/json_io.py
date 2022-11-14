@@ -33,7 +33,7 @@ import json
 from .ecvrp import ECVRPSolution
 
 
-class json_writer:
+class JsonWriter:
     """
     Class handling the writing of information to a specific JSON file with pre defined structure.
     In order to limit the space cost of those files they are compressed with bz2.
