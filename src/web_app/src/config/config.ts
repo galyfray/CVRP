@@ -1,7 +1,3 @@
-const Config  = {
-    defaults: {
-        namespace: 'App'
-    }
-}
+const Config = {defaults: {namespace: "App"}};
 
 export default Config;

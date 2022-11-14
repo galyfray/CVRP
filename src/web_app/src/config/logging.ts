@@ -1,25 +1,25 @@
-import Config from './config';
+import Config from "./config";
 
 const DEFAULT_NAMESPACE = Config.defaults.namespace;
 
-const info = (message: any, namespace?: string) => {
-    if (typeof message === 'string') {
+const info = (message: unknown, namespace?: string) => {
+    if (typeof message === "string") {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [INFO] ${message}`);
     } else {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [INFO]`, message);
     }
 };
 
-const warn = (message: any, namespace?: string) => {
-    if (typeof message === 'string') {
+const warn = (message: unknown, namespace?: string) => {
+    if (typeof message === "string") {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [WARN] ${message}`);
     } else {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [WARN]`, message);
     }
 };
 
-const error = (message: any, namespace?: string) => {
-    if (typeof message === 'string') {
+const error = (message: unknown, namespace?: string) => {
+    if (typeof message === "string") {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [ERROR] ${message}`);
     } else {
         console.log(`[${getDate()}] [${namespace || DEFAULT_NAMESPACE}] [ERROR]`, message);
@@ -34,6 +34,6 @@ const logging = {
     info,
     warn,
     error
-}
+};
 
 export default logging;

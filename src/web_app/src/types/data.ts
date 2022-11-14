@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Types {
     export type AG_hyper_parameters = {
       nb_epochs: number

@@ -1,24 +1,37 @@
-import React from "react";
-import logo from "./logo.svg";
+import React, {useEffect} from "react";
 import "./App.css";
+import logging from "./config/logging";
+import {
+    BrowserRouter as Router,
+    Route,
+    Switch
+} from "react-router-dom";
+import {getRoutes} from "./config/routes";
+import {NotFoundPage} from "./pages/notFound";
+
+/*
+  Import logo from './logo.svg';
+  <img src={logo} className="App-logo" alt="logo" />
+*/
 
 function App() {
+
+    useEffect(() => {
+        logging.info("Loading application");
+    }, []);
+
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-          Learn React
-                </a>
-            </header>
+        <div>
+            <Router>
+                <Switch>
+                    {
+                        getRoutes().map((route, index) => {
+                            return <Route exact {...route} key={index} />;
+                        })
+                    }
+                    <Route component={NotFoundPage} />
+                </Switch>
+            </Router>
         </div>
     );
 }
