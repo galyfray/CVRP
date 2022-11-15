@@ -4,10 +4,10 @@
 This module holds parts of the implementation of \
 the genetic algorithm applyed to the ECVRP problem.
 
-@author: Cyril Obrecht
+@author: Cyril Obrecht and Marie Aspro
 @license: GPL-3
-@date: 2022-11-02
-@version: 0.1
+@date: 2022-11-10
+@version: 0.2
 """
 
 # CVRP
@@ -29,6 +29,7 @@ the genetic algorithm applyed to the ECVRP problem.
 
 from typing import Union
 from .individual import Individual, TypeIndividual, ConstraintValidator
+import random
 
 
 class ECVRPSolution(Individual["ECVRPSolution"]):
@@ -119,21 +120,100 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
+    def bestPlaceFor(self, S: list[int], I_point: int) -> int:
+        """ This function will be use to find the best place to add a point in a
+            new road at the end of the crossover process.
+            It will return the index of the best place and do not do the insertion
+        """
+        # TODO : continue here
+
+    def closestCharger(self, point: int) -> int:
+        """ This function will find the closest charger of a point and will return the id
+            of the charger founded.
+        """
+        listChargers = self.__chargers
+        if (not listChargers):
+            return self.__depot
+        else:
+            d_min = self.get_distance(point, listChargers[0])
+            closest = listChargers[0]
+            for charger in listChargers:
+                dist = self.get_distance(point, charger)
+                if (dist < d_min):
+                    d_min = dist
+                    closest = charger
+            return closest
+
+    def last(self, road: list[int]) -> int:
+        """ Useful function that will return the last point of a road."""
+        return road[-1]
+
+    def roadCorrection(self, road: list[int], Battery: int) -> list[int]:
+        """ Algorithm which is able to add the closest electric charger to the point
+            where the battery would not be enough to go to the next point.
+            It will use the function closestCharger() to find the most efficient solution.
+        """
+        validRoad = [int]
+        b = Battery
+        for point in road:
+            charger = self.closestCharger(point)
+            if (b - self.get_batterie_consumption(self.last(validRoad), point) < self.get_batterie_consumption(point, charger)):
+                validRoad.append(self.closestCharger(self.last(validRoad)))
+                b = Battery
+            b = b - self.get_batterie_consumption(self.last(validRoad), point)
+            validRoad.append(point)
+        return validRoad
+
+    def cutInRoads(self, solution: list[int]) -> list[list[int]]:
+        """ cutInRoads have to cut a list of solution made of more than 1 road
+            (mean : you are going to the depot more than when you begin and you end)
+            in a list of road (which are already smaller list).
+        """
+        new_solution = [[int]]
+        list_temp = [int]
+        id_depot = self.__depot
+        for point in solution:
+            if (point != id_depot) or (point.index() == 0):
+                list_temp.append(point)
+            elif (point == id_depot) and (point.index() != 0):
+                list_temp.append(point)
+                new_solution.append(list_temp)
+                list_temp = []
+                list_temp.append(point)
+        return new_solution
+
     def mutate(self) -> None:
         """
         Mutate the current individual according to its internal rules.
 
         This changement is done in place.
         """
+        S = self.cutInRoads(S)
+        # TODO : continue here
+        return S
 
-    def crossover(self, other: TypeIndividual) -> list[TypeIndividual]:
-        """
+
+    def crossover(self, S2: TypeIndividual) -> list[TypeIndividual]:
+         """
         Generate a list of children according to the rules of the individual.
 
         The returned list might be empty or contains duplicated children.
         This function might not return the same result with the same argument and
         will probably not be comutative.
         """
+        S1 = self.cutInRoads(S1)
+        S2 = self.cutInRoads(S2)
+        num_r1 = random(0, len(S1))
+        num_r2 = random(0, len(S2))
+        road1 = list(map(lambda r: r[num_r1], S1))
+        road2 = list(map(lambda r: r[num_r2], S2))
+        
+        size_S1 = len(S1)
+        for row in range(size_S1):
+            for col in range(size_S1):
+                
+
+        # TODO : continue here
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
@@ -211,7 +291,7 @@ class ECVRPInstance:
         """
         return self.__demands[index]
 
-    def get_batterie_consuption(self, start: int, end: int) -> int:
+    def get_batterie_consumption(self, start: int, end: int) -> int:
         """Return the amount of energy consumed by a vehicule to go from start to end."""
         return round(self.get_distance(start, end) * self.__bat_cost)
 
