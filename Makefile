@@ -15,7 +15,6 @@ ifeq ($(OS),Windows_NT)
 
 # Command generalization
 	RM_CMD=FOR /d /r . %%d IN ("__pycache__") DO @IF EXIST "%%d" rd /s /q "%%d"
-	EXPORT_CMD=make wexport
 
 else
 # The default shel used on unix doesn't support `source`
@@ -30,7 +29,6 @@ else
 
 # Command generalization
 	RM_CMD=rm -rf ./**/__pycache__;rm -rf __pycache__
-	EXPORT_CMD=$(PY_CONDA) -m pip freeze | grep -v "@ file" >requirements.txt;
 
 endif
 
@@ -57,12 +55,7 @@ update:
 	$(PY_CONDA) -m pip install -r requirements.txt
 
 export:
-	$(EXPORT_CMD)
-
-wexport:
-	$(PY_CONDA) -m pip freeze >requirement.txt
-	findstr /v "@ file" requirement.txt >requirements.txt
-	del .\requirement.txt
+	$(PY_CONDA) -m pip list --format=freeze > requirements.txt
 
 # TODO: re create the make run command
 run:
