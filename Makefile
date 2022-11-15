@@ -78,8 +78,8 @@ clean:
 lint:
 	$(PY_CONDA) -m bandit -c ./bandit.yaml -r -f html -o bandit.html .
 	$(PY_CONDA) -m pylint --exit-zero src/cvrp src/server test/ >pylint.txt
-	$(PY_CONDA) -m flake8 . --output-file=flake8.txt
-	$(PY_CONDA) -m pydocstyle . -e -s > pydocstyle.txt || exit 0
+	$(PY_CONDA) -m flake8 . --output-file=flake8.txt || exit 0
+	$(PY_CONDA) -m pydocstyle ./**/* -e -s > pydocstyle.txt || exit 0
 	
 
 

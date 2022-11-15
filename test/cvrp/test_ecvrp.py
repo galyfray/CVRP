@@ -64,8 +64,9 @@ test_instance = ECVRPInstance(
 
 
 def test_road_building():
-    """ Test the road building process: ensure the count is right
+    """ Test the road building process: ensure the count is right.
     """
+
     solutions = {
         2: [0, 1, 2, 3, 0, 4, 5, 0],
         1: [0, 1, 0],
@@ -78,8 +79,9 @@ def test_road_building():
 
 
 def test_road_content():
-    """ Test the road building process: ensure the content of the roads are goods
+    """ Test the road building process: ensure the content of the roads are goods.
     """
+
     roads_expected = [
         {
             "source": [0, 1, 2, 3, 0, 4, 5, 0],
@@ -98,8 +100,9 @@ def test_road_content():
 
 
 def test_fitness():
-    """ Test if the fitness computation is good
+    """ Test if the fitness computation is good.
     """
+
     instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance)
     assert instance.get_fitness() == 8
 
@@ -111,8 +114,9 @@ def test_fitness():
 
 
 def test_is_valid():
-    """ test if the is_valid method works as expected
+    """ Test if the is_valid method works as expected.
     """
+
     town = TownUnicityValidator()
     capacity = CapacityValidator()
     count = VehiculeCountValidator()
@@ -153,8 +157,9 @@ def test_is_valid():
 
 
 def test_copy():
-    """ Test if the copy keyword works as expected
+    """ Test if the copy keyword works as expected.
     """
+
     town = TownUnicityValidator()
     capacity = CapacityValidator()
     count = VehiculeCountValidator()
@@ -183,8 +188,9 @@ def test_copy():
 
 
 def test_d_matrix():
-    """ Test the distance matrix of the ECVRPInstance class
+    """ Test the distance matrix of the ECVRPInstance class.
     """
+
     assert test_instance.get_distance(0, 1) == 1
     assert test_instance.get_distance(0, 2) == 2
     assert test_instance.get_distance(1, 0) == 3
@@ -196,8 +202,9 @@ def test_depot():
 
 
 def test_demand():
-    """ Test the `get_demand` function of the ECVRPInstance class
+    """ Test the `get_demand` function of the ECVRPInstance class.
     """
+
     assert test_instance.get_demand(2) == 5
 
     with pytest.raises(KeyError):
