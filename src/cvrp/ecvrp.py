@@ -122,16 +122,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         if (not listChargers):
             return self.__depot
         else:
-            d_min = get_distance(point, listChargers[0])
+            d_min = self.get_distance(point, listChargers[0])
             closest = listChargers[0]
             for charger in listChargers:
-                dist = get_distance(point, charger)
+                dist = self.get_distance(point, charger)
                 if (dist < d_min):
                     d_min = dist
                     closest = charger
             return closest
 
-    def last(road: list[int]) -> int:
+    def last(self, road: list[int]) -> int:
         """ Useful function that will return the last point of a road."""
         return road[-1]
 
@@ -143,16 +143,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         validRoad = [int]
         b = Battery
         for point in road:
-            charger = closestCharger(point)
-            if (b - get_batterie_consumption(last(validRoad), point) < get_batterie_consumption(point, charger)):
-                validRoad.append(closestCharger(last(validRoad)))
+            charger = self.closestCharger(point)
+            if (b - self.get_batterie_consumption(self.last(validRoad), point) < self.get_batterie_consumption(point, charger)):
+                validRoad.append(self.closestCharger(self.last(validRoad)))
                 b = Battery
-            b = b - get_batterie_consumption(last(validRoad), point)
+            b = b - self.get_batterie_consumption(self.last(validRoad), point)
             validRoad.append(point)
         return validRoad
 
     def cutInRoads(self, solution: list[int]) -> list[list[int]]:
-        """ cutInRoads have to cut a list of solution made of more than 1 road 
+        """ cutInRoads have to cut a list of solution made of more than 1 road
             (mean : you are going to the depot more than when you begin and you end)
             in a list of road (which are already smaller list).
         """
@@ -173,7 +173,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """ Mutate the current individual according to its internal rules.
             This changement is done in place.
         """
-        S = cutInRoads(S)
+        S = self.cutInRoads(S)
         # TODO : continue here
         return S
 
@@ -183,12 +183,18 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             This function might not return the same result with the same argument and
             will probably not be comutative.
         """
-        S1 = cutInRoads(S1)
-        S2 = cutInRoads(S2)
+        S1 = self.cutInRoads(S1)
+        S2 = self.cutInRoads(S2)
         num_r1 = random(0, len(S1))
         num_r2 = random(0, len(S2))
         road1 = list(map(lambda r: r[num_r1], S1))
         road2 = list(map(lambda r: r[num_r2], S2))
+        
+        size_S1 = len(S1)
+        for row in range(size_S1):
+            for col in range(size_S1):
+                
+
         # TODO : continue here
 
     def is_valid(self) -> bool:
