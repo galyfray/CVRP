@@ -30,7 +30,7 @@ else
 
 # Command generalization
 	RM_CMD=rm -rf ./**/__pycache__;rm -rf __pycache__
-	EXPORT_CMD=$(PY_CONDA) -m pip freeze | grep -v "@ file" >requirements.txt;
+	EXPORT_CMD=$(PY_CONDA) -m pip list --format=freeze > requirements.txt;
 
 endif
 
