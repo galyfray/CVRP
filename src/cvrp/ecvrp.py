@@ -120,16 +120,23 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-    def bestPlaceFor(self, S: list[int], I_point: int) -> int:
-        """ This function will be use to find the best place to add a point in a
-            new road at the end of the crossover process.
-            It will return the index of the best place and do not do the insertion
+    def best_place_for(self, S: list[list[int]], I_point: int) -> tuple[int, int]:
+        """
+        Find the best place to add a point to delivery.
+
+        This function will be use to find the best place to add a point in a
+        new road at the end of the crossover process.
+        It will return the index of the best place and do not do the insertion
         """
         # TODO : continue here
+        return 0
 
-    def closestCharger(self, point: int) -> int:
-        """ This function will find the closest charger of a point and will return the id
-            of the charger founded.
+    def closest_charger(self, point: int) -> int:
+        """
+        Find the closest charger of a point.
+
+        This function will find the closest charger of a point and will return the id
+        of the charger founded.
         """
         listChargers = self.__chargers
         if (not listChargers):
@@ -148,39 +155,42 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """ Useful function that will return the last point of a road."""
         return road[-1]
 
-    def roadCorrection(self, road: list[int], Battery: int) -> list[int]:
-        """ Algorithm which is able to add the closest electric charger to the point
-            where the battery would not be enough to go to the next point.
-            It will use the function closestCharger() to find the most efficient solution.
+    def road_correction(self, road: list[int], Battery: int) -> list[int]:
+        """
+        Add the closest electric charge beatween 2 points.
+
+        Algorithm which is able to add the closest electric charger to the point
+        where the battery would not be enough to go to the next point.
+        It will use the function closestCharger() to find the most efficient solution.
         """
         validRoad = [int]
         b = Battery
+
         for point in road:
-            charger = self.closestCharger(point)
-            if (b - self.get_batterie_consumption(self.last(validRoad), point) < self.get_batterie_consumption(point, charger)):
-                validRoad.append(self.closestCharger(self.last(validRoad)))
+            charger = self.closest_charger(point)
+            if (b - self.get_batterie_consumption(self.last(validRoad), point)
+                    < self.get_batterie_consumption(point, charger)):
+                validRoad.append(self.closest_charger(self.last(validRoad)))
                 b = Battery
             b = b - self.get_batterie_consumption(self.last(validRoad), point)
             validRoad.append(point)
+
         return validRoad
 
-    def cutInRoads(self, solution: list[int]) -> list[list[int]]:
-        """ cutInRoads have to cut a list of solution made of more than 1 road
-            (mean : you are going to the depot more than when you begin and you end)
-            in a list of road (which are already smaller list).
-        """
-        new_solution = [[int]]
-        list_temp = [int]
-        id_depot = self.__depot
-        for point in solution:
-            if (point != id_depot) or (point.index() == 0):
-                list_temp.append(point)
-            elif (point == id_depot) and (point.index() != 0):
-                list_temp.append(point)
-                new_solution.append(list_temp)
-                list_temp = []
-                list_temp.append(point)
-        return new_solution
+    def remove_point(self, solution: list[list[int]], element: int) -> list[list[int]]:
+        for road in solution:
+            for point in road:
+                if (point == element):
+                    road.remouve(element)
+        return solution
+
+    def insert_point(self, position: tuple[int, int], solution: list[list[int]], element: int) -> list[list[int]]:
+        for road in solution:
+            if (road == position[0]):
+                for point in road:
+                    if (point == position[1]):
+                        solution.insert((road, point), element)
+        return solution
 
     def mutate(self) -> None:
         """
@@ -188,32 +198,54 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         This changement is done in place.
         """
-        S = self.cutInRoads(S)
+        self.get_roads()
         # TODO : continue here
-        return S
+        return
 
-
-    def crossover(self, S2: TypeIndividual) -> list[TypeIndividual]:
-         """
+    def crossover(self, parent2: TypeIndividual) -> list[TypeIndividual]:
+        """
         Generate a list of children according to the rules of the individual.
 
         The returned list might be empty or contains duplicated children.
         This function might not return the same result with the same argument and
         will probably not be comutative.
         """
-        S1 = self.cutInRoads(S1)
-        S2 = self.cutInRoads(S2)
+        S1 = self.get_roads()  # self is the parent 1
+        S2 = parent2.get_roads()
+
+        # convert S1 and S2 in list[list[int]]
+
         num_r1 = random(0, len(S1))
         num_r2 = random(0, len(S2))
         road1 = list(map(lambda r: r[num_r1], S1))
         road2 = list(map(lambda r: r[num_r2], S2))
-        
-        size_S1 = len(S1)
-        for row in range(size_S1):
-            for col in range(size_S1):
-                
 
-        # TODO : continue here
+        listPointS2 = list[int]
+        for point in road1:
+            element, S2 = self.remove_point(point, S2)
+            listPointS2.append(element)
+
+        listPointS1 = list[int]
+        for point in road2:
+            if (point != 0):
+                S1 = self.remove_point(point, S1)
+                listPointS1.append(point)
+
+        for point in listPointS1:
+            S1 = self.insert_point(self.best_place_for(S1, point), S1, point)
+
+        for point in listPointS2:
+            S2 = self.insert_point(self.best_place_for(S2, point), S2, point)
+
+        # convert into list[int] S1 and S2 and delate depot excess
+
+        E1 = TypeIndividual()
+        E1._solution = S1
+
+        E2 = TypeIndividual()
+        E2._solution = S2
+
+        return [self, S2]
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
