@@ -7,7 +7,7 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht and Marie Aspro
 @license: GPL-3
 @date: 2022-11-16
-@version: 0.3
+@version: 0.4
 """
 
 # CVRP
@@ -178,6 +178,14 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return validRoad
 
     def remove_point(self, solution: list[list[int]], element: int) -> list[list[int]]:
+        """
+        Remove a precised point in a solution for the crossover process.
+
+        This function will remove a point in a solution. This point comes from the road
+        which have been randomly selected from another solution.
+        The same process will be done for the other solution with a road which have been
+        randomly selected in this solution previously.
+        """
         for road in solution:
             for point in road:
                 if (point == element):
@@ -185,12 +193,41 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return solution
 
     def insert_point(self, position: tuple[int, int], solution: list[list[int]], element: int) -> list[list[int]]:
+        """
+        Insert a point at the best place for the crossover process.
+
+        This function will take the best position to add a point into a solution.
+        It will be call at the end of the crossover method and required the method
+        best_place_for to obtain which road and before which client it will be insert.
+        """
         for road in solution:
             if (road == position[0]):
                 for point in road:
                     if (point == position[1]):
                         solution.insert((road, point), element)
         return solution
+
+    def tuple_to_list(self, t: tuple[tuple[int]]) -> list[list[int]]:
+        """Convert a tuple[tuple[int] into a list[list[int]]."""
+        return [list(x) for x in t]
+
+    def merge_roads(self, solution: list[list[int]]) -> list[int]:
+        """
+        Merge roads to obtain a solution in a simple list.
+
+        The goal is to merge a list of road (which each is a list of int)
+        to obtain a solution which is a list of integer (ID point).
+        """
+        fusionSolution = list[int]
+        for index_road, road in enumerate(solution):
+            for index_point, point in enumerate(road):
+                if (index_point == 0) and (index_road == 0):
+                    fusionSolution.append(point)
+                elif (index_point != 0):
+                    # the goal is to not have 0 in duplicate
+                    # which is all the time in index 0 for each road
+                    fusionSolution.append(point)
+        return fusionSolution
 
     def mutate(self) -> None:
         """
@@ -214,6 +251,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         S2 = parent2.get_roads()
 
         # convert S1 and S2 in list[list[int]]
+        S1 = self.tuple_to_list(S1)
+        S2 = self.tuple_to_list(S2)
 
         num_r1 = random(0, len(S1))
         num_r2 = random(0, len(S2))
@@ -238,6 +277,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             S2 = self.insert_point(self.best_place_for(S2, point), S2, point)
 
         # convert into list[int] S1 and S2 and delate depot excess
+        S1 = self.merge_road(S1)
+        S2 = self.merge_roads(S2)
 
         E1 = TypeIndividual()
         E1._solution = S1
@@ -245,7 +286,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         E2 = TypeIndividual()
         E2._solution = S2
 
-        return [self, S2]
+        return [E1, E2]
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
