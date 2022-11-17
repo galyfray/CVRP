@@ -7,7 +7,7 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht and Marie Aspro
 @license: GPL-3
 @date: 2022-11-17
-@version: 0.5
+@version: 0.6
 """
 
 # CVRP
