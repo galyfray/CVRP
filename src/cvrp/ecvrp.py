@@ -6,8 +6,8 @@ the genetic algorithm applyed to the ECVRP problem.
 
 @author: Cyril Obrecht and Marie Aspro
 @license: GPL-3
-@date: 2022-11-16
-@version: 0.4
+@date: 2022-11-17
+@version: 0.5
 """
 
 # CVRP
@@ -120,7 +120,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-    def best_place_for(self, S: list[list[int]], I_point: int) -> tuple[int, int]:
+    def best_place_for(self, solution: list[list[int]], I_point: int) -> int:
         """
         Find the best place to add a point to delivery.
 
@@ -128,8 +128,23 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         new road at the end of the crossover process.
         It will return the index of the best place and do not do the insertion
         """
-        # TODO : continue here
-        return 0
+        minFit = float('inf')
+        bestPosition = -1
+        solution = self.merge_roads(solution)
+        size = len(solution)
+
+        for position in range(size):
+            solution.insert(position, I_point)
+            fitness = solution.get_fitness()
+            if (fitness < minFit):
+                minFit = fitness
+                bestPosition = position
+            solution.remove(I_point)
+
+        if (minFit == float('inf')):
+            bestPosition = size + 1
+
+        return bestPosition
 
     def closest_charger(self, point: int) -> int:
         """
@@ -192,20 +207,22 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     road.remouve(element)
         return solution
 
+    """
     def insert_point(self, position: tuple[int, int], solution: list[list[int]], element: int) -> list[list[int]]:
-        """
+
         Insert a point at the best place for the crossover process.
 
         This function will take the best position to add a point into a solution.
         It will be call at the end of the crossover method and required the method
         best_place_for to obtain which road and before which client it will be insert.
-        """
+
         for road in solution:
             if (road == position[0]):
                 for point in road:
                     if (point == position[1]):
                         solution.insert((road, point), element)
         return solution
+    """
 
     def tuple_to_list(self, t: tuple[tuple[int]]) -> list[list[int]]:
         """Convert a tuple[tuple[int] into a list[list[int]]."""
@@ -229,14 +246,33 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     fusionSolution.append(point)
         return fusionSolution
 
+    def pull_off_chargers(self, solution: list[list[int]]) -> Union[list[int], list[int]]:
+        listChargers = list[int]
+        for road in solution:
+            for point in road:
+                if (self.is_charger(point)):
+                    listChargers.append(point)
+                    solution.remove(point)
+        return solution, listChargers
+
     def mutate(self) -> None:
         """
         Mutate the current individual according to its internal rules.
 
         This changement is done in place.
         """
-        self.get_roads()
+        mutantSolution = self.get_roads()
+        mutantSolution = self.tuple_to_list(mutantSolution)
+
+        mutantSolution, listChargers = self.pull_off_chargers(mutantSolution)
+
         # TODO : continue here
+        # algo 2-opt
+
+        for road in mutantSolution:
+            road = self.road_correction(road, self.get_ev_battery())
+
+        self._solution = mutantSolution
         return
 
     def crossover(self, parent2: TypeIndividual) -> list[TypeIndividual]:
@@ -270,15 +306,15 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 S1 = self.remove_point(point, S1)
                 listPointS1.append(point)
 
+        # convert into list[int] S1 and S2 and delate depot excess
+        S1 = self.merge_roads(S1)
+        S2 = self.merge_roads(S2)
+
         for point in listPointS1:
-            S1 = self.insert_point(self.best_place_for(S1, point), S1, point)
+            S1.insert(self.best_place_for(S1, point), point)
 
         for point in listPointS2:
-            S2 = self.insert_point(self.best_place_for(S2, point), S2, point)
-
-        # convert into list[int] S1 and S2 and delate depot excess
-        S1 = self.merge_road(S1)
-        S2 = self.merge_roads(S2)
+            S2.insert(self.best_place_for(S2, point), point)
 
         E1 = TypeIndividual()
         E1._solution = S1
