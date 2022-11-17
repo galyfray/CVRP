@@ -1,3 +1,6 @@
 .\src\cvrp\ecvrp.py:170: [E501] line too long (128 > 120 characters)
 .\src\cvrp\ecvrp.py:199: [F841] local variable 'road1' is assigned to but never used
 .\src\cvrp\ecvrp.py:200: [F841] local variable 'road2' is assigned to but never used
+.\src\cvrp\ecvrp.py:257: [W293] blank line contains whitespace
+.\src\cvrp\ecvrp.py:301: [W291] trailing whitespace
+.\src\cvrp\ecvrp.py:301: [W291] trailing whitespace

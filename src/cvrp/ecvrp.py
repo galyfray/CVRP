@@ -246,7 +246,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     fusionSolution.append(point)
         return fusionSolution
 
-    def pull_off_chargers(self, solution: list[list[int]]) -> Union[list[int], list[int]]:
+    def pull_off_chargers(self, solution: list[list[int]]) -> tuple[list[list[int]], list[int]]:
         listChargers = list[int]
         for road in solution:
             for point in road:
@@ -255,24 +255,95 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     solution.remove(point)
         return solution, listChargers
 
+    def get_road_distance(self, road: list[int]) -> float:
+        """
+        Calculate the total distance of a road.
+
+        This function will use get_distance which is able to determine
+        the distance between 2 points given.
+        """
+        total = 0.0
+        size = len(road)
+        for i in range(size):
+            if (i != (size - 1)):
+                total = total + self.get_distance(road[i], road[i + 1])
+            else:
+                total = total + self.get_distance(road[i], road[0])
+        return total
+
+    def reversed_content(self, road: list[int], point1: int, point2: int) -> list[int]:
+        """Reverse the content of a road between the point 1 and 2 (included)."""
+        index1 = road.index(point1)
+        index2 = road.index(point2)
+        size = len(road)
+
+        if (index1 < index2):
+            indexMin = index1
+            indexMax = index2
+        else:
+            indexMin = index2
+            indexMax = index1
+
+        begining = road[0:indexMin]
+        middle = road[indexMin:(indexMax+1)]
+        middle.reversed()
+        ending = road[(indexMax+1):size]
+
+        reversedRoad = begining + middle + ending
+
+        return reversedRoad
+
+    def two_opt(self, road: list[int]) -> list[int]:
+        """
+        2-opt variance algorithm.
+
+        Algorithm which find the best mutation for this road by calculating
+        the distance for each mutation of road. The shortest distance will 
+        determine the best muatation road.
+        """
+        bestDistance = self.get_road_distance(road)
+        bestRoad = road
+
+        road.remove(0)  # remove the first depot
+        road.remove(0)  # remove the last depot
+
+        for point1 in road:
+            for point2 in road:
+                if (point1 != point2):
+                    tmpRoad = self.reversed_content(road, point1, point2)
+                    tmpRoad.insert(0, 0)  # add the depot at the begining
+                    tmpRoad.append(0)  # add the depot at the end
+                    distance = self.get_road_distance(tmpRoad)
+                    if (distance < bestDistance):
+                        bestDistance = distance
+                        bestRoad = tmpRoad
+
+        return bestRoad
+
     def mutate(self) -> None:
         """
         Mutate the current individual according to its internal rules.
 
         This changement is done in place.
         """
-        mutantSolution = self.get_roads()
-        mutantSolution = self.tuple_to_list(mutantSolution)
+        solution = self.get_roads()
+        solution = self.tuple_to_list(solution)
 
-        mutantSolution, listChargers = self.pull_off_chargers(mutantSolution)
+        choice = random(0, len(solution))
+        road = solution[choice]
 
-        # TODO : continue here
+        road, listChargers = self.pull_off_chargers(road)
+
         # algo 2-opt
+        mutantRoad = self.two_opt(road)
 
-        for road in mutantSolution:
-            road = self.road_correction(road, self.get_ev_battery())
+        newRoad = self.road_correction(mutantRoad, self.get_ev_battery())
 
-        self._solution = mutantSolution
+        newSolution = list[list[int]]
+        newSolution = solution
+        newSolution[choice] = newRoad
+
+        self._solution = newSolution
         return
 
     def crossover(self, parent2: TypeIndividual) -> list[TypeIndividual]:
