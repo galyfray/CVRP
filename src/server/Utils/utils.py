@@ -1,14 +1,15 @@
-import numpy as np
 import os
 from io import StringIO
 import ast
 
 from ...cvrp.ecvrp import ECVRPInstance
 
-PATH_TO_DATASETS='src/server/datasets'
+PATH_TO_DATASETS = 'src/server/datasets'
+
 
 def sending_to_solver(data, algoParams):
-    return ""
+    return ''
+
 
 def parse_dataset(filename: str) -> ECVRPInstance:
     """ Parses the dataset file and create an ECVRPInstance object from the extracted data.
@@ -17,15 +18,15 @@ def parse_dataset(filename: str) -> ECVRPInstance:
     # Variables needed to create our ECVRP Instance
     distance_matrix: list[list[float]] = [[]]
 
-    parameters = dict()
-    nodes = dict()
-    chargers = set()
-    demands = dict()
+    parameters = {}
+    nodes: dict[int, tuple[int, int]] = {}
+    chargers: set[int] = set()
+    demands: dict[int, int] = {}
 
-    time_windows = dict()
+    time_windows: dict[int, tuple[float, float]] = {}
 
     # Parsing the file
-    with open(PATH_TO_DATASETS + '/' + filename, ) as f:
+    with open(PATH_TO_DATASETS + '/' + filename, 'r', encoding='utf8') as f:
 
         data = StringIO(f.read().replace(':', ''))
 
@@ -37,22 +38,24 @@ def parse_dataset(filename: str) -> ECVRPInstance:
             if value == 'NODE_COORD_SECTION':
                 for n in range((parameters['DIMENSION'])*3):
                     if n % 3 == 0:
-                        nodes[arr[i+n+1]] = (arr[i+n+2], arr[i+n+3])
+                        nodes[int(arr[i+n+1])] = (int(arr[i+n+2]), int(arr[i+n+3]))
+                        time_windows[int(arr[i+n+1])] = (0, float('inf'))
             elif value == 'DEMAND_SECTION':
                 for n in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
                     if n % 2 == 0:
-                        demands[arr[i+n+1]] = arr[i+n+2]
-            elif value == 'STATIONS_COORD_SECTION' :
+                        demands[int(arr[i+n+1])] = int(arr[i+n+2])
+            elif value == 'STATIONS_COORD_SECTION':
                 for n in range(parameters['STATIONS']):
-                    chargers.add(arr[i+n+1])
+                    chargers.add(int(arr[i+n+1]))
             else:
                 # Building the parameters dictionnary
-                if not value.isdigit() and value.isupper() and value!= 'EOF' and arr[i+1].replace('.', '', 1).isdigit():
+                if not value.isdigit() and value.isupper() and value != 'EOF' \
+                        and arr[i+1].replace('.', '', 1).isdigit():
                     val = ast.literal_eval(arr[i+1])
                     parameters[value] = float(val) if isinstance(val, float) else int(val)
 
-        #TODO: Compute distance matrix from node coordinates
-        #distance_matrix = compute_distance_matrix(nodes)
+        # TODO: Compute distance matrix from node coordinates
+        # distance_matrix = compute_distance_matrix(nodes)
 
     # Detect if file is incomplete
     if not (parameters or nodes or chargers or demands):
@@ -60,9 +63,11 @@ def parse_dataset(filename: str) -> ECVRPInstance:
         raise ValueError('The dataset file is imcomplete')
 
     # Instantiating the ECVRP instance
-    ecvrp = ECVRPInstance(distance_matrix, depot_id=parameters['DEPOT_SECTION'], chargers=chargers, demands=demands, batterie_cost_factor=parameters['ENERGY_CONSUMPTION'], \
-            batterie_charge_rate=1.0, ev_count=parameters['VEHICLES'], ev_capacity=parameters['CAPACITY'], ev_battery=parameters['ENERGY_CAPACITY'], \
-            time_windows= time_windows)
+    ecvrp = ECVRPInstance(distance_matrix, depot_id=parameters['DEPOT_SECTION'], chargers=chargers,
+                          demands=demands, batterie_cost_factor=parameters['ENERGY_CONSUMPTION'],
+                          batterie_charge_rate=1.0, ev_count=parameters['VEHICLES'],
+                          ev_capacity=parameters['CAPACITY'], 
+                          ev_battery=parameters['ENERGY_CAPACITY'], time_windows=time_windows)
 
     return ecvrp
 
@@ -72,7 +77,6 @@ def get_datasets() -> list[str]:
     """
     return os.listdir(PATH_TO_DATASETS)
 
+
 # Debug
 evrp = parse_dataset(get_datasets()[0])
-
-
