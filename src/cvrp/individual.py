@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
+<<<<<<< HEAD
 """ This module holds the abstract class Individual and the ConstraintValidator interface
+=======
+"""
+This module holds the abstract class Individual and the ConstraintValidator interface.
+
+>>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
 The Individual class represent a generic individual that is deseigned to be used
 with our current genetic algorithm implementation. Constraint Validators offer a generic,
 and modulable way to check if an individual holds a valid solution.
@@ -37,6 +43,7 @@ TypeIndividual = TypeVar("TypeIndividual", bound="Individual")
 # According to the class diagram aprooved by the team this is normal.
 # pylint: disable=too-few-public-methods
 class ConstraintValidator(ABC, Generic[TypeIndividual]):
+<<<<<<< HEAD
     """ Interface providing a standard methods to check if an Individual holds a valid solution
     """
 
@@ -53,11 +60,33 @@ class Individual(Generic[TypeIndividual], ABC):
     """
 
     def __init__(self, validators: list["ConstraintValidator"]) -> None:
+=======
+    """Interface providing a standard methods to check if an Individual holds a valid solution."""
+
+    @abstractmethod
+    def is_valid(self, individual: TypeIndividual) -> bool:
+        """Check the validity of an individual according to the rules this instance implement."""
+
+
+class Individual(Generic[TypeIndividual], ABC):
+    """Abstract class handling the concept of individual in our implementation of \
+    a Genetic algorithm."""
+
+    def __init__(self, validators: list["ConstraintValidator"]) -> None:
+        """
+        Abstract class handling the concept of individual in our implementation of \
+        a Genetic algorithm.
+
+        :param validators: A list of validator used to determine if the instance is valid.
+        This list will be trasmitted to children.
+        """
+>>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         super().__init__()
         self._validators = validators
 
     @abstractmethod
     def get_fitness(self) -> float:
+<<<<<<< HEAD
         """ Return the fitness of the individual.
         """
 
@@ -65,17 +94,40 @@ class Individual(Generic[TypeIndividual], ABC):
     def mutate(self) -> None:
         """ Mutate the current individual according to its internal rules.
             This changement is done in place.
+=======
+        """Return the fitness of the individual."""
+
+    @abstractmethod
+    def mutate(self) -> None:
+        """
+        Mutate the current individual according to its internal rules.
+
+        This changement is done in place.
+>>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         """
 
     @abstractmethod
     def crossover(self, other: TypeIndividual) -> list[TypeIndividual]:
+<<<<<<< HEAD
         """ Generate a list of children according to the rules of the individual.
             The returned list might be empty or contains duplicated children.
             This function might not return the same result with the same argument and
             will probably not be comutative.
+=======
+        """
+        Generate a list of children according to the rules of the individual.
+
+        The returned list might be empty or contains duplicated children.
+        This function might not return the same result with the same argument and
+        will probably not be comutative.
+>>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         """
 
     @abstractmethod
     def __copy__(self) -> TypeIndividual:
+<<<<<<< HEAD
         """ Produce a copy of the individual.
         """
+=======
+        """Produce a copy of the individual."""
+>>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
