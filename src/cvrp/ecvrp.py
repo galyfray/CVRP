@@ -28,8 +28,8 @@ the genetic algorithm applyed to the ECVRP problem.
 
 
 from typing import Union
+from random import random
 from .individual import Individual, TypeIndividual, ConstraintValidator
-import random
 
 
 class ECVRPSolution(Individual["ECVRPSolution"]):
@@ -120,7 +120,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-    def best_place_for(self, solution: list[list[int]], I_point: int) -> int:
+    def best_place_for(self, solution: list[list[int]], i_point: int) -> int:
         """
         Find the best place to add a point to delivery.
 
@@ -128,23 +128,23 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         new road at the end of the crossover process.
         It will return the index of the best place and do not do the insertion
         """
-        minFit = float('inf')
-        bestPosition = -1
+        min_fit = float('inf')
+        best_position = -1
         solution = self.merge_roads(solution)
         size = len(solution)
 
         for position in range(size):
-            solution.insert(position, I_point)
+            solution.insert(position, i_point)
             fitness = solution.get_fitness()
-            if (fitness < minFit):
-                minFit = fitness
-                bestPosition = position
-            solution.remove(I_point)
+            if fitness < min_fit:
+                min_fit = fitness
+                best_position = position
+            solution.remove(i_point)
 
-        if (minFit == float('inf')):
-            bestPosition = size + 1
+        if min_fit == float('inf'):
+            best_position = size + 1
 
-        return bestPosition
+        return best_position
 
     def closest_charger(self, point: int) -> int:
         """
@@ -153,24 +153,24 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         This function will find the closest charger of a point and will return the id
         of the charger founded.
         """
-        listChargers = self.__chargers
-        if (not listChargers):
+        list_chargers = self.__chargers
+        if not list_chargers:
             return self.__depot
-        else:
-            d_min = self.get_distance(point, listChargers[0])
-            closest = listChargers[0]
-            for charger in listChargers:
-                dist = self.get_distance(point, charger)
-                if (dist < d_min):
-                    d_min = dist
-                    closest = charger
-            return closest
+
+        d_min = self.get_distance(point, list_chargers[0])
+        closest = list_chargers[0]
+        for charger in list_chargers:
+            dist = self.get_distance(point, charger)
+            if dist < d_min:
+                d_min = dist
+                closest = charger
+        return closest
 
     def last(self, road: list[int]) -> int:
         """ Useful function that will return the last point of a road."""
         return road[-1]
 
-    def road_correction(self, road: list[int], Battery: int) -> list[int]:
+    def road_correction(self, road: list[int], battery: int) -> list[int]:
         """
         Add the closest electric charge beatween 2 points.
 
@@ -178,19 +178,20 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         where the battery would not be enough to go to the next point.
         It will use the function closestCharger() to find the most efficient solution.
         """
-        validRoad = [int]
-        b = Battery
+        valid_road = [int]
+        capacity_battery = battery
 
         for point in road:
             charger = self.closest_charger(point)
-            if (b - self.get_batterie_consumption(self.last(validRoad), point)
+            if (capacity_battery - self.get_batterie_consumption(self.last(valid_road), point)
                     < self.get_batterie_consumption(point, charger)):
-                validRoad.append(self.closest_charger(self.last(validRoad)))
-                b = Battery
-            b = b - self.get_batterie_consumption(self.last(validRoad), point)
-            validRoad.append(point)
+                valid_road.append(self.closest_charger(self.last(valid_road)))
+                capacity_battery = battery
+            capacity_battery = capacity_battery
+            - self.get_batterie_consumption(self.last(valid_road), point)
+            valid_road.append(point)
 
-        return validRoad
+        return valid_road
 
     def remove_point(self, solution: list[list[int]], element: int) -> list[list[int]]:
         """
@@ -203,30 +204,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         for road in solution:
             for point in road:
-                if (point == element):
+                if point == element:
                     road.remouve(element)
         return solution
 
-    """
-    def insert_point(self, position: tuple[int, int], solution: list[list[int]], element: int) -> list[list[int]]:
-
-        Insert a point at the best place for the crossover process.
-
-        This function will take the best position to add a point into a solution.
-        It will be call at the end of the crossover method and required the method
-        best_place_for to obtain which road and before which client it will be insert.
-
-        for road in solution:
-            if (road == position[0]):
-                for point in road:
-                    if (point == position[1]):
-                        solution.insert((road, point), element)
-        return solution
-    """
-
-    def tuple_to_list(self, t: tuple[tuple[int]]) -> list[list[int]]:
+    def tuple_to_list(self, tuple_element: tuple[tuple[int]]) -> list[list[int]]:
         """Convert a tuple[tuple[int] into a list[list[int]]."""
-        return [list(x) for x in t]
+        return [list(x) for x in tuple_element]
 
     def merge_roads(self, solution: list[list[int]]) -> list[int]:
         """
@@ -235,25 +219,28 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         The goal is to merge a list of road (which each is a list of int)
         to obtain a solution which is a list of integer (ID point).
         """
-        fusionSolution = list[int]
+        fusion_solution = list[int]
         for index_road, road in enumerate(solution):
             for index_point, point in enumerate(road):
                 if (index_point == 0) and (index_road == 0):
-                    fusionSolution.append(point)
-                elif (index_point != 0):
+                    fusion_solution.append(point)
+                elif index_point != 0:
                     # the goal is to not have 0 in duplicate
                     # which is all the time in index 0 for each road
-                    fusionSolution.append(point)
-        return fusionSolution
+                    fusion_solution.append(point)
+        return fusion_solution
 
-    def pull_off_chargers(self, solution: list[list[int]]) -> tuple[list[list[int]], list[int]]:
-        listChargers = list[int]
-        for road in solution:
-            for point in road:
-                if (self.is_charger(point)):
-                    listChargers.append(point)
-                    solution.remove(point)
-        return solution, listChargers
+    def pull_off_chargers(self, road: list[int]) -> list[int]:
+        """
+        Remove all the chargers from a solution.
+
+        This function is helping the mutation process by removing all the chargers
+        of a road. It will retrun the road without it.
+        """
+        for point in road:
+            if self.is_charger(point):
+                road.remove(point)
+        return road
 
     def get_road_distance(self, road: list[int]) -> float:
         """
@@ -265,7 +252,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         total = 0.0
         size = len(road)
         for i in range(size):
-            if (i != (size - 1)):
+            if i != (size - 1):
                 total = total + self.get_distance(road[i], road[i + 1])
             else:
                 total = total + self.get_distance(road[i], road[0])
@@ -277,48 +264,48 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         index2 = road.index(point2)
         size = len(road)
 
-        if (index1 < index2):
-            indexMin = index1
-            indexMax = index2
+        if index1 < index2:
+            index_min = index1
+            index_max = index2
         else:
-            indexMin = index2
-            indexMax = index1
+            index_min = index2
+            index_max = index1
 
-        begining = road[0:indexMin]
-        middle = road[indexMin:(indexMax+1)]
+        begining = road[0:index_min]
+        middle = road[index_min:(index_max+1)]
         middle.reversed()
-        ending = road[(indexMax+1):size]
+        ending = road[(index_max+1):size]
 
-        reversedRoad = begining + middle + ending
+        reversed_road = begining + middle + ending
 
-        return reversedRoad
+        return reversed_road
 
     def two_opt(self, road: list[int]) -> list[int]:
         """
         2-opt variance algorithm.
 
         Algorithm which find the best mutation for this road by calculating
-        the distance for each mutation of road. The shortest distance will 
+        the distance for each mutation of road. The shortest distance will
         determine the best muatation road.
         """
-        bestDistance = self.get_road_distance(road)
-        bestRoad = road
+        best_distance = self.get_road_distance(road)
+        best_road = road
 
         road.remove(0)  # remove the first depot
         road.remove(0)  # remove the last depot
 
         for point1 in road:
             for point2 in road:
-                if (point1 != point2):
-                    tmpRoad = self.reversed_content(road, point1, point2)
-                    tmpRoad.insert(0, 0)  # add the depot at the begining
-                    tmpRoad.append(0)  # add the depot at the end
-                    distance = self.get_road_distance(tmpRoad)
-                    if (distance < bestDistance):
-                        bestDistance = distance
-                        bestRoad = tmpRoad
+                if point1 != point2:
+                    tmp_road = self.reversed_content(road, point1, point2)
+                    tmp_road.insert(0, 0)  # add the depot at the begining
+                    tmp_road.append(0)  # add the depot at the end
+                    distance = self.get_road_distance(tmp_road)
+                    if distance < best_distance:
+                        best_distance = distance
+                        best_road = tmp_road
 
-        return bestRoad
+        return best_road
 
     def mutate(self) -> None:
         """
@@ -332,21 +319,20 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         choice = random(0, len(solution))
         road = solution[choice]
 
-        road, listChargers = self.pull_off_chargers(road)
+        road = self.pull_off_chargers(road)
 
         # algo 2-opt
-        mutantRoad = self.two_opt(road)
+        mutant_road = self.two_opt(road)
 
-        newRoad = self.road_correction(mutantRoad, self.get_ev_battery())
+        new_road = self.road_correction(mutant_road, self.get_ev_battery())
 
-        newSolution = list[list[int]]
-        newSolution = solution
-        newSolution[choice] = newRoad
+        new_solution = list[list[int]]
+        new_solution = solution
+        new_solution[choice] = new_road
 
-        self._solution = newSolution
-        return
+        self._solution = new_solution
 
-    def crossover(self, parent2: TypeIndividual) -> list[TypeIndividual]:
+    def crossover(self, other: TypeIndividual) -> list[TypeIndividual]:
         """
         Generate a list of children according to the rules of the individual.
 
@@ -354,46 +340,45 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         This function might not return the same result with the same argument and
         will probably not be comutative.
         """
-        S1 = self.get_roads()  # self is the parent 1
-        S2 = parent2.get_roads()
+        s_1 = self.get_roads()  # self is the parent 1
+        s_2 = other.get_roads()
 
-        # convert S1 and S2 in list[list[int]]
-        S1 = self.tuple_to_list(S1)
-        S2 = self.tuple_to_list(S2)
+        # convert tuple into list to modify th content
+        s_1 = self.tuple_to_list(s_1)
+        s_2 = self.tuple_to_list(s_2)
 
-        num_r1 = random(0, len(S1))
-        num_r2 = random(0, len(S2))
-        road1 = list(map(lambda r: r[num_r1], S1))
-        road2 = list(map(lambda r: r[num_r2], S2))
+        num_r_1 = random(0, len(s_1))
+        num_r_2 = random(0, len(s_2))
+        road_1 = list(map(lambda r: r[num_r_1], s_1))
+        road_2 = list(map(lambda r: r[num_r_2], s_2))
 
-        listPointS2 = list[int]
-        for point in road1:
-            element, S2 = self.remove_point(point, S2)
-            listPointS2.append(element)
+        list_point_s_2 = list[int]
+        for point in road_1:
+            element, s_2 = self.remove_point(point, s_2)
+            list_point_s_2.append(element)
 
-        listPointS1 = list[int]
-        for point in road2:
-            if (point != 0):
-                S1 = self.remove_point(point, S1)
-                listPointS1.append(point)
+        list_point_s_1 = list[int]
+        for point in road_2:
+            if point != 0:
+                s_1 = self.remove_point(point, s_1)
+                list_point_s_1.append(point)
 
-        # convert into list[int] S1 and S2 and delate depot excess
-        S1 = self.merge_roads(S1)
-        S2 = self.merge_roads(S2)
+        s_1 = self.merge_roads(s_1)
+        s_2 = self.merge_roads(s_2)
 
-        for point in listPointS1:
-            S1.insert(self.best_place_for(S1, point), point)
+        for point in list_point_s_1:
+            s_1.insert(self.best_place_for(s_1, point), point)
 
-        for point in listPointS2:
-            S2.insert(self.best_place_for(S2, point), point)
+        for point in list_point_s_2:
+            s_2.insert(self.best_place_for(s_2, point), point)
 
-        E1 = TypeIndividual()
-        E1._solution = S1
+        e_1 = TypeIndividual()
+        e_1._solution = s_1
 
-        E2 = TypeIndividual()
-        E2._solution = S2
+        e_2 = TypeIndividual()
+        e_2._solution = s_2
 
-        return [E1, E2]
+        return [e_1, e_2]
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
