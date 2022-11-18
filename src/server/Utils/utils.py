@@ -1,67 +1,82 @@
-import numpy as np
+import os
+from io import StringIO
+import ast
 
-def choose_data(nb):
-    dataset_choice = ""
-    match nb:
-        case 0:
-            dataset_choice = "E-n29-k4-s7-c200-ecap100.csv"
-        case 1:
-            dataset_choice = "E-n29-k4-s7-c6000-ecap99.csv"
-        case 2:
-            dataset_choice = "E-n30-k3-s7-c4500-ecap162.csv"
-        case 3:
-            dataset_choice = "E-n35-k3-s5-c4500-ecap138.csv"
-        case 4:
-            dataset_choice = "E-n37-k4-s4-c8000-ecap238.csv"
-        case 5:
-            dataset_choice = "E-n60-k5-s9-c160-ecap88.csv"
-        case 6:
-            dataset_choice = "E-n89-k7-s13-c220-ecap87.csv"
-        case 7:
-            dataset_choice = "F-n140-k7-s5-c2210-ecap307.csv"
-        case 8:
-            dataset_choice = "F-n49-k4-s4-c2010-ecap260.csv"
-        case 9:
-            dataset_choice = "F-n80-k4-s8-c30000-ecap53.csv"
-        case 10:
-            dataset_choice = "M-n110-k10-s9-c200-ecap118.csv"
-        case 11:
-            dataset_choice = "M-n126-k7-s5-c200-ecap199.csv"
-        case 12:
-            dataset_choice = "M-n163-k12-s12-c200-ecap100.csv"
-        case 13:
-            dataset_choice = "M-n212-k16-s12-c200-ecap100.csv"
-        case 14:
-            dataset_choice = "X-n1006-k43-s5-c131-ecap2536.csv"
-        case 15:
-            dataset_choice = "X-n147-k7-s4-c1190-ecap2762.csv"
-        case 16:
-            dataset_choice = "X-n221-k11-s9-c944-ecap1204.csv"
-        case 17:
-            dataset_choice = "X-n360-k40-s9-c436-ecap1236.csv"
-        case 18:
-            dataset_choice = "X-n469-k26-s10-c1106-ecap1230.csv"
-        case 19:
-            dataset_choice = "X-n577-k30-s4-c210-ecap2191.csv"
-        case 20:
-            dataset_choice = "X-n698-k75-s13-c408-ecap1336.csv"
-        case 21:
-            dataset_choice = "X-n759-k98-s10-c396-ecap1367.csv"
-        case 22:
-            dataset_choice = "X-n830-k171-s11-c358-ecap1385.csv"
-        case 23:
-            dataset_choice = "X-n920-k207-s4-c33-ecap2773.csv"
-        case _:
-            dataset_choice = "E-n29-k4-s7-c200-ecap100.csv"
+from ...cvrp.ecvrp import ECVRPInstance
 
-    return dataset_choice
+PATH_TO_DATASETS = 'src/server/datasets'
 
-def read_data(filename):
-    # using loadtxt()
-    path = "./Utils/Datasets/" + filename
-    data = np.loadtxt(path,
-                    delimiter=";", dtype=str)
-    return data
 
 def sending_to_solver(data, algoParams):
-    return ""
+    return ''
+
+
+def parse_dataset(filename: str) -> ECVRPInstance:
+    """ Parses the dataset file and create an ECVRPInstance object from the extracted data.
+    """
+
+    # Variables needed to create our ECVRP Instance
+    distance_matrix: list[list[float]] = [[]]
+
+    parameters = {}
+    nodes: dict[int, tuple[int, int]] = {}
+    chargers: set[int] = set()
+    demands: dict[int, int] = {}
+
+    time_windows: dict[int, tuple[float, float]] = {}
+
+    # Parsing the file
+    with open(PATH_TO_DATASETS + '/' + filename, 'r', encoding='utf8') as f:
+
+        data = StringIO(f.read().replace(':', ''))
+
+        # Storing all words
+        arr = [word for line in data for word in line.split()]
+
+        # Extracting the values
+        for i, value in enumerate(arr):
+            if value == 'NODE_COORD_SECTION':
+                for n in range((parameters['DIMENSION'])*3):
+                    if n % 3 == 0:
+                        nodes[int(arr[i+n+1])] = (int(arr[i+n+2]), int(arr[i+n+3]))
+                        time_windows[int(arr[i+n+1])] = (0, float('inf'))
+            elif value == 'DEMAND_SECTION':
+                for n in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
+                    if n % 2 == 0:
+                        demands[int(arr[i+n+1])] = int(arr[i+n+2])
+            elif value == 'STATIONS_COORD_SECTION':
+                for n in range(parameters['STATIONS']):
+                    chargers.add(int(arr[i+n+1]))
+            else:
+                # Building the parameters dictionnary
+                if not value.isdigit() and value.isupper() and value != 'EOF' \
+                        and arr[i+1].replace('.', '', 1).isdigit():
+                    val = ast.literal_eval(arr[i+1])
+                    parameters[value] = float(val) if isinstance(val, float) else int(val)
+
+        # TODO: Compute distance matrix from node coordinates
+        # distance_matrix = compute_distance_matrix(nodes)
+
+    # Detect if file is incomplete
+    if not (parameters or nodes or chargers or demands):
+        # The dataset is missing some parameters
+        raise ValueError('The dataset file is imcomplete')
+
+    # Instantiating the ECVRP instance
+    ecvrp = ECVRPInstance(distance_matrix, depot_id=parameters['DEPOT_SECTION'], chargers=chargers,
+                          demands=demands, batterie_cost_factor=parameters['ENERGY_CONSUMPTION'],
+                          batterie_charge_rate=1.0, ev_count=parameters['VEHICLES'],
+                          ev_capacity=parameters['CAPACITY'], 
+                          ev_battery=parameters['ENERGY_CAPACITY'], time_windows=time_windows)
+
+    return ecvrp
+
+
+def get_datasets() -> list[str]:
+    """ List all the files in the dataset folder.
+    """
+    return os.listdir(PATH_TO_DATASETS)
+
+
+# Debug
+evrp = parse_dataset(get_datasets()[0])
