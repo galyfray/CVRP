@@ -53,7 +53,7 @@ coverage.xml
 *.lcov
 bandit.html
 pylint.txt
-flake8.tkt
+flake8.txt
 pydocstyle.txt
 
 # Translations
