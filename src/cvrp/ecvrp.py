@@ -112,6 +112,19 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         self._fitness = max_time
         return self._fitness
 
+    def get_fitness_solution(self, solution: list[int]) -> float:
+        """
+        Compute the fitness of the solution held in this individual.
+        """
+        max_time = 0.
+        fitness = 0.
+        for road in solution:
+            current = self._compute_road_fitness(road)
+            if current > max_time:
+                max_time = current
+        fitness = max_time
+        return fitness
+
     def _compute_road_fitness(self, road: tuple[int]) -> float:
         road_time = 0.
         latest = road[0]
@@ -135,7 +148,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         for position in range(size):
             solution.insert(position, i_point)
-            fitness = solution.get_fitness()
+            fitness = self.get_fitness_solution(solution)
             if fitness < min_fit:
                 min_fit = fitness
                 best_position = position
@@ -153,14 +166,14 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         This function will find the closest charger of a point and will return the id
         of the charger founded.
         """
-        list_chargers = self.__chargers
+        list_chargers = self.__instance.get_chargers()
         if not list_chargers:
-            return self.__depot
+            return self.__instance.get_depot()
 
-        d_min = self.get_distance(point, list_chargers[0])
+        d_min = self.__instance.get_distance(point, list_chargers[0])
         closest = list_chargers[0]
         for charger in list_chargers:
-            dist = self.get_distance(point, charger)
+            dist = self.__instance.get_distance(point, charger)
             if dist < d_min:
                 d_min = dist
                 closest = charger
@@ -183,12 +196,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         for point in road:
             charger = self.closest_charger(point)
-            if (capacity_battery - self.get_batterie_consumption(self.last(valid_road), point)
-                    < self.get_batterie_consumption(point, charger)):
+            if (capacity_battery
+                - self.__instance.get_batterie_consumption(self.last(valid_road), point)
+                    < self.__instance.get_batterie_consumption(point, charger)):
                 valid_road.append(self.closest_charger(self.last(valid_road)))
-                capacity_battery = battery
-            capacity_battery = capacity_battery
-            - self.get_batterie_consumption(self.last(valid_road), point)
+                capacity_battery = battery - self.__instance.get_batterie_consumption(self.last(valid_road), point)
             valid_road.append(point)
 
         return valid_road
@@ -238,7 +250,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         of a road. It will retrun the road without it.
         """
         for point in road:
-            if self.is_charger(point):
+            if self.__instance.is_charger(point):
                 road.remove(point)
         return road
 
@@ -253,9 +265,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         size = len(road)
         for i in range(size):
             if i != (size - 1):
-                total = total + self.get_distance(road[i], road[i + 1])
+                total = total + self.__instance.get_distance(road[i], road[i + 1])
             else:
-                total = total + self.get_distance(road[i], road[0])
+                total = total + self.__instance.get_distance(road[i], road[0])
         return total
 
     def reversed_content(self, road: list[int], point1: int, point2: int) -> list[int]:
@@ -324,7 +336,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         # algo 2-opt
         mutant_road = self.two_opt(road)
 
-        new_road = self.road_correction(mutant_road, self.get_ev_battery())
+        new_road = self.road_correction(mutant_road, self.__instance.get_ev_battery())
 
         new_solution = list[list[int]]
         new_solution = solution
@@ -374,6 +386,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         e_1 = TypeIndividual()
         e_1._solution = s_1
+        # ECVRPSolution(list(self._validators), list(self._solution), self.__instance)
 
         e_2 = TypeIndividual()
         e_2._solution = s_2
@@ -435,6 +448,10 @@ class ECVRPInstance:
         """Return True if the given index is a depot."""
         return index == self.__depot
 
+    def get_depot(self) -> int:
+        """Return the ID of the depot"""
+        return self.__depot
+
     def get_distance(self, start: int, end: int) -> float:
         """Return the distance between start and end."""
         return self.__d_matrix[start][end]
@@ -442,6 +459,10 @@ class ECVRPInstance:
     def get_time_used(self, start: int, end: int) -> float:
         """Return the time took by a vehicule to go from start to end."""
         return self.__d_matrix[start][end]
+
+    def get_chargers(self) -> set[int]:
+        """Return the set of chargers."""
+        return self.__chargers
 
     def is_charger(self, index: int) -> bool:
         """Return True if the given index is a charger."""
