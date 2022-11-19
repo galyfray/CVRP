@@ -64,14 +64,9 @@ test_instance = ECVRPInstance(
 
 
 def test_road_building():
-<<<<<<< HEAD
-    """ Test the road building process: ensure the count is right
-    """
-=======
     """ Test the road building process: ensure the count is right.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     solutions = {
         2: [0, 1, 2, 3, 0, 4, 5, 0],
         1: [0, 1, 0],
@@ -84,14 +79,9 @@ def test_road_building():
 
 
 def test_road_content():
-<<<<<<< HEAD
-    """ Test the road building process: ensure the content of the roads are goods
-    """
-=======
     """ Test the road building process: ensure the content of the roads are goods.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     roads_expected = [
         {
             "source": [0, 1, 2, 3, 0, 4, 5, 0],
@@ -110,14 +100,9 @@ def test_road_content():
 
 
 def test_fitness():
-<<<<<<< HEAD
-    """ Test if the fitness computation is good
-    """
-=======
     """ Test if the fitness computation is good.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance)
     assert instance.get_fitness() == 8
 
@@ -129,14 +114,9 @@ def test_fitness():
 
 
 def test_is_valid():
-<<<<<<< HEAD
-    """ test if the is_valid method works as expected
-    """
-=======
     """ Test if the is_valid method works as expected.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     town = TownUnicityValidator()
     capacity = CapacityValidator()
     count = VehiculeCountValidator()
@@ -177,14 +157,9 @@ def test_is_valid():
 
 
 def test_copy():
-<<<<<<< HEAD
-    """ Test if the copy keyword works as expected
-    """
-=======
     """ Test if the copy keyword works as expected.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     town = TownUnicityValidator()
     capacity = CapacityValidator()
     count = VehiculeCountValidator()
@@ -213,14 +188,9 @@ def test_copy():
 
 
 def test_d_matrix():
-<<<<<<< HEAD
-    """ Test the distance matrix of the ECVRPInstance class
-    """
-=======
     """ Test the distance matrix of the ECVRPInstance class.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     assert test_instance.get_distance(0, 1) == 1
     assert test_instance.get_distance(0, 2) == 2
     assert test_instance.get_distance(1, 0) == 3
@@ -232,14 +202,9 @@ def test_depot():
 
 
 def test_demand():
-<<<<<<< HEAD
-    """ Test the `get_demand` function of the ECVRPInstance class
-    """
-=======
     """ Test the `get_demand` function of the ECVRPInstance class.
     """
 
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     assert test_instance.get_demand(2) == 5
 
     with pytest.raises(KeyError):
