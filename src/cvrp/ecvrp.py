@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """
-<<<<<<< HEAD
-This module holds parts of the implementation of
-the genetic algorithm applyed to the ECVRP problem.
-
-@author: Cyril Obrecht
-@license: GPL-3
-@date: 2022-11-02
-@version: 0.1
-=======
 This module holds parts of the implementation of \
 the genetic algorithm applyed to the ECVRP problem.
 
@@ -17,7 +8,6 @@ the genetic algorithm applyed to the ECVRP problem.
 @license: GPL-3
 @date: 2022-11-17
 @version: 0.6
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
 """
 
 # CVRP
@@ -39,14 +29,6 @@ the genetic algorithm applyed to the ECVRP problem.
 
 from typing import Union
 from .individual import Individual, TypeIndividual, ConstraintValidator
-<<<<<<< HEAD
-
-
-class ECVRPSolution(Individual["ECVRPSolution"]):
-    """ Holds a solution to the ECVRP problem and methods to help with a GA
-        Mutations is either done via 2-opt or a special algorithm.
-        See the mutate method for more information on this subject
-=======
 import random
 
 
@@ -56,7 +38,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
     Mutations is either done via 2-opt or a special algorithm.
     See the mutate method for more information on this subject.
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
     """
 
     _roads: Union[tuple[tuple[int, ...], ...], None]
@@ -70,8 +51,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             solution: list[int],
             instance: "ECVRPInstance"
             ) -> None:
-<<<<<<< HEAD
-=======
         """
         Initialise the ECVRPSolution class.
 
@@ -80,7 +59,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :param solution: A list of indexes that represent a solution to the ECVRP instace
         :param instance: The instance this object aims to represent a solution.
         """
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         super().__init__(validators)
         self._solution = solution
         self.__instance = instance
@@ -88,17 +66,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         self._fitness = None
 
     def get_instance(self) -> "ECVRPInstance":
-<<<<<<< HEAD
-        return self.__instance
-
-    def get_points(self) -> tuple[int, ...]:
-        return tuple(self._solution)
-
-    def get_roads(self) -> tuple[tuple[int, ...], ...]:
-        """ Split the solution in individual roads that can be manipulated
-            without altering the main object.
-        """
-=======
         """Return the instance linked to this solution."""
         return self.__instance
 
@@ -109,7 +76,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_roads(self) -> tuple[tuple[int, ...], ...]:
         """Split the solution in individual roads that can be manipulated \
         without altering the main object."""
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         if self._roads is not None:
             return self._roads
 
@@ -129,19 +95,12 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return self._roads
 
     def get_fitness(self) -> float:
-<<<<<<< HEAD
-        """ Compute the fitness of the solution held in this individual
-            The fitness is here defined as the maximum amount
-            of time taken by an EV to travel a road.
-            The time taken to go from the town A to B is equals to the distance between those towns
-=======
         """
         Compute the fitness of the solution held in this individual.
 
         The fitness is here defined as the maximum amount
         of time taken by an EV to travel a road.
         The time taken to go from the town A to B is equals to the distance between those towns.
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         """
         if self._fitness is not None:
             return self._fitness
@@ -161,24 +120,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-<<<<<<< HEAD
-    def mutate(self) -> None:
-        """ Mutate the current individual according to its internal rules.
-            This changement is done in place.
-        """
-
-    def crossover(self, other: TypeIndividual) -> list[TypeIndividual]:
-        """ Generate a list of children according to the rules of the individual.
-            The returned list might be empty or contains duplicated children.
-            This function might not return the same result with the same argument and
-            will probably not be comutative.
-        """
-
-    def is_valid(self) -> bool:
-        return len([v for v in self._validators if not v.is_valid(self)]) == 0
-
-    def __copy__(self) -> "ECVRPSolution":
-=======
     def best_place_for(self, solution: list[list[int]], I_point: int) -> int:
         """
         Find the best place to add a point to delivery.
@@ -460,7 +401,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
     def __copy__(self) -> "ECVRPSolution":
         """Create a copy."""
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         copy = ECVRPSolution(list(self._validators), list(self._solution), self.__instance)
         copy._fitness = self._fitness
         copy._roads = self._roads
@@ -468,13 +408,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
 
 class ECVRPInstance:
-<<<<<<< HEAD
-    """
-        holding class for most of the information that describe an instance of the ECVRP problem
-    """
-=======
     """Holding class for most of the information that describe an instance of the ECVRP problem."""
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
 
     __d_matrix: list[list[float]]
     __depot: int
@@ -500,10 +434,7 @@ class ECVRPInstance:
             ev_battery: float,
             time_windows: dict[int, tuple[float, float]]
             ) -> None:
-<<<<<<< HEAD
-=======
         """Initialize the instance class."""
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         self.__d_matrix = distance_matrix
         self.__depot = depot_id
         self.__chargers = chargers
@@ -516,41 +447,6 @@ class ECVRPInstance:
         self.__time_windows = time_windows
 
     def is_depot(self, index: int) -> bool:
-<<<<<<< HEAD
-        return index == self.__depot
-
-    def get_distance(self, start: int, end: int) -> float:
-        return self.__d_matrix[start][end]
-
-    def get_time_used(self, start: int, end: int) -> float:
-        return self.__d_matrix[start][end]
-
-    def is_charger(self, index: int) -> bool:
-        return index in self.__chargers
-
-    def get_demand(self, index: int) -> int:
-        return self.__demands[index]
-
-    def get_batterie_consuption(self, start: int, end: int) -> int:
-        return round(self.get_distance(start, end) * self.__bat_cost)
-
-    def get_batterie_charging_rate(self) -> float:
-        return self.__bat_charge
-
-    def get_ev_count(self) -> float:
-        return self.__ev_count
-
-    def get_ev_capacity(self) -> float:
-        return self.__ev_capacity
-
-    def get_ev_battery(self) -> float:
-        return self.__ev_battery
-
-    def get_tw(self, index: int) -> tuple[float, float]:
-        return self.__time_windows[index]
-
-    def get_towns(self) -> list[int]:
-=======
         """Return True if the given index is a depot."""
         return index == self.__depot
 
@@ -601,7 +497,6 @@ class ECVRPInstance:
 
     def get_towns(self) -> list[int]:
         """Return all points that are not a depot or a charger."""
->>>>>>> 192b80fca1d7728ab6b3fa31fa34440ffc1da9c1
         return [
             i for i in range(len(self.__d_matrix)) if not (self.is_depot(i) or self.is_charger(i))
         ]

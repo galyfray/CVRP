@@ -90,7 +90,7 @@ def get_snapshots():
 
 
 # get final result
-@app.route('/result/bench_id', methods=['GET'])
+@app.route('/result/<bench_id:string>', methods=['GET'])
 def get_result_graph():
     # data=JsonWriter(bench_id).read_json()
     # TODO: a function to get solutions (points with their coordinates
