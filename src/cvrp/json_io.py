@@ -59,7 +59,7 @@ class JsonWriter:
         self.__bench_name = bench_name
 
     def add_snapshot(self, snapshot: list[ECVRPSolution], time: float) \
-            -> dict[str, Union[str, list[dict[str, Union[int, tuple[int]]]]]]:
+            -> dict[str, Union[float, list[dict[str, Union[int, tuple[int, ...]]]]]]:
         """
         Add a snapshot to the structure.
 
