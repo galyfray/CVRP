@@ -82,7 +82,7 @@ def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> ECVRPInsta
                 if not value.isdigit() and value.isupper() and value != 'EOF' \
                         and arr[i+1].replace('.', '', 1).isdigit():
                     val = ast.literal_eval(arr[i+1])
-                    parameters[value] = float(val) if isinstance(val, float) else int(val)
+                    parameters[value] = val if isinstance(val, float) else int(val)
 
     distance_matrix = compute_distance_matrix(nodes)
 
