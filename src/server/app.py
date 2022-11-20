@@ -26,8 +26,11 @@ with the CVRP solver.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from flask import Flask
-from flask_cors import CORS
 from flask import request, json
+from flask.logging import create_logger
+from flask_cors import CORS
+
+
 # from Utils.utils import parse_dataset, get_datasets
 # from ..cvrp.json_io import JsonWriter
 # from ..cvrp.ga import GA
@@ -38,6 +41,7 @@ import pandas as pd
 app = Flask(__name__)
 # comment this on deployment
 CORS(app)
+log = create_logger(app)
 
 
 @app.route('/test', methods=['POST'])
@@ -47,6 +51,8 @@ def hello():
 
 @app.route('/operation_params/ag', methods=['POST'])
 def parameter_ag():
+    """ Instanciates an ECVRP instance and launches the GA solver.
+    """
     if request.method == 'POST':
         dataset_choice = request.form['d_c']
         hyper_params = json.loads(request.form['hyper_params'])
@@ -55,19 +61,21 @@ def parameter_ag():
         # building the population with the random solutions
         # population = ECVRPSolution(ecvrp_instance) #to change if needed
         # instancing the ga with the hyperparameters sent by the frontend
-        # ga = GA(population, hyper_params["mutation_rate"], hyper_params["seed"]) #to change if needed
+        # ga = GA(population, hyper_params["mutation_rate"], hyper_params["seed"]) #change if needed
         # resolving the ecvrp problem with the ga instance
         # ga.run(hyper_params["nb_epochs"])
         # sps = JsonWriter("name", "benchname")
         return str([dataset_choice, hyper_params])
 
     else:
-        app.logger.error("Error!")
-        return "error"
+        log.error('Error!')
+        return 'error'
 
 
 @app.route('/operation_params/drl', methods=['POST'])
 def parameter_drl():
+    """ Instanciate an ECVRP instance and launches the DRL solver.
+    """
     if request.method == 'POST':
         dataset_choice = request.form['d_c']
         hyper_params = json.loads(request.form['hyper_params'])
@@ -75,31 +83,39 @@ def parameter_drl():
         return str([dataset_choice, hyper_params])
 
     else:
-        app.logger.error("Error!")
-        return "error"
+        log.error('Error!')
+        return 'error'
 
 
 # get curve of the fitness evolution over time
 @app.route('/get_snapshots', methods=['GET'])
 def get_snapshots():
+    """ Get the snapshots of a given log instance.
+    """
     # TODO: get snapshots over time
-    """
-    [{"generation": tuple[int, ...],"fitness": tuple[float, ...]}]
-    """
-    return "nothing for the moment"
+    # [{"generation": tuple[int, ...],"fitness": tuple[float, ...]}]
+    return 'nothing for the moment'
 
 
 # get final result
-@app.route('/result/<bench_id:string>', methods=['GET'])
-def get_result_graph():
+@app.route('/result/<string:bench_id>', methods=['GET'])
+def get_result_graph(bench_id):
+    """ Get the resulting path graph for a given benchmark.
+
+    :param bench_id: The id of the benchmark.
+    :type bench_id: string
+    :return: The path graph.
+    :rtype: json
+    """
+    print(bench_id)
     # data=JsonWriter(bench_id).read_json()
     # TODO: a function to get solutions (points with their coordinates
     # and a fiel to know if the point is a charge station)
     # necessary for more understandable graphics
     # return data
-    df = pd.read_csv("./file_test/E-n29-k4-s7-c200-ecap100.csv", delimiter=";")
-    df = df.sample(frac=1).reset_index(drop=True)
-    return df.to_json(orient="records")
+    dataframe = pd.read_csv('./file_test/E-n29-k4-s7-c200-ecap100.csv', delimiter=';')
+    dataframe = dataframe.sample(frac=1).reset_index(drop=True)
+    return dataframe.to_json(orient='records')
 
 
 # main driver function
