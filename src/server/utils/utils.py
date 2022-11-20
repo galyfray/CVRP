@@ -4,8 +4,8 @@ This module holds parts of the implementation of the backend server that communi
 with the CVRP solver.
 @authors: ["Axel Velez", "Sonia Kwassi"]
 @license: GPL-3
-@date: 2022-11-19
-@version: 0.3
+@date: 2022-11-20
+@version: 0.4
 """
 
 # CVRP
@@ -148,9 +148,3 @@ def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[floa
                 distance_matrix[next_node-1][node-1] = distance_matrix[node-1][next_node-1]
 
     return distance_matrix
-
-
-parsed = parse_dataset(get_datasets()[0])
-
-evrp = create_ecvrp(parsed)
-print(evrp.get_batterie_charging_rate())
