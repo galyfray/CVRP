@@ -2,7 +2,7 @@
 """
 This module holds parts of the implementation of the backend server that communicate
 with the CVRP solver.
-@author: Axel Velez and Sonia Kwassi
+@authors: ["Axel Velez", "Sonia Kwassi"]
 @license: GPL-3
 @date: 2022-11-19
 @version: 0.3
