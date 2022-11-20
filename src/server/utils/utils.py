@@ -43,8 +43,15 @@ def sending_to_solver(data, algo_params):
     return ''
 
 
-def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> ECVRPInstance:
-    """ Parses the dataset file and create an ECVRPInstance object from the extracted data.
+def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> dict[str, any]:
+    """ Parses the dataset file and extracts the data.
+
+    :param filename: The name of the dataset to parse
+    :type filename: str
+    :param dir_path: The path of the dataset's directory, defaults to PATH_TO_DATASETS
+    :type dir_path: str, optional
+    :return: A parsed dataset object
+    :rtype: dict[str, any]
     """
 
     # Variables needed to create our ECVRP Instance
@@ -86,20 +93,38 @@ def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> ECVRPInsta
                     val = ast.literal_eval(arr[i+1])
                     parameters[value] = val if isinstance(val, float) else int(val)
 
-    distance_matrix = compute_distance_matrix(nodes)
-
-    # Detect if file is incomplete
+    # Detect if the file is incomplete
     if not (parameters or nodes or chargers or demands):
         # The dataset is missing some parameters
         raise ValueError('The dataset file is imcomplete')
 
+    return {'VEHICLES': parameters['VEHICLES'], 'CAPACITY': parameters['CAPACITY'],
+            'ENERGY_CAPACITY': parameters['ENERGY_CAPACITY'],
+            'ENERGY_CONSUMPTION': parameters['ENERGY_CONSUMPTION'],
+            'NODES': nodes, 'DEMANDS': demands,
+            'STATIONS': chargers, 'TIME_WINDOWS': time_windows,
+            'DEPOT': parameters['DEPOT_SECTION']}
+
+
+def create_ecvrp(parameters: dict[str, any]) -> ECVRPInstance:
+    """ Create an ECVRPInstance object from the parsed data.
+
+    :param parameters: A parsed dataset object given by parse_dataset()
+    :type parameters: dict[str, any]
+    :return: An ECVRP instance
+    :rtype: ECVRPInstance
+    """
+
+    distance_matrix = compute_distance_matrix(parameters['NODES'])
+
     # Instantiating the ECVRP instance
-    ecvrp = ECVRPInstance(distance_matrix=distance_matrix, depot_id=parameters['DEPOT_SECTION'],
-                          chargers=chargers, demands=demands,
+    ecvrp = ECVRPInstance(distance_matrix=distance_matrix, depot_id=parameters['DEPOT'],
+                          chargers=parameters['STATIONS'], demands=parameters['DEMANDS'],
                           batterie_cost_factor=parameters['ENERGY_CONSUMPTION'],
                           batterie_charge_rate=1.0, ev_count=parameters['VEHICLES'],
                           ev_capacity=parameters['CAPACITY'],
-                          ev_battery=parameters['ENERGY_CAPACITY'], time_windows=time_windows)
+                          ev_battery=parameters['ENERGY_CAPACITY'],
+                          time_windows=parameters['TIME_WINDOWS'])
 
     return ecvrp
 
@@ -123,3 +148,9 @@ def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[floa
                 distance_matrix[next_node-1][node-1] = distance_matrix[node-1][next_node-1]
 
     return distance_matrix
+
+
+parsed = parse_dataset(get_datasets()[0])
+
+evrp = create_ecvrp(parsed)
+print(evrp.get_batterie_charging_rate())
