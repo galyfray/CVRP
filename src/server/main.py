@@ -54,6 +54,12 @@ class Server:
         CORS(self.app)
 
         self.app.add_url_rule("/run", view_func=self.route_run, methods=["POST"])
+        self.app.add_url_rule("/status", view_func=self.route_status, methods=["GET"])
+        self.app.add_url_rule("/snapshot", view_func=self.route_snapshot, methods=["GET"])
+        self.app.add_url_rule("/benchmarks", view_func=self.route_benchmarks, methods=["GET"])
+        self.app.add_url_rule("/benchmark", view_func=self.route_benchmark, methods=["GET"])
+        self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
+        self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
     def run(self, **kwargs):
         self.app.run(**kwargs)
@@ -70,6 +76,9 @@ class Server:
             hyper = {key: request.form["param"][key] for key in HYPER_LIST[metho]}
 
             # parsing benchmark
+            # create a snapshot
+            # Seed the random
+
             if metho == "ga":
                 pass  # create the instance
 
@@ -87,6 +96,8 @@ class Server:
                 "generation": -1
             }
 
+        # TODO : run a genration, send snap to json_io, handle the end of run.
+
         return {
                 "has_next": True,
                 "snapshot": [
@@ -97,6 +108,29 @@ class Server:
                 "generation": 0
             }
 
+    def route_benchmarks(self):
+        """Doc goes here"""
+        # TODO: import bench_dir from parser and list all files in the directory
+        # should I cache this information ?
+        return ["None"]
+
+    def route_benchmark(self):
+        """Doc goes here"""
+        # load the bench
+        # convert the bench to JSON
+        return {}
+
+    def route_logs(self):
+        """Doc goes here"""
+        # list all files from the logs folder
+        # transform data according to what needs the front
+        # return the data
+        # This should be cached.
+
+    def route_results(self):
+        """Doc goes here"""
+        # load the correct JSON
+        # return it.
 
 
 if __name__ == "__main__":
