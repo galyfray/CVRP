@@ -25,14 +25,28 @@ with the CVRP solver.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from src.server.utils.utils import get_datasets, parse_dataset, compute_distance_matrix
+from src.server.utils.utils import get_datasets, parse_dataset, compute_distance_matrix, \
+                                   create_ecvrp
 
 PATH = 'test/server/test_datasets'
 DATASET = 'E-n5-k4-s2.evrp'
 
 cities = {1: (145, 215), 2: (151, 264), 3: (159, 261), 4: (130, 254), 5: (200, 176)}
 
-expected_distance_matrix = [
+parsed_data = {
+    'VEHICLES': 4,
+    'CAPACITY': 6000,
+    'ENERGY_CAPACITY': 99,
+    'ENERGY_CONSUMPTION': 1.0,
+    'NODES': {1: (145, 215), 2: (151, 264), 3: (159, 261), 4: (130, 254), 5: (200, 176)}, 
+    'DEMANDS': {1: 0, 2: 1100, 3: 700},
+    'STATIONS': {4, 5},
+    'TIME_WINDOWS': {
+        1: (0, float('inf')), 2: (0, float('inf')), 3: (0, float('inf')),
+        4: (0, float('inf')), 5: (0, float('inf'))},
+    'DEPOT': 1}
+
+distance_matrix = [
     [0.0, 49.36598018878993, 48.08326112068523, 41.78516483155236, 67.42403132415029], 
     [49.36598018878993, 0.0, 8.54400374531753, 23.259406699226016, 100.72239075796404], 
     [48.08326112068523, 8.54400374531753, 0.0, 29.832867780352597, 94.37160589923221], 
@@ -49,11 +63,18 @@ def test_get_datasets():
     assert file == DATASET
 
 
-def test_dataset_parser():
-    """ Test if the parser creates an EVRPInstance with the right parameters.
+def test_parse_dataset():
+    """ Test if the parser correctly extracts the data from the dataset.
+    """
+    data = parse_dataset(DATASET, PATH)
+    assert data == parsed_data
+
+
+def test_create_evrp():
+    """ Test if the EVRPInstance is created with the right parameters.
     """
 
-    evrp = parse_dataset(DATASET, PATH)
+    evrp = create_ecvrp(parsed_data)
 
     assert evrp.get_ev_capacity() == 6000
     assert evrp.get_demand(2) == 1100
@@ -71,5 +92,5 @@ def test_compute_distance_matrix():
     """ Check if the distance matrix computation is correct.
     """
 
-    distance_matrix = compute_distance_matrix(cities)
-    assert distance_matrix == expected_distance_matrix
+    matrix = compute_distance_matrix(cities)
+    assert matrix == distance_matrix
