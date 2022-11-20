@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-This module holds tests for the cvrp.ecvrp module.
-
+This module holds parts of the implementation of the backend server that communicate 
+with the CVRP solver.
 @author: Axel Velez
 @license: GPL-3
 @date: 2022-11-19
