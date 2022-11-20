@@ -67,11 +67,13 @@ def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> ECVRPInsta
         for i, value in enumerate(arr):
             if value == 'NODE_COORD_SECTION':
                 for index in range((parameters['DIMENSION'])*3):
+                    # Extracts the id and coordinates of each node (3 values per line)
                     if index % 3 == 0:
                         nodes[int(arr[i+index+1])] = (int(arr[i+index+2]), int(arr[i+index+3]))
                         time_windows[int(arr[i+index+1])] = (0, float('inf'))
             elif value == 'DEMAND_SECTION':
                 for index in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
+                    # Extracts the id and demand for each node (2 values per line)
                     if index % 2 == 0:
                         demands[int(arr[i+index+1])] = int(arr[i+index+2])
             elif value == 'STATIONS_COORD_SECTION':
