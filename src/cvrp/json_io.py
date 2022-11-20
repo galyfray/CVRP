@@ -27,6 +27,7 @@ This module holds the IO handlers for our data storage.
 
 from pathlib import Path
 from bz2 import BZ2File
+from typing import Union
 import json
 
 from .ecvrp import ECVRPSolution
@@ -57,7 +58,8 @@ class JsonWriter:
         self.__name = name
         self.__bench_name = bench_name
 
-    def add_snapshot(self, snapshot: list[ECVRPSolution], time: float):
+    def add_snapshot(self, snapshot: list[ECVRPSolution], time: float) \
+            -> dict[str, Union[str, list[dict[str, Union[int, tuple[int]]]]]]:
         """
         Add a snapshot to the structure.
 
@@ -74,6 +76,8 @@ class JsonWriter:
             })
 
         self.__snapshots.append(generation)
+
+        return generation
 
     def dump(self):
         """
