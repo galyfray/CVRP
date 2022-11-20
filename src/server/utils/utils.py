@@ -5,7 +5,7 @@ with the CVRP solver.
 @author: Axel Velez and Sonia Kwassi
 @license: GPL-3
 @date: 2022-11-19
-@version: 0.2
+@version: 0.3
 """
 
 # CVRP
@@ -31,10 +31,10 @@ import sys
 from os import path
 import numpy as np
 
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position disable=E0401
 sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__)))))
 from cvrp.ecvrp import ECVRPInstance # noqa E402
-# pylint: enable=wrong-import-position
+# pylint: enable=wrong-import-position enable=E0401
 
 PATH_TO_DATASETS = 'src/server/datasets'
 
@@ -43,7 +43,7 @@ def sending_to_solver(data, algo_params):
     return ''
 
 
-def parse_dataset(filename: str) -> ECVRPInstance:
+def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> ECVRPInstance:
     """ Parses the dataset file and create an ECVRPInstance object from the extracted data.
     """
 
@@ -56,7 +56,7 @@ def parse_dataset(filename: str) -> ECVRPInstance:
     time_windows: dict[int, tuple[float, float]] = {}
 
     # Parsing the file
-    with open(PATH_TO_DATASETS + '/' + filename, 'r', encoding='utf8') as f:
+    with open(dir_path + '/' + filename, 'r', encoding='utf8') as f:
 
         data = StringIO(f.read().replace(':', ''))
 
@@ -102,10 +102,10 @@ def parse_dataset(filename: str) -> ECVRPInstance:
     return ecvrp
 
 
-def get_datasets() -> list[str]:
+def get_datasets(dir_path: str = PATH_TO_DATASETS) -> list[str]:
     """ List all the files in the dataset folder.
     """
-    return os.listdir(PATH_TO_DATASETS)
+    return os.listdir(dir_path)
 
 
 def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[float]]:
