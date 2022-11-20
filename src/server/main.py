@@ -3,7 +3,7 @@
 """
 This module holds the rest server that bridge the solvers and the front end.
 
-@author: Cyril Obrecht
+@authors: ["Cyril Obrecht", "Sonia Kwassi"]
 @license: GPL-3
 @date: 2022-11-02
 @version: 0.1
@@ -25,14 +25,12 @@ This module holds the rest server that bridge the solvers and the front end.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import math
+import time
 from flask import Flask, request
 from flask_cors import CORS
 
-app = Flask(__name__)
-# app = Flask(__name__, static_url_path='', static_folder='react_client/build')
-
-CORS(app)
-
+from src.cvrp.ecvrp import ECVRPInstance
 
 HYPER_LIST = {
     "ga": [
@@ -44,21 +42,62 @@ HYPER_LIST = {
 }
 
 
-def run():
-    """Function handling the start of an instance"""
-    if request.method == "POST":
-        metho = request.form["type"]
-        if metho not in HYPER_LIST:
-            pass  # raise error
-        hyper = {key: request.form["param"][key] for key in HYPER_LIST[metho]}
+class Server:
+    """Docs goes here"""
 
-        # parsing benchmark
+    def __init__(self, name: str):
+        self._runner = None
 
-        if metho == "ga":
-            pass
+        self.app = Flask(name)
+        # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
+
+        CORS(self.app)
+
+        self.app.add_url_rule("/run", view_func=self.route_run, methods=["POST"])
+
+    def run(self, **kwargs):
+        self.app.run(**kwargs)
+
+    def route_run(self):
+        """Function handling the start of an instance"""
+        if self._runner is not None:
+            return {"busy": True}
+
+        if request.method == "POST":
+            metho = request.form["type"]
+            if metho not in HYPER_LIST:
+                pass  # raise error
+            hyper = {key: request.form["param"][key] for key in HYPER_LIST[metho]}
+
+            # parsing benchmark
+            if metho == "ga":
+                pass  # create the instance
+
+        return None
+
+    def route_status(self):
+        return {"status": "free"} if self._runner is None else {"status": "busy"}
+
+    def route_snapshot(self):
+        """Doxumentation goes here"""
+        if self._runner is None:
+            return {
+                "has_next": False,
+                "snapshot": [],
+                "generation": -1
+            }
+
+        return {
+                "has_next": True,
+                "snapshot": [
+                    {"time": time.thread_time(), "individuals": [
+                        {"solution": (0, 1, 2, 0, 4, 3, 0), "fitness": 1}
+                    ]}
+                ],
+                "generation": 0
+            }
+
 
 
 if __name__ == "__main__":
-    app.add_url_rule("/run", view_func=run, methods=["POST"])
-
-    app.run(debug=True)
+    Server(__name__).run(debug=True)

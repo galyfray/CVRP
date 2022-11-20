@@ -60,7 +60,7 @@ export:
 # TODO: re create the make run command
 run:
 	make clean
-	$(PY_CONDA) -m main.py
+	$(PY_CONDA) -m src.server.main
 
 reset:
 	$(CONDA_SCRIPT) env remove -p ./venv
