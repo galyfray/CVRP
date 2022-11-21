@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-This module holds parts of the implementation of the backend server that communicate
-with the CVRP solver.
-@authors: ["Axel Velez", "Sonia Kwassi"]
+This module contains the necessary functions to parse and create ECVRP instances.
+@authors: Axel Velez
 @license: GPL-3
-@date: 2022-11-20
-@version: 0.4
+@date: 2022-11-21
+@version: 0.5
 """
 
 # CVRP
@@ -37,10 +36,6 @@ from cvrp.ecvrp import ECVRPInstance # noqa E402
 # pylint: enable=wrong-import-position enable=E0401
 
 PATH_TO_DATASETS = 'src/server/datasets'
-
-
-def sending_to_solver(data, algo_params):
-    return ''
 
 
 def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> dict[str, any]:
