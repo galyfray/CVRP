@@ -38,7 +38,7 @@ parsed_data = {
     'CAPACITY': 6000,
     'ENERGY_CAPACITY': 99,
     'ENERGY_CONSUMPTION': 1.0,
-    'NODES': {1: (145, 215), 2: (151, 264), 3: (159, 261), 4: (130, 254), 5: (200, 176)},
+    'NODES': cities,
     'DEMANDS': {1: 0, 2: 1100, 3: 700},
     'STATIONS': {4, 5},
     'TIME_WINDOWS': {
