@@ -13,7 +13,7 @@ class Embedding(ABC):
     def embed(self, g : ECVRPInstance) -> list: #Jsp comment on représente les vecteur j'ai mis liste pour le moment, je vous laisse modifier si c'est pas bon
         """
         :param g: the graph represented as an ECVRPInstance
-
+        
         :return: an embedded vector representation of the problem
         """
         pass
@@ -48,4 +48,4 @@ class EmbeddingClass(Embedding):
         pass
 
 
-emb = Embedding()
+emb = EmbeddingClass()
