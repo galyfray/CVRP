@@ -63,9 +63,9 @@ def parse_dataset(filename: str, dir_path: str = PATH_TO_DATASETS) -> dict[str, 
     time_windows: dict[int, tuple[float, float]] = {}
 
     # Parsing the file
-    with open(dir_path + '/' + filename, 'r', encoding='utf8') as f:
+    with open(dir_path + '/' + filename, 'r', encoding='utf8') as file:
 
-        data = StringIO(f.read().replace(':', ''))
+        data = StringIO(file.read().replace(':', ''))
 
         # Storing all words
         arr = [word for line in data for word in line.split()]
