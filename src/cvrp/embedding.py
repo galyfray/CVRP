@@ -1,9 +1,26 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from abc import ABC, abstractmethod
+from ecvrp import ECVRPInstance
 
-class Embedding():
-    """ Graph embedding layer.
+class Embedding(ABC):
+    """
+    Embedding interface to help the OOP
+    """
+
+    @abstractmethod
+    def embed(self, g : ECVRPInstance) -> list: #Jsp comment on représente les vecteur j'ai mis liste pour le moment, je vous laisse modifier si c'est pas bon
+        """
+        :param g: the graph represented as an ECVRPInstance
+
+        :return: an embedded vector representation of the problem
+        """
+        pass
+
+class EmbeddingClass(Embedding):
+    """
+    Graph embedding layer.
     """
     def __init__(self) -> None:
 
@@ -18,13 +35,16 @@ class Embedding():
                 [14, 15, 16, 17, 18]]), columns=features)
         print(data_x)
 
-    def data_processing(self, data):
+    def _data_processing(self, data):
 
         sc = StandardScaler()
         data = sc.fit_transform(data)
         return data
 
-    def predict(self, data):
+    def _predict(self, data):
+        pass
+
+    def embed(self, g):
         pass
 
 
