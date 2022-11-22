@@ -205,6 +205,8 @@ def get_solution() :
         }
         i +=1
         links.append(link)
+
+    # TODO parser_to_df in utils functions
     #df = parser_to_df(get_datasets()[dataset_choice]) #id,coord_x, coord_y, is_station
     data_df = pd.read_csv("./Utils/Datasets/E-n29-k4-s7-c200-ecap100.csv", delimiter=";")
     coord_x = []
@@ -267,7 +269,7 @@ def get_final_results() :
 @app.route("/get_logs", methods=["GET"])
 def get_logs() :
     #res = util.get_logs_of_directory
-    #return {"id" : , "logs": []}
+    #return {"id" : ,"method", "logs": []}
     test_logs = [{
             "id" : "sdxdfcgfhgjb",
             "method": "ga",
