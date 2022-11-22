@@ -33,7 +33,7 @@ from src.server.utils.utils import get_datasets, parse_dataset, compute_distance
 PATH = Path('test/server/test_datasets')
 DATASET = 'E-n5-k4-s2.evrp'
 
-cities = {1: (145, 215), 2: (151, 264), 3: (159, 261), 4: (130, 254), 5: (200, 176)}
+cities = {0: (145, 215), 1: (151, 264), 2: (159, 261), 3: (130, 254), 4: (200, 176)}
 
 parsed_data = {
     'VEHICLES': 4,
@@ -41,12 +41,12 @@ parsed_data = {
     'ENERGY_CAPACITY': 99,
     'ENERGY_CONSUMPTION': 1.0,
     'NODES': cities,
-    'DEMANDS': {1: 0, 2: 1100, 3: 700},
-    'STATIONS': {4, 5},
+    'DEMANDS': {0: 0, 1: 1100, 2: 700},
+    'STATIONS': {3, 4},
     'TIME_WINDOWS': {
-        1: (0, float('inf')), 2: (0, float('inf')), 3: (0, float('inf')),
-        4: (0, float('inf')), 5: (0, float('inf'))},
-    'DEPOT': 1}
+        0: (0, float('inf')), 1: (0, float('inf')), 2: (0, float('inf')),
+        3: (0, float('inf')), 4: (0, float('inf'))},
+    'DEPOT': 0}
 
 distance_matrix = [
     [0.0, 49.36, 48.08, 41.78, 67.42],
@@ -76,14 +76,14 @@ def test_create_evrp():
     evrp = create_ecvrp(parsed_data)
 
     assert evrp.get_ev_capacity() == 6000
-    assert evrp.get_demand(2) == 1100
+    assert evrp.get_demand(1) == 1100
     assert evrp.get_ev_count() == 4
-    assert evrp.get_tw(2) == (0, float('inf'))
-    # assert evrp.get_towns() == [2, 3]  # TODO: Fix get_towns()
+    assert evrp.get_tw(1) == (0, float('inf'))
+    # assert evrp.get_towns() == [1, 2]  # TODO: Fix get_towns()
     assert evrp.get_ev_battery() == 99
-    assert evrp.is_charger(3) is False and evrp.is_charger(4) is True
+    assert evrp.is_charger(2) is False and evrp.is_charger(3) is True
     assert evrp.get_batterie_charging_rate() == 1.00
-    assert evrp.is_depot(1) is True
+    assert evrp.is_depot(0) is True
     assert pytest.approx(evrp.get_distance(0, 1), 0.001) == 49.37
 
 
@@ -91,6 +91,7 @@ def test_compute_distance_matrix():
     """Check if the distance matrix computation is correct."""
 
     matrix = compute_distance_matrix(cities)
+    print(matrix)
 
     for line, distances in enumerate(matrix):
         assert pytest.approx(distances, 0.001) == distance_matrix[line]
