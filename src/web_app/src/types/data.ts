@@ -1,16 +1,39 @@
-// eslint-disable-next-line @typescript-eslint/no-namespace
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace Types {
-    export type AG_hyper_parameters = {
-      nb_epochs: number
-      pop_size: number
-      crossover_rate: number
-      mutation_rate: number
-    }
+  export type AG_hyper_parameters = {
+    nb_epochs: number
+    pop_size: number
+    crossover_rate: number
+    mutation_rate: number
+  }
 
-    export type DRL_hyper_parameters = {
-      nb_epochs: number
-      learning_rate : number
-      batch_size: number
-      momentum : number
-    }
+  export type DRL_hyper_parameters = {
+    nb_epochs: number
+    learning_rate : number
+    batch_size: number
+    momentum : number
+  }
+
+  export type Point = {
+    id: number
+    NODE_COORD_X : number
+    NODE_COORD_Y : number
+    is_station : boolean
+  }
+
+  export type Link = {
+    source : number,
+    target : number
+  }
+
+  export type Received_data = {
+    "time" : number,
+    "fitness" : number
+  }
+
+  export type Log = {
+    "id" : string,
+    "method" : string,
+    "logs": Array<Received_data>
+  }
 }

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import React, {useEffect} from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,11 +13,18 @@ import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import {Types} from "../types/data";
 import axios from "axios";
+import Backdrop from "@mui/material/Backdrop";
+import sleep from "../config/sleep_funct";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export function DrlHyperParamsPage() {
     const {url} = useRouteMatch();
     const dataset_choice = url.split("/")[2];
     const history = useHistory();
+    const [
+        open,
+        setOpen
+    ] = React.useState(false);
     const [
         nb_epochs,
         setNb_epochs
@@ -57,18 +64,18 @@ export function DrlHyperParamsPage() {
             "momentum"     : momemtum
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        axios.post("http://127.0.0.1:5000/operation_params/drl",
-            {
-                "d_c"         : dataset_choice,
-                "hyper_params": JSON.stringify(param)
-            },
-            {headers: {"Content-Type": "multipart/form-data"}}
-        )
-            .then(() => {
-                history.push(url + "/operation");
+        axios.post("http://127.0.0.1:5000/operation_params/drl", {
+            "d_c"         : dataset_choice,
+            "hyper_params": JSON.stringify(param)
+        }, {headers: {"Content-Type": "multipart/form-data"}})
+            .then(async() => {
+                setOpen(true);
+                await sleep(5000);
+                history.push(url + "operation");
+                setOpen(false);
             })
             .catch(error => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 console.log(error.response);
             });
     };
@@ -150,6 +157,13 @@ export function DrlHyperParamsPage() {
                 Suivant
                     </Button>
                 </Stack>
+                {open && <Backdrop
+                    sx={{color: "#fff", zIndex: theme => theme.zIndex.drawer + 1}}
+                    open={open}
+                >
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+                }
             </Container>
         </React.Fragment>
     );

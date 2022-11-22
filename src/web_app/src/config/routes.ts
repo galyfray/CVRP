@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {AboutPage} from "../pages/about";
 import {AlgoChoosingPage} from "../pages/algo_choosing";
-import {AlHyperParamsPage} from "../pages/al_hyperParams";
+import {GaHyperParamsPage} from "../pages/ga_hyperParams";
 import {DrlHyperParamsPage} from "../pages/drl_hyperParams";
 import {HomePage} from "../pages/home";
 import {OperationPage} from "../pages/operation";
@@ -58,9 +58,9 @@ const routes = [
         "component": AlgoChoosingPage
     },
     {
-        "name"     : "al_hyperparams",
-        "path"     : "/run/:type/algo_choice/ag/",
-        "component": AlHyperParamsPage
+        "name"     : "ga_hyperparams",
+        "path"     : "/run/:type/algo_choice/ga/",
+        "component": GaHyperParamsPage
     },
     {
         "name"     : "drl_hyperparams",
@@ -69,7 +69,7 @@ const routes = [
     },
     {
         "name"     : "al_hyperparams",
-        "path"     : "/run/:type/algo_choice/ag/operation/",
+        "path"     : "/run/:type/algo_choice/ga/operation/",
         "component": OperationPage
     },
     {
@@ -79,7 +79,7 @@ const routes = [
     },
     {
         "name"     : "al_hyperparams",
-        "path"     : "/run/:type/algo_choice/ag/operation/result",
+        "path"     : "/run/:type/algo_choice/ga/operation/result",
         "component": ResultPage
     },
     {
