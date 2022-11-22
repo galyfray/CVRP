@@ -25,10 +25,12 @@ with the CVRP solver.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from pathlib import Path
+import pytest
 from src.server.utils.utils import get_datasets, parse_dataset, compute_distance_matrix, \
                                    create_ecvrp
 
-PATH = 'test/server/test_datasets'
+PATH = Path('test/server/test_datasets')
 DATASET = 'E-n5-k4-s2.evrp'
 
 cities = {1: (145, 215), 2: (151, 264), 3: (159, 261), 4: (130, 254), 5: (200, 176)}
@@ -47,32 +49,29 @@ parsed_data = {
     'DEPOT': 1}
 
 distance_matrix = [
-    [0.0, 49.36598018878993, 48.08326112068523, 41.78516483155236, 67.42403132415029],
-    [49.36598018878993, 0.0, 8.54400374531753, 23.259406699226016, 100.72239075796404],
-    [48.08326112068523, 8.54400374531753, 0.0, 29.832867780352597, 94.37160589923221],
-    [41.78516483155236, 23.259406699226016, 29.832867780352597, 0.0, 104.80458005259122],
-    [67.42403132415029, 100.72239075796404, 94.37160589923221, 104.80458005259122, 0.0]
+    [0.0, 49.36, 48.08, 41.78, 67.42],
+    [49.36, 0.0, 8.54, 23.25, 100.72],
+    [48.08, 8.54, 0.0, 29.83, 94.37],
+    [41.78, 23.25, 29.83, 0.0, 104.80],
+    [67.42, 100.72, 94.37, 104.80, 0.0]
 ]
 
 
 def test_get_datasets():
-    """ Test if it lists the datasets for a given path.
-    """
+    """ Test if it lists the datasets for a given path."""
 
     file = get_datasets(PATH)[0]
     assert file == DATASET
 
 
 def test_parse_dataset():
-    """ Test if the parser correctly extracts the data from the dataset.
-    """
+    """ Test if the parser correctly extracts the data from the dataset."""
     data = parse_dataset(DATASET, PATH)
     assert data == parsed_data
 
 
 def test_create_evrp():
-    """ Test if the EVRPInstance is created with the right parameters.
-    """
+    """ Test if the EVRPInstance is created with the right parameters."""
 
     evrp = create_ecvrp(parsed_data)
 
@@ -85,12 +84,13 @@ def test_create_evrp():
     assert evrp.is_charger(3) is False and evrp.is_charger(4) is True
     assert evrp.get_batterie_charging_rate() == 1.00
     assert evrp.is_depot(1) is True
-    assert evrp.get_distance(0, 1) == 49.36598018878993
+    assert pytest.approx(evrp.get_distance(0, 1), 0.001) == 49.37
 
 
 def test_compute_distance_matrix():
-    """ Check if the distance matrix computation is correct.
-    """
+    """ Check if the distance matrix computation is correct."""
 
     matrix = compute_distance_matrix(cities)
-    assert matrix == distance_matrix
+
+    for line, distances in enumerate(matrix):
+        assert pytest.approx(distances, 0.001) == distance_matrix[line]
