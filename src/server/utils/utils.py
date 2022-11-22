@@ -55,7 +55,7 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
     """
 
     # Variables needed to create our ECVRP Instance
-    parameters = {}
+    parameters: dict[str, any] = {}
     nodes: dict[int, tuple[int, int]] = {}
     chargers: set[int] = set()
     demands: dict[int, int] = {}
