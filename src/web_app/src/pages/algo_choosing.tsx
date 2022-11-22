@@ -41,7 +41,7 @@ export function AlgoChoosingPage() {
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <Stack alignItems="center" >
-                            <Link href={url + "/algo_gene/"}>
+                            <Link href={url + "/ga/"}>
                                 <img src={algo_gene_image} alt="algo_gene_image" width= "75%"/>
                             </Link>
                             <Typography gutterBottom variant="h6" align="center" component="div" sx={{mr: 5}}>
