@@ -155,7 +155,7 @@ def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[floa
         for next_node, (next_x, next_y) in nodes.items():
             if node != next_node:
                 dist = np.sqrt(np.power(current_x-next_x, 2) + np.power(current_y-next_y, 2))
-                distance_matrix[node-1][next_node-1] = dist
-                distance_matrix[next_node-1][node-1] = distance_matrix[node-1][next_node-1]
+                distance_matrix[node][next_node] = dist
+                distance_matrix[next_node][node] = distance_matrix[node][next_node]
 
     return distance_matrix
