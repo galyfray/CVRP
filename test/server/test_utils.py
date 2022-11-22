@@ -79,7 +79,7 @@ def test_create_evrp():
     assert evrp.get_demand(1) == 1100
     assert evrp.get_ev_count() == 4
     assert evrp.get_tw(1) == (0, float('inf'))
-    # assert evrp.get_towns() == [1, 2]  # TODO: Fix get_towns()
+    assert evrp.get_towns() == [1, 2]
     assert evrp.get_ev_battery() == 99
     assert evrp.is_charger(2) is False and evrp.is_charger(3) is True
     assert evrp.get_batterie_charging_rate() == 1.00
