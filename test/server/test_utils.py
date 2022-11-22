@@ -5,8 +5,8 @@ This module holds parts of the implementation of the backend server that communi
 with the CVRP solver.
 @author: Axel Velez
 @license: GPL-3
-@date: 2022-11-19
-@version: 0.1
+@date: 2022-11-22
+@version: 0.2
 """
 
 # CVRP
@@ -58,20 +58,20 @@ distance_matrix = [
 
 
 def test_get_datasets():
-    """ Test if it lists the datasets for a given path."""
+    """Test if it lists the datasets for a given path."""
 
     file = get_datasets(PATH)[0]
     assert file == DATASET
 
 
 def test_parse_dataset():
-    """ Test if the parser correctly extracts the data from the dataset."""
+    """Test if the parser correctly extracts the data from the dataset."""
     data = parse_dataset(DATASET, PATH)
     assert data == parsed_data
 
 
 def test_create_evrp():
-    """ Test if the EVRPInstance is created with the right parameters."""
+    """Test if the EVRPInstance is created with the right parameters."""
 
     evrp = create_ecvrp(parsed_data)
 
@@ -88,7 +88,7 @@ def test_create_evrp():
 
 
 def test_compute_distance_matrix():
-    """ Check if the distance matrix computation is correct."""
+    """Check if the distance matrix computation is correct."""
 
     matrix = compute_distance_matrix(cities)
 

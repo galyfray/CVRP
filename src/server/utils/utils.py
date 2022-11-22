@@ -3,8 +3,8 @@
 This module contains the necessary functions to parse and create ECVRP instances.
 @authors: Axel Velez
 @license: GPL-3
-@date: 2022-11-21
-@version: 0.5
+@date: 2022-11-22
+@version: 0.6
 """
 
 # CVRP
@@ -16,7 +16,7 @@ This module contains the necessary functions to parse and create ECVRP instances
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WdataANTY; without even the implied wdataanty of
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
@@ -38,13 +38,13 @@ from cvrp.ecvrp import ECVRPInstance # noqa E402
 # pylint: enable=wrong-import-position enable=E0401
 
 PATH_TO_DATASETS = Path('src/server/datasets')
-PATH_TO_DATASETS = PATH_TO_DATASETS / 'test'
-print(PATH_TO_DATASETS)
-# print(type(p))
+
+# Offset used to map the original cities id to their new values
+OFFSET = 1
 
 
 def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str, any]:
-    """ Parses the dataset file and extracts the data.
+    """Parses the dataset file and extracts the data.
 
     :param filename: The name of the dataset to parse
     :type filename: str
@@ -55,7 +55,6 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
     """
 
     # Variables needed to create our ECVRP Instance
-
     parameters = {}
     nodes: dict[int, tuple[int, int]] = {}
     chargers: set[int] = set()
@@ -76,22 +75,27 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
                 for index in range((parameters['DIMENSION'])*3):
                     # Extracts the id and coordinates of each node (3 values per line)
                     if index % 3 == 0:
-                        nodes[int(data[i+index+1])] = (int(data[i+index+2]), int(data[i+index+3]))
-                        time_windows[int(data[i+index+1])] = (0, float('inf'))
+                        nodes[int(data[i+index+1]) - OFFSET] = \
+                            (int(data[i+index+2]), int(data[i+index+3]))
+                        time_windows[int(data[i+index+1]) - OFFSET] = (0, float('inf'))
             elif value == 'DEMAND_SECTION':
                 for index in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
                     # Extracts the id and demand for each node (2 values per line)
                     if index % 2 == 0:
-                        demands[int(data[i+index+1])] = int(data[i+index+2])
+                        demands[int(data[i+index+1]) - OFFSET] = int(data[i+index+2])
             elif value == 'STATIONS_COORD_SECTION':
                 for index in range(parameters['STATIONS']):
-                    chargers.add(int(data[i+index+1]))
+                    chargers.add(int(data[i+index+1]) - OFFSET)
             else:  # Building the parameters dictionnary
                 # Making sure the selected word is a valid key
                 # and not a numerical value or the end of the file
                 if not value.isdigit() and value.isupper() and value != 'EOF' \
                         and data[i+1].replace('.', '', 1).isdigit():
-                    val = ast.literal_eval(data[i+1])
+                    if value == 'DEPOT_SECTION':
+                        # If the value is a depot, we need to offset it as well
+                        val = int(data[i+1]) - OFFSET
+                    else:
+                        val = ast.literal_eval(data[i+1])
                     parameters[value] = val if isinstance(val, float) else int(val)
 
     return {'VEHICLES': parameters['VEHICLES'],
@@ -106,7 +110,7 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
 
 
 def create_ecvrp(parameters: dict[str, any]) -> ECVRPInstance:
-    """ Create an ECVRPInstance object from the parsed data.
+    """Create an ECVRPInstance object from the parsed data.
 
     :param parameters: A parsed dataset object given by parse_dataset()
     :type parameters: dict[str, any]
@@ -132,7 +136,7 @@ def create_ecvrp(parameters: dict[str, any]) -> ECVRPInstance:
 
 
 def get_datasets(dir_path: Path = PATH_TO_DATASETS) -> list[str]:
-    """ List all the files in the dataset folder.
+    """List all the files in the dataset folder.
 
     :param dir_path: The path of the datasets directory, defaults to PATH_TO_DATASETS
     :type dir_path: Path, optional
@@ -143,7 +147,7 @@ def get_datasets(dir_path: Path = PATH_TO_DATASETS) -> list[str]:
 
 
 def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[float]]:
-    """ Compute the distance matrix of our nodes. """
+    """Compute the distance matrix of our nodes."""
 
     distance_matrix = np.zeros(shape=(len(nodes), len(nodes))).tolist()
 
