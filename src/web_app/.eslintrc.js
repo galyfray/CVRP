@@ -6,7 +6,7 @@ module.exports = {
     ],
     "parserOptions": {
         "ecmaVersion": "latest",
-        "project": ["./tsconfig.json"],
+        "project": "tsconfig.json",
         "tsconfigRootDir": __dirname
     },
     "env": {
@@ -117,4 +117,11 @@ module.exports = {
         "wrap-iife": ["warn", "inside"],
         "yield-star-spacing": ["warn", "after"]
     }
+    //for after
+    //,
+    //"overrides": [
+    //    {
+    //    "files": ["tests/**/*.ts"],
+    //    "env": { "jest": true, "node": true }
+    //    }] 
 }

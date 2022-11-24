@@ -13,7 +13,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import RoadGraph from "./roadGraph";
+import RoadGraph from "../components/roadGraph";
 import {useRouteMatch} from "react-router-dom";
 import {d3Types} from "../types/d3Types";
 import {Types} from "../types/data";
