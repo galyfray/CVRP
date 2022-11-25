@@ -124,7 +124,34 @@ class Server:
         self.app.run(**kwargs)
 
     def route_run(self):
-        """Method handling the start of an instance"""
+        """
+        Method handling the start of an instance
+
+        expected form :
+
+        {
+            "type":"drl|ga",
+            "params":{
+                "nb_epochs":"int",
+                "pop_size?":"int",
+                "mutation_rate?":"float",
+                "crossover_rate?":"float",
+                "learning_rate?":"float",
+                "batch_size?":"int",
+                "momentum?":"float"
+            },
+            "override":"bool",
+            "bench_id":"string",
+            "snapshot_rate":"int"
+        }
+
+        Returns :
+        {
+            “busy”:”bool”
+        }
+
+
+        """
         if self._runner is not None:
             return {"busy": True}
 
@@ -152,6 +179,19 @@ class Server:
         Return the latest computed snapshot of the current solving.
 
         If no solving is running a placeholder is returned with generation set to -1.
+
+        No expected input
+
+        Returns :
+
+        {
+            "has_next":"bool",
+            "snapshot":"snapshot",
+            "generation":"int"
+        }
+
+        The snapshot type is defined in the json_io class.
+
         """
         if self._runner is None:
             return {
@@ -179,20 +219,40 @@ class Server:
         return ["None"]
 
     def route_benchmark(self):
-        """Load and return a specific benchmark."""
+        """
+        Load and return a specific benchmark.
+
+        The benchmark is returned in the same format as provider by the benchmark reader.
+        """
         # load the bench
         # convert the bench to JSON
         return {}
 
     def route_logs(self):
-        """Provide a list of all available logs."""
+        """
+        Provide a list of all available logs.
+
+        returns :
+
+        [
+            {
+                name: str,
+                first_gen: "snaphshot"
+            }
+        ]
+
+        """
         # list all files from the logs folder
         # transform data according to what needs the front
         # return the data
         # This should be cached.
 
     def route_results(self):
-        """Load a log file and provide its content."""
+        """
+        Load a log file and provide its content.
+
+        returns the same json as stored.
+        """
         # load the correct JSON
         # return it.
 
