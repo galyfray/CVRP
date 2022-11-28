@@ -7,7 +7,12 @@ module.exports = {
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
     ],
     "transform": {
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+.(css|styl|less|sass|scss|png|PNG|jpg|ttf|woff|woff2)$": "jest-transform-stub"
+    
+    },
+    "jest": {
+        "setupFilesAfterEnv": ["<rootDir>src/setupTests.ts"]
     },
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 }

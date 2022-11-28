@@ -14,13 +14,13 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import RoadGraph from "../components/roadGraph";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 import {d3Types} from "../types/d3Types";
 import {Types} from "../types/data";
 import sleep from "../config/sleep_funct";
 
 export function OperationPage() {
-    const {url} = useRouteMatch();
+    const url = useLocation().pathname;
     const dataset_choice = url.split("/")[2];
     const method_choice = url.split("/")[4];
     const [

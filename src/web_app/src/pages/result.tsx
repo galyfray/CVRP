@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -10,7 +11,7 @@ import {
 } from "@mui/material";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
@@ -20,7 +21,7 @@ import {Types} from "../types/data";
 
 
 export function ResultPage() {
-    const {url} = useRouteMatch();
+    const url = useLocation().pathname;
     const dataset_choice = url.split("/")[2];
     const method_choice = url.split("/")[4];
     const [

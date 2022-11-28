@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import Container from "@mui/material/Container";
 import logging from "../config/logging";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation} from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
@@ -13,7 +13,7 @@ import algo_gene_image from "../images/algo_gene.png";
 import drl_image from "../images/drl.png";
 
 export function AlgoChoosingPage() {
-    const {url} = useRouteMatch();
+    const url = useLocation().pathname;
 
     useEffect(() => {
         logging.info(`Loading ${url}`);
@@ -31,6 +31,7 @@ export function AlgoChoosingPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
+                    data-testid = "algo_choice_title"
                     align="center"
                     color="text.primary"
                     gutterBottom

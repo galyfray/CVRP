@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, {useEffect} from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
@@ -5,7 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import Container from "@mui/material/Container";
 import logging from "../config/logging";
-import {useHistory, useRouteMatch} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
@@ -16,14 +18,20 @@ import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
 import sleep from "../config/sleep_funct";
 import CircularProgress from "@mui/material/CircularProgress";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 export function GaHyperParamsPage() {
-    const {url} = useRouteMatch();
+    const url = useLocation().pathname;
     const dataset_choice = url.split("/")[2];
-    const history = useHistory();
+    const navigate = useNavigate();
     const [
         open,
         setOpen
+    ] = React.useState(false);
+    const [
+        override_check,
+        setOverride_check
     ] = React.useState(false);
     const [
         nb_epochs,
@@ -34,8 +42,8 @@ export function GaHyperParamsPage() {
         setPop_size
     ] = React.useState<number>(512);
     const [
-        crossover_rate,
-        setCrossover_rate
+        seed,
+        setSeed
     ] = React.useState<number>(0.5);
     const [
         mutation_rate,
@@ -44,11 +52,20 @@ export function GaHyperParamsPage() {
     const [
         param,
         setParam
-    ] = React.useState<Types.AG_hyper_parameters>({
-        "nb_epochs"     : 1000,
-        "pop_size"      : 512,
-        "crossover_rate": 0.5,
-        "mutation_rate" : 0.2
+    ] = React.useState<Types.Hyper_parameters>({
+        type  : "ga",
+        params: {
+            "nb_epochs"    : 1000,
+            "pop_size"     : 512,
+            "seed"         : 0.5,
+            "mutation_rate": 0.2,
+            "learning_rate": 0.9,
+            "batch_size"   : 32,
+            "momentum"     : 0.2
+        },
+        override     : false,
+        bench_id     : "nothing",
+        snapshot_rate: 3
     });
 
     useEffect(() => {
@@ -58,10 +75,19 @@ export function GaHyperParamsPage() {
     const handleClickNext = async() => {
         setOpen(true);
         setParam({
-            "nb_epochs"     : nb_epochs,
-            "pop_size"      : pop_size,
-            "crossover_rate": crossover_rate,
-            "mutation_rate" : mutation_rate
+            type  : "ga",
+            params: {
+                "nb_epochs"    : nb_epochs,
+                "pop_size"     : pop_size,
+                "seed"         : seed,
+                "mutation_rate": mutation_rate,
+                "learning_rate": 0.9,
+                "batch_size"   : 32,
+                "momentum"     : 0.2
+            },
+            override     : override_check,
+            bench_id     : "nothing",
+            snapshot_rate: 3
         });
 
         await axios.post("http://127.0.0.1:5000/operation_params/ag", {
@@ -69,9 +95,9 @@ export function GaHyperParamsPage() {
             "hyper_params": JSON.stringify(param)
         }, {headers: {"Content-Type": "multipart/form-data"}})
             .then(async() => {
-                await sleep(5000);
-                history.push(url + "operation");
+                await sleep(10000);
                 setOpen(false);
+                navigate(url + "operation", {replace: true});
             })
             .catch(error => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -111,19 +137,19 @@ export function GaHyperParamsPage() {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.nb_epochs}
+                            defaultValue={param.params.nb_epochs}
                             onChange={e => setNb_epochs(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.pop_size}
+                            defaultValue={param.params.pop_size}
                             onChange={e => setPop_size(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={6} sx = {{mt: 3}}>
                         <Typography>
-                        Taux de croisement
+                        Random seed
                         </Typography>
                     </Grid>
                     <Grid item xs={6} sx = {{mt: 3}}>
@@ -133,26 +159,37 @@ export function GaHyperParamsPage() {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.crossover_rate}
-                            onChange={e => setCrossover_rate(parseInt(e.target.value))}>
+                            defaultValue={param.params.seed}
+                            onChange={e => setSeed(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.mutation_rate}
+                            defaultValue={param.params.mutation_rate}
                             onChange={e => setMutation_rate(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
+                    <Grid item xs={12}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    data-testid="account-delete-confirm"
+                                    onChange={() => setOverride_check(!override_check)}
+                                    color="primary"
+                                />
+                            }
+                            label="J'accepte de remplacer les anciens résultats par les nouveaux"
+                        />
+                    </Grid>
                 </Grid>
-
                 <Stack
-                    sx={{mt: 8}}
+                    sx={{mt: 5}}
                     direction="row"
                     justifyContent="center"
                 >
                     <Button variant="contained" sx={{height: 40, width: 120}}
-                        href = {url + "/operation"}
                         onClick= {handleClickNext}
+                        href={url + "/operation"}
                     >
                     Suivant
                     </Button>

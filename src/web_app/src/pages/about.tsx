@@ -8,6 +8,10 @@ import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import about_image from "../images/about_image.png";
 import benchmark from "../images/benchmark.PNG";
+import TreeView from "@mui/lab/TreeView";
+import {
+    CloseSquare, MinusSquare, PlusSquare, StyledTreeItem
+} from "../components/tree_styles";
 
 export function AboutPage() {
     return (
@@ -20,16 +24,36 @@ export function AboutPage() {
                 }} />
             <CssBaseline />
             <AppbarStyle/>
-            <Container component="main" maxWidth="md" sx={{pt: 5}}>
-                <Typography
-                    variant="h5"
-                    align="left"
-                    color="#344E6B"
-                    sx={{fontWeight: "bold"}}
-                >
-                Acheminement des véhicules électriques avec<br/> fenêtres de temps et contraintes de capacité (CVRPTW)
-                </Typography>
-
+            <Grid container justifyContent="space-between" sx={{mt: 5}}>
+                <Grid item xs={12} sx={{ml: 10, mr: 10}}>
+                    <Typography
+                        variant="h5"
+                        align="justify"
+                        color="#344E6B"
+                        sx={{fontWeight: "bold"}}
+                    >
+                        Acheminement des véhicules électriques avec fenêtres de
+                        temps et contraintes de capacité (CVRPTW)
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sx={{ml: 10, mt: 3}}>
+                    <TreeView
+                        aria-label="customized"
+                        defaultExpanded={["1"]}
+                        defaultCollapseIcon={<MinusSquare />}
+                        defaultExpandIcon={<PlusSquare />}
+                        defaultEndIcon={<CloseSquare />}
+                    >
+                        <StyledTreeItem nodeId="1" label="Sommaire">
+                            <StyledTreeItem nodeId="2" label="Problème" />
+                            <StyledTreeItem nodeId="4" label="Benchmark" />
+                            <StyledTreeItem nodeId="5" label="Programme" />
+                            <StyledTreeItem nodeId="5" label="Notice d'utilisation" />
+                        </StyledTreeItem>
+                    </TreeView>
+                </Grid>
+            </Grid>
+            <Container component="main" maxWidth="md">
                 <Typography
                     variant="h5"
                     color="#344E6B"
@@ -39,26 +63,24 @@ export function AboutPage() {
                 </Typography>
                 <Divider />
                 <Grid container justifyContent="space-between">
-                    <Grid item xs={4} sx={{mt: 5}}>
-                        <img src={about_image} alt="about_image" width= "85%" />
+                    <Grid item xs={12} alignItems="center" sx={{
+                        mt: 3, ml: 40, mb: 3
+                    }}>
+                        <img src={about_image} alt="about_image" width= "40%" />
                     </Grid>
-                    <Grid item xs={8} sx={{mt: 3}}>
-                        <Typography variant="body1" align="justify" component="p">
-                        L'E-CVRPTW est un problème particulier de la famille des problèmes VRP.
+                    L'E-CVRPTW est un problème particulier de la famille des problèmes VRP.
                         Les problèmes VRP sont des problèmes axés autour de plusieurs véhicules
                         qui doivent livrer plusieurs points
-                        à partir d’un ou plusieurs dépôts.
+                        à partir d’un ou plusieurs dépôts.<br/>
                         Dans l'E-CVRPTW, des contraintes supplémentaires sont ajoutées :
-                            <ul>
-                                <li>les véhicules sont électriques</li>
-                                <li>les véhicules ont une capacité de transport finie</li>
-                                <li>une contrainte de fenêtre de temps: les véhicules devront
-                                livrer leur colis aux heures d’ouverture du point.</li>
-                            </ul>
+                    <ul>
+                        <li>les véhicules sont électriques</li>
+                        <li>les véhicules ont une capacité de transport finie</li>
+                        <li>une contrainte de fenêtre de temps: les véhicules devront
+                            livrer leur colis aux heures d’ouverture du point.</li>
+                    </ul>
                         Ce problème ne couvre que le cas d'un dépot unique. Cependant, on considère que
                         que de multiples stations de rechargement sont disponibles.
-                        </Typography>
-                    </Grid>
                 </Grid>
                 <Typography variant="body1" align="justify" component="p">
                     <br/>
@@ -98,6 +120,17 @@ export function AboutPage() {
                     sx={{mt: 3}}
                 >
                     Programme
+                </Typography>
+                <Divider />
+                <Typography variant="body1" align="justify" component="p" sx={{mt: 1}}>
+                    to do
+                </Typography>
+                <Typography
+                    variant="h5"
+                    color="#344E6B"
+                    sx={{mt: 3}}
+                >
+                    Notice d'utilisation
                 </Typography>
                 <Divider />
                 <Typography variant="body1" align="justify" component="p" sx={{mt: 1}}>

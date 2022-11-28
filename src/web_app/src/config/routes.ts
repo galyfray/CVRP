@@ -7,21 +7,22 @@ import {HomePage} from "../pages/home";
 import {OperationPage} from "../pages/operation";
 import {ResultPage} from "../pages/result";
 import {RunPage} from "../pages/run";
+import {LogsPage} from "../pages/log_page";
 
 type Route = {
     name: string,
     path: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    component?: any,
+    element?: any,
     routes?: Route[],
  };
 
 const compile = (parentRoute: Route, subRoutes: Route[]): Route[] => {
     return subRoutes.flatMap(subRoute => {
         const newRoute: Route = {
-            "name"     : subRoute.name,
-            "path"     : parentRoute.path + subRoute.path,
-            "component": subRoute.component
+            "name"   : subRoute.name,
+            "path"   : parentRoute.path + subRoute.path,
+            "element": subRoute.element
         };
         return subRoute.routes ? [...compile(newRoute, subRoute.routes)] : newRoute;
     });
@@ -38,54 +39,59 @@ export const getRoutes = () => {
 
 const routes = [
     {
-        "name"     : "home",
-        "path"     : "/",
-        "component": HomePage
+        "name"   : "home",
+        "path"   : "/",
+        "element": HomePage
     },
     {
-        "name"     : "about",
-        "path"     : "/about",
-        "component": AboutPage
+        "name"   : "about",
+        "path"   : "/about",
+        "element": AboutPage
     },
     {
-        "name"     : "run",
-        "path"     : "/run",
-        "component": RunPage
+        "name"   : "logs",
+        "path"   : "/logs",
+        "element": LogsPage
     },
     {
-        "name"     : "algo_choice",
-        "path"     : "/run/:type/algo_choice",
-        "component": AlgoChoosingPage
+        "name"   : "run",
+        "path"   : "/run",
+        "element": RunPage
     },
     {
-        "name"     : "ga_hyperparams",
-        "path"     : "/run/:type/algo_choice/ga/",
-        "component": GaHyperParamsPage
+        "name"   : "algo_choice",
+        "path"   : "/run/:type/algo_choice",
+        "element": AlgoChoosingPage
     },
     {
-        "name"     : "drl_hyperparams",
-        "path"     : "/run/:type/algo_choice/drl/",
-        "component": DrlHyperParamsPage
+        "name"   : "ga_hyperparams",
+        "path"   : "/run/:type/algo_choice/ga/",
+        "element": GaHyperParamsPage
     },
     {
-        "name"     : "al_hyperparams",
-        "path"     : "/run/:type/algo_choice/ga/operation/",
-        "component": OperationPage
+        "name"   : "drl_hyperparams",
+        "path"   : "/run/:type/algo_choice/drl/",
+        "element": DrlHyperParamsPage
     },
     {
-        "name"     : "drl_hyperparams",
-        "path"     : "/run/:type/algo_choice/drl/operation/",
-        "component": OperationPage
+        "name"   : "ga_hyperparams",
+        "path"   : "/run/:type/algo_choice/ga/operation/",
+        "element": OperationPage
     },
     {
-        "name"     : "al_hyperparams",
-        "path"     : "/run/:type/algo_choice/ga/operation/result",
-        "component": ResultPage
+        "name"   : "drl_hyperparams",
+        "path"   : "/run/:type/algo_choice/drl/operation/",
+        "element": OperationPage
     },
     {
-        "name"     : "drl_hyperparams",
-        "path"     : "/run/:type/algo_choice/drl/operation/result",
-        "component": ResultPage
+        "name"   : "ga_hyperparams",
+        "path"   : "/run/:type/algo_choice/ga/operation/result",
+        "element": ResultPage
+    },
+    {
+        "name"   : "drl_hyperparams",
+        "path"   : "/run/:type/algo_choice/drl/operation/result",
+        "element": ResultPage
     }
 
 ];

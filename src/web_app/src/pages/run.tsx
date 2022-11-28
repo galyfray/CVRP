@@ -12,7 +12,9 @@ import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import logging from "../config/logging";
-import {useRouteMatch} from "react-router-dom";
+import {useLocation} from "react-router-dom";
+
+// Import http from "../http-common";
 
 const datasets = [
     {
@@ -114,7 +116,7 @@ const datasets = [
 ];
 
 export function RunPage() {
-    const {url} = useRouteMatch();
+    const url = useLocation().pathname;
 
     useEffect(() => {
         logging.info(`Loading ${url}`);
@@ -126,6 +128,29 @@ export function RunPage() {
         setActiveStep
     ] = React.useState(0);
     const maxSteps = datasets.length;
+
+    /*
+    Const [
+        datasets,
+        setDatasets
+    ] = React.useState([{}]);
+
+    useEffect(() => {
+        void (
+            async() => {
+                await http.get("benchmarks")
+                    .then(response => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        setDatasets(response.data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+
+            }
+        )();
+    }, []);
+    */
 
     const handleNext = () => {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
@@ -147,12 +172,13 @@ export function RunPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
+                    id="run_title"
                     align="center"
                     color="text.primary"
                     gutterBottom
                     sx={{fontWeight: "bold", mb: 5}}
                 >
-          Choisir un jeu de données
+                    Choisir un jeu de données
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
