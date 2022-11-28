@@ -4,10 +4,11 @@
 This module holds parts of the implementation of \
 the genetic algorithm applyed to the ECVRP problem.
 
-@author: Cyril Obrecht and Marie Aspro
+@author: Cyril Obrecht
+@author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-22
-@version: 0.7
+@date: 2022-11-28
+@version: 0.8
 """
 
 # CVRP
@@ -28,8 +29,8 @@ the genetic algorithm applyed to the ECVRP problem.
 
 
 from typing import Union, Sequence
-from random import random
-from .individual import Individual, TypeIndividual, ConstraintValidator
+from random import randrange, shuffle
+from .individual import Individual, ConstraintValidator
 
 
 class ECVRPSolution(Individual["ECVRPSolution"]):
@@ -140,9 +141,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         min_fit = float("inf")
         best_position = (-1, -1)
         size = len(solution)
+        max_position = size - 1
+
+        if self.__instance.get_ev_count() > size:
+            max_position += 1
 
         for index_road, road in enumerate(solution):
-            for position in range(1, size - 1):
+            for position in range(1, max_position):
                 road.insert(position, i_point)
                 fitness = self._compute_fitness(solution)
                 if fitness < min_fit:
@@ -151,7 +156,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 road.remove(i_point)
 
         if min_fit == float("inf"):
-            best_position = size + 1
+            best_position = (size, 1)
 
         return best_position
 
@@ -307,7 +312,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         solution = self.get_roads()
         solution = self.__tuple_to_list(solution)
 
-        choice = random(0, len(solution))
+        choice = randrange(0, len(solution))
         road = solution[choice]
 
         road = self.__pull_off_chargers(road)
@@ -319,7 +324,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         solution[choice] = new_road
         self._solution = self.__merge_roads(solution)
 
-    def crossover(self, other: "ECVRPSolution") -> list[TypeIndividual]:
+    def crossover(self, other: "ECVRPSolution") -> list["ECVRPSolution"]:
         """
         Generate a list of children according to the rules of the individual.
 
@@ -334,28 +339,51 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         s_1 = self.__tuple_to_list(s_1)
         s_2 = self.__tuple_to_list(s_2)
 
-        num_r_1 = random(0, len(s_1))
-        num_r_2 = random(0, len(s_2))
+        # pull of charger for the crossover opration
+        for index_road, road in enumerate(s_1):
+            s_1[index_road] = self.__pull_off_chargers(road)
+
+        for index_road, road in enumerate(s_2):
+            s_2[index_road] = self.__pull_off_chargers(road)
+
+        # determine which road is chosen
+        num_r_1 = randrange(0, len(s_1))
+        num_r_2 = randrange(0, len(s_2))
 
         # road are without depot at the begging and ending
         road_1 = list(s_1[num_r_1])[1:-1]
         road_2 = list(s_2[num_r_2])[1:-1]
 
+        # point are removed
         for point in road_1:
             s_2 = self.__remove_point(point, s_2)
 
         for point in road_2:
             s_1 = self.__remove_point(point, s_1)
 
-        s_1 = self.__merge_roads(s_1)
-        s_2 = self.__merge_roads(s_2)
-
+        # insert in the best place for removed points
+        shuffle(road_1)
         for point in road_1:
-            s_1.insert(self.best_place_for(s_1, point), point)
+            position = self.best_place_for(s_2, point)
+            if position[0] == len(s_2):
+                s_2.append([0, 0])
+            s_2[position[0]].insert(position[1], point)
 
+        shuffle(road_2)
         for point in road_2:
-            s_2.insert(self.best_place_for(s_2, point), point)
+            position = self.best_place_for(s_1, point)
+            if position[0] == len(s_1):
+                s_1.append([0, 0])
+            s_1[position[0]].insert(position[1], point)
 
+        # add chargers
+        for index_road, road in enumerate(s_1):
+            s_1[index_road] = self._road_correction(road, self.__instance.get_ev_battery())
+
+        for index_road, road in enumerate(s_2):
+            s_2[index_road] = self._road_correction(road, self.__instance.get_ev_battery())
+
+        # create children
         e_1 = ECVRPSolution(self._validators, s_1, self.__instance)
 
         e_2 = ECVRPSolution(self._validators, s_2, self.__instance)
@@ -454,7 +482,7 @@ class ECVRPInstance:
         """Return the speed at witch betteries charges."""
         return self.__bat_charge
 
-    def get_ev_count(self) -> float:
+    def get_ev_count(self) -> int:
         """Return the maximum number of EV allowed."""
         return self.__ev_count
 

@@ -4,9 +4,10 @@
 This module holds tests for the cvrp.ecvrp module.
 
 @author: Cyril Obrecht
+@author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-02
-@version: 0.1
+@date: 2022-11-28
+@version: 0.2
 """
 
 # CVRP
@@ -28,6 +29,7 @@ This module holds tests for the cvrp.ecvrp module.
 
 from copy import copy
 import pytest
+import random
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 from src.cvrp.constraints_validators import\
@@ -214,3 +216,19 @@ def test_demand():
 def test_charger():
     assert test_instance.is_charger(1)
     assert not test_instance.is_charger(2)
+
+
+def test_crossover():
+    random.seed(8)
+
+    parent_1 = ECVRPSolution([], [0, 4, 2, 0, 3, 1, 0], test_instance)
+    parent_2 = ECVRPSolution([], [0, 2, 3, 0, 1, 4, 0], test_instance)
+
+    [enfant_1, enfant_2] = parent_1.crossover(parent_2)
+
+    assert enfant_1.get_points() == (0, 0, 0)
+    assert enfant_2.get_points() == (0, 0, 0)
+
+
+def test_mutation():
+    assert True
