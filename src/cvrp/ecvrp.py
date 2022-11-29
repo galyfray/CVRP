@@ -7,8 +7,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-28
-@version: 0.8
+@date: 2022-11-29
+@version: 0.9
 """
 
 # CVRP
@@ -77,22 +77,31 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_roads(self) -> tuple[tuple[int, ...], ...]:
         """Split the solution in individual roads that can be manipulated \
         without altering the main object."""
+
+        print("self._solution : ", self._solution)
         if self._roads is not None:
+            print("self._roads de if: ", self._roads)
             return self._roads
 
-        i = 0
-        roads = []
-        while i < len(self._solution) - 1:
-            current = []
-            current.append(self._solution[i])
-            i += 1
-            while self._solution[i] != current[0]:
+        # if self._solution.count(self._solution[0]) == 2:
+            # self._roads = tuple(self._solution)
+
+        else:
+            i = 0
+            roads = []
+            while i < len(self._solution) - 1:
+                current = []
                 current.append(self._solution[i])
                 i += 1
+                while self._solution[i] != current[0]:
+                    current.append(self._solution[i])
+                    i += 1
 
-            current.append(current[0])
-            roads.append(tuple(current))
-        self._roads = tuple(roads)
+                current.append(current[0])
+                roads.append(tuple(current))
+            self._roads = tuple(roads)
+            print("self._roads : ", self._roads)
+
         return self._roads
 
     def get_fitness(self) -> float:
@@ -113,13 +122,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         Compute the fitness of the solution held in this individual.
         """
-        max_time = 0.
+        # max_time = 0.
         fitness = 0.
         for road in solution:
+            fitness += self._compute_road_fitness(road)
+            """
             current = self._compute_road_fitness(road)
             if current > max_time:
                 max_time = current
         fitness = max_time
+        """
         return fitness
 
     def _compute_road_fitness(self, road: Sequence[int]) -> float:
@@ -138,25 +150,55 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         new road at the end of the crossover process.
         It will return the index of the best place and do not do the insertion
         """
-        min_fit = float("inf")
+        min_fit = 100000  # float("inf")
         best_position = (-1, -1)
         size = len(solution)
-        max_position = size - 1
+        max_position = size + 1  # - 1
+        # tmp_solution = solution
+        initial_solution = solution
 
-        if self.__instance.get_ev_count() > size:
-            max_position += 1
+        # print("AJOUT ELEMENT : ", i_point, " DANS ", solution)
 
-        for index_road, road in enumerate(solution):
-            for position in range(1, max_position):
-                road.insert(position, i_point)
+        ## if self.__instance.get_ev_count() > size:
+            ## max_position += 1
+
+        for index_road, road in enumerate(initial_solution):
+            if len(road) != 2:
+                for index_point in range(1, max_position):
+                    print("--------------------------")
+                    print("--------------------------")
+                    print("Solution initiale : ", solution, " avec element ", i_point)
+                    print("TOUR (", index_road, ",", index_point, ")")
+                    solution[index_road].insert(index_point, i_point)
+                    print("Nouvelle solution : ", solution)
+                    fitness = self._compute_fitness(solution)
+                    print("Fitness : ", fitness)
+                    if fitness < min_fit:
+                        min_fit = fitness
+                        # print("Nouvelle min fitness : ", min_fit)
+                        best_position = (index_road, index_point)
+                    solution[index_road].remove(i_point)
+            else:
+                print("--------------------------")
+                print("--------------------------")
+                print("Solution initiale : ", solution, " avec element ", i_point)
+                print("TOUR (", index_road, ",", 1, ")")
+                solution[index_road].insert(1, i_point)
+                print('ici')
+                print("Nouvelle solution : ", solution)
                 fitness = self._compute_fitness(solution)
+                print("Fitness : ", fitness)
                 if fitness < min_fit:
                     min_fit = fitness
-                    best_position = (index_road, position)
-                road.remove(i_point)
+                    best_position = (index_road, 1)
+                solution[index_road].remove(i_point)
 
-        if min_fit == float("inf"):
-            best_position = (size, 1)
+        # print("--------------------------")
+        # print("Fitness minimale : ", min_fit)
+        # print("--------------------------")
+
+        #if min_fit == float("inf"):
+            #best_position = (size, 1)
 
         return best_position
 
@@ -171,8 +213,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         if not list_chargers:
             return self.__instance.get_depot()
 
-        d_min = self.__instance.get_distance(point, list_chargers[0])
-        closest = list_chargers[0]
+        d_min = float("inf")
+        closest = -1
         for charger in list_chargers:
             dist = self.__instance.get_distance(point, charger)
             if dist < d_min:
@@ -303,6 +345,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         return best_road
 
+    def delete_empty_road(self, solution: list[list[int]]) -> list[list[int]]:
+        """Delete empty road which are represented by [0, 0]."""
+        for road in solution:
+            if road == [0, 0]:
+                solution.remove(road)
+        return solution
+
     def mutate(self) -> None:
         """
         Mutate the current individual according to its internal rules.
@@ -324,6 +373,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         solution[choice] = new_road
         self._solution = self.__merge_roads(solution)
 
+        self._solution = self.delete_empty_road(self.get_roads())
+
     def crossover(self, other: "ECVRPSolution") -> list["ECVRPSolution"]:
         """
         Generate a list of children according to the rules of the individual.
@@ -334,6 +385,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         s_1 = self.get_roads()  # self is the parent 1
         s_2 = other.get_roads()
+        print("--------INITIAL--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
 
         # convert tuple into list to modify th content
         s_1 = self.__tuple_to_list(s_1)
@@ -345,6 +400,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         for index_road, road in enumerate(s_2):
             s_2[index_road] = self.__pull_off_chargers(road)
+        print("--------SANS CHARGEUR--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
 
         # determine which road is chosen
         num_r_1 = randrange(0, len(s_1))
@@ -356,25 +415,42 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         # point are removed
         for point in road_1:
-            s_2 = self.__remove_point(point, s_2)
+            s_2 = self.__remove_point(s_2, point)
 
         for point in road_2:
-            s_1 = self.__remove_point(point, s_1)
+            s_1 = self.__remove_point(s_1, point)
+        print("--------POINTS RETIRES--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
+
+        print("---------------------------------------------------")
 
         # insert in the best place for removed points
         shuffle(road_1)
         for point in road_1:
+            print("element ", point, " dans ", s_2)
             position = self.best_place_for(s_2, point)
             if position[0] == len(s_2):
                 s_2.append([0, 0])
             s_2[position[0]].insert(position[1], point)
+            print("nouvelle solution : ", s_2)
 
         shuffle(road_2)
         for point in road_2:
+            # print("element ", point, " dans ", s_1)
             position = self.best_place_for(s_1, point)
             if position[0] == len(s_1):
                 s_1.append([0, 0])
             s_1[position[0]].insert(position[1], point)
+            print(" ****** Nouvelle solution 1 : ", s_1)
+
+        print("---------------------------------------------------")
+
+        print("--------POINTS AJOUTES--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
 
         # add chargers
         for index_road, road in enumerate(s_1):
@@ -382,6 +458,29 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         for index_road, road in enumerate(s_2):
             s_2[index_road] = self._road_correction(road, self.__instance.get_ev_battery())
+
+        print("--------CHARGEUR AJOUTES--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
+
+        # delete empty road
+        s_1 = self.delete_empty_road(s_1)
+        s_2 = self.delete_empty_road(s_2)
+
+        print("--------ROUTE VIDE SUP--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
+
+        # merge my list of road to list of point
+        s_1 = self.__merge_roads(s_1)
+        s_2 = self.__merge_roads(s_2)
+
+        print("--------MERGE--------")
+        print("Solution 1 : ", s_1)
+        print("Solution 2 : ", s_2)
+        print("--------------------------")
 
         # create children
         e_1 = ECVRPSolution(self._validators, s_1, self.__instance)
