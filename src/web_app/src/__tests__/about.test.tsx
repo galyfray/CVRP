@@ -17,11 +17,11 @@ describe("<AboutPage />", () => {
         const utils = ShallowRenderer.createRenderer();
         utils.render(<AppbarStyle />);
         const view = utils.getRenderOutput();
+        expect(view).toBeDefined();
 
-        expect(screen.getByText("Acheminement des véhicules électriques avec fenêtres de temps et contraintes de capacité (CVRPTW)")).toBeTruthy();
+        expect(screen.getByTestId("about_title")).toBeVisible();
         expect(screen.getByRole("img", {name: "about_image"})).toBeInTheDocument();
         expect(screen.getByRole("img", {name: "benchmark"})).toBeInTheDocument();
-        expect(view).toBeTruthy();
 
     });
 });

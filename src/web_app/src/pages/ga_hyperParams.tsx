@@ -117,6 +117,7 @@ export function GaHyperParamsPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
+                    data-testid = "ga_hp_title"
                     align="center"
                     color="text.primary"
                     gutterBottom

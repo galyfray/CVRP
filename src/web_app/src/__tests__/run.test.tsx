@@ -16,8 +16,8 @@ describe("RunPage components", () => {
         const utils = ShallowRenderer.createRenderer();
         utils.render(<AppbarStyle />);
         const view = utils.getRenderOutput();
-        expect(view).toBeTruthy();
-        expect(screen.getByText("Choisir un jeu de données")).toBeTruthy();
+        expect(view).toBeDefined();
+        expect(screen.getByTestId("run_title")).toBeVisible();
     });
 });
 
@@ -27,7 +27,6 @@ jest.mock("react-router-dom", () => ({
         pathname: "/run",
         search  : "",
         hash    : "",
-        state   : null,
-        key     : "5nvxpbdafa"
+        state   : null
     })
 }));

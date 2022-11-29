@@ -17,7 +17,7 @@ export function NotFoundPage() {
             <CssBaseline />
             <Container disableGutters component="main" maxWidth="md" sx={{pt: 8, ml: 20}}>
                 <div>
-                    <Typography variant="h4">
+                    <Typography variant="h4" data-testid = "notFound_title">
             Oups ! Vous semblez être perdu.
                         <SentimentVeryDissatisfiedIcon/>
                     </Typography>

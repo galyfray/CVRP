@@ -1,12 +1,14 @@
-import {render, screen} from "@testing-library/react";
+import {render} from "@testing-library/react";
 import App from "../App";
 
-test("renders prompt to user", () => {
-    expect(1).toBe(1);
+test("the application pages", () => {
+    render(<App />);
 });
 
 /**
- Test("the application pages", () => {
-  render(<App />);
+ * Test("renders prompt to user", () => {
+    expect(1).toBe(1);
 });
+
+
  */

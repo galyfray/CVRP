@@ -84,6 +84,7 @@ export function ResultPage() {
             <Container disableGutters component="main" maxWidth="md" sx={{pt: 3, ml: 20}}>
                 <Typography
                     variant="h4"
+                    data-testid = "result_title"
                     align="center"
                     color="text.primary"
                     gutterBottom

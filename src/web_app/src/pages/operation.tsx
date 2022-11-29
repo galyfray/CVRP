@@ -202,6 +202,7 @@ export function OperationPage() {
                 <Typography
                     variant="h5"
                     align="center"
+                    data-testid = "operation_title"
                     color="text.primary"
                     gutterBottom
                     sx={{

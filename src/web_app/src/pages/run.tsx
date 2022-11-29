@@ -172,7 +172,7 @@ export function RunPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
-                    id="run_title"
+                    data-testid = "run_title"
                     align="center"
                     color="text.primary"
                     gutterBottom

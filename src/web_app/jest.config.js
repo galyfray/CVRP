@@ -11,8 +11,5 @@ module.exports = {
     "^.+.(css|styl|less|sass|scss|png|PNG|jpg|ttf|woff|woff2)$": "jest-transform-stub"
     
     },
-    "jest": {
-        "setupFilesAfterEnv": ["<rootDir>src/setupTests.ts"]
-    },
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 }

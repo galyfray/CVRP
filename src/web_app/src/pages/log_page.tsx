@@ -62,6 +62,7 @@ export function LogsPage() {
                 </Typography>
                 <Typography
                     variant="h6"
+                    data-testid = "logpage_title"
                     align="left"
                     color="text.primary"
                     gutterBottom

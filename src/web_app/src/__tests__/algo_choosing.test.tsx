@@ -17,9 +17,8 @@ describe("<AlgoChoosingPage />", () => {
         const utils = ShallowRenderer.createRenderer();
         utils.render(<AppbarStyle />);
         const view = utils.getRenderOutput();
-        expect(view).toBeTruthy();
-
-        expect(screen.getByText("Choisir un algorithme pour la résolution")).toBeTruthy();
+        expect(view).toBeDefined();
+        expect(screen.getByTestId("algo_choice_title")).toBeVisible();
     });
 });
 
@@ -29,8 +28,7 @@ jest.mock("react-router-dom", () => ({
         pathname: "/algo_choice",
         search  : "",
         hash    : "",
-        state   : null,
-        key     : "5nvxpbdafa"
+        state   : null
     })
 }));
 

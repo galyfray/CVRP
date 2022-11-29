@@ -28,6 +28,7 @@ export function AboutPage() {
                 <Grid item xs={12} sx={{ml: 10, mr: 10}}>
                     <Typography
                         variant="h5"
+                        data-testid = "about_title"
                         align="justify"
                         color="#344E6B"
                         sx={{fontWeight: "bold"}}

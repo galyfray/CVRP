@@ -14,10 +14,10 @@ describe("<HomePage />", () => {
         const utils = ShallowRenderer.createRenderer();
         utils.render(<AppbarStyle />);
         const view = utils.getRenderOutput();
+        expect(view).toBeDefined();
 
-        expect(screen.getByText("ECVRPTW Solver")).toBeTruthy();
+        expect(screen.getByText("ECVRPTW Solver")).toBeVisible();
         expect(screen.getByRole("img", {name: "cvrp_image"})).toBeInTheDocument();
-        expect(view).toBeTruthy();
 
         const links: HTMLAnchorElement[] = screen.getAllByRole("link");
         expect(links[5].textContent).toEqual("Lire la suite");
