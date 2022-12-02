@@ -16,8 +16,8 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
 import RoadGraph from "../components/roadGraph";
-import {d3Types} from "../types/d3Types";
-import {Types} from "../types/data";
+import * as d3Types from "../types/d3Types";
+import * as Types from "../types/data";
 
 
 export function ResultPage() {

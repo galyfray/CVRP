@@ -11,5 +11,5 @@ module.exports = {
     "^.+.(css|styl|less|sass|scss|png|PNG|jpg|ttf|woff|woff2)$": "jest-transform-stub"
     
     },
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
 }

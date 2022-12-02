@@ -1,18 +1,13 @@
 import {Component} from "react";
-import {
-    GraphView,
-    Edge,
-    Node,
-    type LayoutEngineType // Required to change the layoutEngineType, otherwise optional
-} from "react-digraph";
-import {d3Types} from "../types/d3Types";
+import {GraphView} from "react-digraph";
+import * as d3Types from "../types/d3Types";
 
 const GraphConfig = {
     NodeTypes: {
         empty: { // Required to show empty nodes
             typeText: "None",
             shapeId : "#empty",
-            shape   :
+            shape:
           <symbol viewBox="0 0 100 100" id="empty" key="0">
               <circle cx="50" cy="50" r="45"></circle>
           </symbol>
@@ -21,7 +16,7 @@ const GraphConfig = {
         custom: { // Required to show empty nodes
             typeText: "Custom",
             shapeId : "#custom", // Relates to the type property of a node
-            shape   :
+            shape:
           <symbol viewBox="0 0 50 25" id="custom" key="0">
               <ellipse cx="50" cy="25" rx="50" ry="25"></ellipse>
           </symbol>
@@ -32,7 +27,7 @@ const GraphConfig = {
     EdgeTypes   : {
         emptyEdge: { // Required to show empty edges
             shapeId: "#emptyEdge",
-            shape  :
+            shape:
           <symbol viewBox="0 0 50 50" id="emptyEdge" key="0">
               <circle cx="25" cy="25" r="8" fill="currentColor"> </circle>
           </symbol>

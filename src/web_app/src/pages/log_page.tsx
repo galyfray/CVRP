@@ -12,7 +12,7 @@ import TableRow from "@mui/material/TableRow";
 import React, {useEffect} from "react";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
-import {Types} from "../types/data";
+import * as Types from "../types/data";
 import Paper from "@mui/material/Paper";
 import Row from "../components/log_row";
 
@@ -34,9 +34,9 @@ export function LogsPage() {
                 await http.get("get_logs")
                     .then(response => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                        console.log(response.data.data);
+                        console.log(response.data);
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                        setLogs(response.data.data);
+                        setLogs(response.data);
                     });
             }
         )();

@@ -12,7 +12,7 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import {Types} from "../types/data";
+import * as Types from "../types/data";
 import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
 import sleep from "../config/sleep_funct";

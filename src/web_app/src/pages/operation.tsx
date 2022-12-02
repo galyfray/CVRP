@@ -15,8 +15,8 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import RoadGraph from "../components/roadGraph";
 import {useLocation} from "react-router-dom";
-import {d3Types} from "../types/d3Types";
-import {Types} from "../types/data";
+import * as d3Types from "../types/d3Types";
+import * as Types from "../types/data";
 import sleep from "../config/sleep_funct";
 
 export function OperationPage() {
