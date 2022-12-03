@@ -6,7 +6,7 @@ This module holds tests for the cvrp.ecvrp module.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-28
+@date: 2022-11-29
 @version: 0.2
 """
 
@@ -226,9 +226,22 @@ def test_crossover():
 
     [enfant_1, enfant_2] = parent_1.crossover(parent_2)
 
-    assert enfant_1.get_points() == (0, 0, 0)
-    assert enfant_2.get_points() == (0, 0, 0)
+    assert enfant_1.get_fitness() == 4
+    assert enfant_2.get_fitness() == 4
+
+    assert enfant_1.get_roads() == ((0, 2, 0), (0, 3, 4, 0))
+    assert enfant_2.get_roads() == ((0, 3, 4, 0), (0, 2, 0))
 
 
 def test_mutation():
-    assert True
+    random.seed(3)
+
+    mutant = ECVRPSolution([], [0, 4, 1, 2, 0, 3, 0], test_instance)
+
+    print("mutant.get_roads() avant : ", mutant.get_roads())
+
+    mutant.mutate()
+
+    print("mutant.get_roads() après : ", mutant.get_roads())
+
+    assert mutant.get_roads() == ((0, 2, 4, 0), (0, 3, 0))
