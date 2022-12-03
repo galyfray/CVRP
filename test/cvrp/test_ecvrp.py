@@ -6,8 +6,8 @@ This module holds tests for the cvrp.ecvrp module.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-29
-@version: 0.2
+@date: 2022-12-03
+@version: 0.3
 """
 
 # CVRP
@@ -37,7 +37,7 @@ from src.cvrp.constraints_validators import\
     TownUnicityValidator,\
     CapacityValidator
 
-test_instance = ECVRPInstance(
+test_instance_1 = ECVRPInstance(
     [
         [0, 1, 2, 2, 2],
         [3, 0, 1, 3, 2],
@@ -65,6 +65,33 @@ test_instance = ECVRPInstance(
 )
 
 
+test_instance_2 = ECVRPInstance(
+    [
+        [0, 2, 4, 7],
+        [2, 0, 6, 9],
+        [4, 6, 0, 5],
+        [7, 9, 5, 0]
+    ],
+    0,
+    {},
+    {
+        1: 1,
+        2: 1,
+        3: 1,
+    },
+    1,
+    3,
+    3,
+    10,
+    14,
+    {
+        1: (),
+        2: (),
+        3: ()
+    }
+)
+
+
 def test_road_building():
     """ Test the road building process: ensure the count is right.
     """
@@ -76,7 +103,7 @@ def test_road_building():
         10: [0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0]
     }
     for count, solution in solutions.items():
-        test = ECVRPSolution([], solution, test_instance)
+        test = ECVRPSolution([], solution, test_instance_1)
         assert len(test.get_roads()) == count
 
 
@@ -95,7 +122,7 @@ def test_road_content():
     ]
 
     for expected in roads_expected:
-        instance = ECVRPSolution([], expected["source"], test_instance)
+        instance = ECVRPSolution([], expected["source"], test_instance_1)
         roads = instance.get_roads()
         for i, road in enumerate(expected["roads"]):
             assert road == roads[i]
@@ -105,13 +132,13 @@ def test_fitness():
     """ Test if the fitness computation is good.
     """
 
-    instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance)
+    instance = ECVRPSolution([], [0, 2, 3, 0, 4, 1, 0], test_instance_1)
     assert instance.get_fitness() == 8
 
-    instance = ECVRPSolution([], [0, 2, 3, 4, 1, 0], test_instance)
+    instance = ECVRPSolution([], [0, 2, 3, 4, 1, 0], test_instance_1)
     assert instance.get_fitness() == 11
 
-    instance = ECVRPSolution([], [0, 4, 3, 0, 2, 1, 0], test_instance)
+    instance = ECVRPSolution([], [0, 4, 3, 0, 2, 1, 0], test_instance_1)
     assert instance.get_fitness() == 7
 
 
@@ -126,35 +153,35 @@ def test_is_valid():
     assert ECVRPSolution(
         [town],
         [0, 4, 3, 0, 2, 1, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
     assert ECVRPSolution(
         [town, capacity],
         [0, 4, 3, 0, 2, 1, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
     assert ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 0, 2, 1, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
 
     assert not ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 0, 2, 1, 2, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
 
     assert not ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 1, 2, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
 
     assert not ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 0, 2, 1, 0, 0, 0],
-        test_instance
+        test_instance_1
     ).is_valid()
 
 
@@ -168,12 +195,12 @@ def test_copy():
     instance_1 = ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 0, 2, 1, 0],
-        test_instance
+        test_instance_1
     )
     instance_2 = ECVRPSolution(
         [town, capacity, count],
         [0, 4, 3, 1, 2, 0],
-        test_instance
+        test_instance_1
     )
 
     instance_1_copy = copy(instance_1)
@@ -193,36 +220,36 @@ def test_d_matrix():
     """ Test the distance matrix of the ECVRPInstance class.
     """
 
-    assert test_instance.get_distance(0, 1) == 1
-    assert test_instance.get_distance(0, 2) == 2
-    assert test_instance.get_distance(1, 0) == 3
+    assert test_instance_1.get_distance(0, 1) == 1
+    assert test_instance_1.get_distance(0, 2) == 2
+    assert test_instance_1.get_distance(1, 0) == 3
 
 
 def test_depot():
-    assert test_instance.is_depot(0)
-    assert not test_instance.is_depot(1)
+    assert test_instance_1.is_depot(0)
+    assert not test_instance_1.is_depot(1)
 
 
 def test_demand():
     """ Test the `get_demand` function of the ECVRPInstance class.
     """
 
-    assert test_instance.get_demand(2) == 5
+    assert test_instance_1.get_demand(2) == 5
 
     with pytest.raises(KeyError):
-        test_instance.get_demand(0)
+        test_instance_1.get_demand(0)
 
 
 def test_charger():
-    assert test_instance.is_charger(1)
-    assert not test_instance.is_charger(2)
+    assert test_instance_1.is_charger(1)
+    assert not test_instance_1.is_charger(2)
 
 
 def test_crossover():
     random.seed(8)
 
-    parent_1 = ECVRPSolution([], [0, 4, 2, 0, 3, 1, 0], test_instance)
-    parent_2 = ECVRPSolution([], [0, 2, 3, 0, 1, 4, 0], test_instance)
+    parent_1 = ECVRPSolution([], [0, 4, 2, 0, 3, 1, 0], test_instance_1)
+    parent_2 = ECVRPSolution([], [0, 2, 3, 0, 1, 4, 0], test_instance_1)
 
     [enfant_1, enfant_2] = parent_1.crossover(parent_2)
 
@@ -236,7 +263,7 @@ def test_crossover():
 def test_mutation():
     random.seed(3)
 
-    mutant = ECVRPSolution([], [0, 4, 1, 2, 0, 3, 0], test_instance)
+    mutant = ECVRPSolution([], [0, 4, 1, 2, 0, 3, 0], test_instance_1)
 
     print("mutant.get_roads() avant : ", mutant.get_roads())
 
@@ -245,3 +272,17 @@ def test_mutation():
     print("mutant.get_roads() après : ", mutant.get_roads())
 
     assert mutant.get_roads() == ((0, 2, 4, 0), (0, 3, 0))
+
+
+def test_empty_road():
+    instance = ECVRPSolution([], [0, 4, 1, 0, 2, 3, 0, 0], test_instance_1)
+    solution = instance.get_roads()
+    solution = [list(x) for x in solution]
+    assert instance.delete_empty_road(solution) == [[0, 4, 1, 0], [0, 2, 3, 0]]
+
+
+def test_road_correction():
+    instance = ECVRPSolution([], [0, 3, 1, 2, 0], test_instance_2)
+    roads = instance.get_roads()
+    new_road = instance._road_correction(roads[0], instance.get_instance().get_ev_battery())
+    assert new_road == [0, 3, 0, 1, 2, 0]

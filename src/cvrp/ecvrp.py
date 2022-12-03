@@ -7,8 +7,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-29
-@version: 0.9
+@date: 2022-12-03
+@version: 1.0
 """
 
 # CVRP
@@ -179,7 +179,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         list_chargers = self.__instance.get_chargers()
         if not list_chargers:
-            return self.__instance.get_depot()
+            size = len(self.get_roads())
+            if self.__instance.get_ev_count() > size:
+                return self.__instance.get_depot()
 
         d_min = float("inf")
         closest = -1
