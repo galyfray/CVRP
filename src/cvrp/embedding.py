@@ -55,6 +55,14 @@ class Embedding(ABC):
         """
 
 
+class EmbeddingFactory(ABC):
+    @abstractmethod
+    def generate(self) -> Embedding:
+        """
+        :return: A parametrised Embedding method for the ECVRP
+        """
+        pass
+
 class EmbeddingClass(Embedding):
     """
     Graph embedding layer.
