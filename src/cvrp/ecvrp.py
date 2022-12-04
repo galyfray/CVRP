@@ -77,7 +77,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_roads(self) -> tuple[tuple[int, ...], ...]:
         """Split the solution in individual roads that can be manipulated \
         without altering the main object."""
-
         i = 0
         roads = []
         while i < len(self._solution) - 1:
@@ -109,9 +108,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return self._fitness
 
     def _compute_fitness(self, solution: tuple[tuple[int]]) -> float:
-        """
-        Compute the fitness of the solution held in this individual.
-        """
+        """Compute the fitness of the solution held in this individual."""
         max_time = 0.
         fitness = 0.
         for road in solution:
@@ -477,7 +474,7 @@ class ECVRPInstance:
         return index == self.__depot
 
     def get_depot(self) -> int:
-        """Return the ID of the depot"""
+        """Return the ID of the depot."""
         return self.__depot
 
     def get_distance(self, start: int, end: int) -> float:
