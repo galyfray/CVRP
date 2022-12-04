@@ -1,1 +1,1 @@
-"""Good documentation should be placed here."""
+"""Python package"""
