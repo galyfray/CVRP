@@ -8,9 +8,10 @@ class Attention(ABC):
     """
 
     @abstractmethod
-    def attention(self, v: tf.Tensor) -> tf.Tensor:
+    def attention(self, mu: tf.TensorArray, h : tf.Tensor = None) -> tf.Tensor:
         """
-        :param v: a tensor on which we want to execute the attention mecanism
+        :param mu: a tensor array on which we want to execute the attention mecanism
+        :param h: the memory state of the learning method
         
         :return: a tensor of the probabilities to compute the learning on each element of the vector
         """
@@ -39,10 +40,22 @@ class AttentionClass(Attention, tf.keras.Model):
         self._n = n
         self.training = True
 
-    def _context_vector(self, mu : tf.TensorArray, h : tf.Tensor):
+    def _context_vector(self, mu : tf.TensorArray, h : tf.Tensor = None):
         value = 0
         for i in range(self._n + 1):
-            v_i = self._v(tf.concat[mu[i],h])
+            v_i = self._v(tf.concat([mu[i],h]))
             a_i = self._a(v_i)
             value+=a_i*mu[i]
         return value
+
+    def _probability(self, mu : tf.TensorArray, h : tf.Tensor = None):
+        cv = self._context_vector(mu, h)
+        p = []
+        for i in range(self._n):
+            g_i = self._g(tf.concat([mu[i], cv]))
+            p_i = self._p(g_i)
+            p.append(p_i)
+        return p
+
+    def attention(self, mu: tf.TensorArray, h : tf.Tensor = None) -> tf.Tensor:
+        return self._probability(mu, h)
