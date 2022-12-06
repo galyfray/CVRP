@@ -1,9 +1,6 @@
 import {render, screen} from "@testing-library/react";
 import {AboutPage} from "../pages/about";
 import * as ShallowRenderer from "react-test-renderer/shallow";
-
-//Import {shallow, mount} from "enzyme";
-
 import "@testing-library/jest-dom";
 import {AppbarStyle} from "../components/appBar";
 
