@@ -12,7 +12,7 @@ class Attention(ABC):
         """
         :param mu: a tensor array on which we want to execute the attention mecanism
         :param h: the memory state of the learning method
-        
+
         :return: a tensor of the probabilities to compute the learning on each element of the vector
         """
         pass
@@ -33,10 +33,10 @@ class AttentionClass(Attention, tf.keras.Model):
         Initialize the 4 layers of neurons used by the Attention.
         """
         super(AttentionClass,self).__init__(name = '')
-        self._v = layers.Dense(64, activation = "tanh")
-        self._a = layers.Dense(64, activation = "softmax")
-        self._g = layers.Dense(64, activation = "tanh")
-        self._p = layers.Dense(64, activation = "softmax")
+        self._v = _Tan_H_Layer(128)
+        self._a = layers.Dense(128, activation = "softmax")
+        self._g = _Tan_H_Layer(128)
+        self._p = layers.Dense(128, activation = "softmax")
         self._n = n
         self.training = True
 
@@ -59,3 +59,15 @@ class AttentionClass(Attention, tf.keras.Model):
 
     def attention(self, mu: tf.TensorArray, h : tf.Tensor = None) -> tf.Tensor:
         return self._probability(mu, h)
+
+class _Tan_H_Layer(layers.Layer):
+    def __init__(self, n_output : int):
+        super(_Tan_H_Layer, self).__init__()
+        self._n_output = n_output
+
+    def build(self, input_shape):
+        self._w1 = self.add_weight("w1", shape=[int(input_shape[-1]), self._n_output])
+        self._w2 = self.add_weight("w2", shape=[int(input_shape[-1]), self._n_output])
+
+    def call(self, inputs):
+        return self._w1 * tf.nn.tanh(self._w2*inputs)
