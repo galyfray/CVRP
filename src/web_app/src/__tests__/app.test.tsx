@@ -1,14 +1,7 @@
 import {render} from "@testing-library/react";
 import App from "../App";
 
+// TODO test the navigation between the pages
 test("the application pages", () => {
     render(<App />);
 });
-
-/**
- * Test("renders prompt to user", () => {
-    expect(1).toBe(1);
-});
-
-
- */

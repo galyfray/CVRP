@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import React, {useCallback, useEffect} from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -76,20 +73,18 @@ export function OperationPage() {
         enableButton,
         setEnableButton
     ] = React.useState(false);
-    useEffect(() => {
-        (
-            async() => {
-                await http.get(`get_first_sol?${dataset_choice}`)
-                    .then(response_f => {
-                        setData(response_f.data);
-                        if (method_choice === "ga") {
-                            setMethod_str("Genetic Algorithm");
-                        } else {
-                            setMethod_str("Deep Reinforcement Learning");
-                        }
-                    });
-            }
-        )();
+
+    const getFirstSol = useCallback(async() => {
+        await http.get(`get_first_sol?${dataset_choice}`)
+            .then(response_f => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                setData(response_f.data);
+                if (method_choice === "ga") {
+                    setMethod_str("Genetic Algorithm");
+                } else {
+                    setMethod_str("Deep Reinforcement Learning");
+                }
+            });
     }, [
         dataset_choice,
         method_choice
@@ -97,25 +92,40 @@ export function OperationPage() {
 
     useEffect(() => {
         (
-            async() => {
-                await sleep(10000)
-                    .then(
-                        async() => {
-                            await http.get(`get_snapshots?${dataset_choice}&${method_choice}`)
-                                .then(response => {
-                                    console.log(typeof response.data.data);
-                                    setData1(response.data.data);
+            () => {
+                void getFirstSol();
+            }
+        )();
+    }, [getFirstSol]);
 
-                                    checking(response.data.data.length);
-                                    setStart(true);
-                                });
+    const getSol = useCallback(async() => {
+        await sleep(10000)
+            .then(
+                async() => {
+                    await http.get(`get_snapshots?${dataset_choice}&${method_choice}`)
+                        .then(response => {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                            console.log(typeof response.data.data);
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                            setData1(response.data.data);
+
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                            checking(response.data.data.length);
+                            setStart(true);
                         });
-            }
-        )();
+                });
     }, [
         dataset_choice,
         method_choice
     ]);
+
+    useEffect(() => {
+        (
+            () => {
+                void getSol();
+            }
+        )();
+    }, [getSol]);
 
     function checking(length:number) {
         if (length === 0) {
@@ -126,6 +136,7 @@ export function OperationPage() {
 
     const update_plot1 = useCallback(async() => {
         const response = await http.get(`get_snapshots?${dataset_choice}&${method_choice}`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setData1(response.data.data);
     }, [
         dataset_choice,
@@ -135,6 +146,7 @@ export function OperationPage() {
 
     const update_plot2 = useCallback(async() => {
         const response = await http.get(`get_snapshots?${dataset_choice}&${method_choice}`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setData2(response.data.data);
     }, [
         dataset_choice,
@@ -143,6 +155,7 @@ export function OperationPage() {
 
     const update_plot3 = useCallback(async() => {
         const response = await http.get(`get_snapshots?${dataset_choice}&${method_choice}`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setData3(response.data.data);
     }, [
         dataset_choice,
@@ -152,6 +165,7 @@ export function OperationPage() {
 
     const update_plot4 = useCallback(async() => {
         const response = await http.get(`get_snapshots?${dataset_choice}&${method_choice}`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setData4(response.data.data);
     }, [
         dataset_choice,
@@ -178,7 +192,7 @@ export function OperationPage() {
         //While(start){
         let i = 0;
         while (start && i < 2) {
-            update_plots();
+            void update_plots();
             i++;
             if (i === 2) {
                 setEnableButton(true);

@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-floating-promises */
-import React, {useEffect} from "react";
+import React, {useCallback, useEffect} from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
@@ -51,27 +47,38 @@ export function ResultPage() {
         setMethod_str
     ] = React.useState("");
 
+    const getResults = useCallback(async() => {
+        await http.get(`get_points?${dataset_choice}/${method_choice}`)
+            .then(response1 => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                set_graph_data(response1.data);
+            });
+        await http.get(`get_performance?${dataset_choice}/${method_choice}`)
+            .then(response2 => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                setDataXY(response2.data.data);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                setLength(response2.data.data.length);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                setBench_id(response2.data.bench_id);
+            });
+    }, [
+        dataset_choice,
+        method_choice
+    ]);
+
     useEffect(() => {
         (
-            async() => {
+            () => {
                 setMethod_str(method_choice);
-                await http.get(`get_points?${dataset_choice}/${method_choice}`)
-                    .then(response1 => {
-                        set_graph_data(response1.data);
-                    });
-                await http.get(`get_performance?${dataset_choice}/${method_choice}`)
-                    .then(response2 => {
-                        setDataXY(response2.data.data);
-                        setLength(response2.data.data.length);
-                        setBench_id(response2.data.bench_id);
-                    });
+                void getResults();
             }
         )();
     }, [
-        dataset_choice,
-        method_choice,
-        length
+        getResults,
+        method_choice
     ]);
+
     return (
         <React.Fragment>
             <GlobalStyles styles={{

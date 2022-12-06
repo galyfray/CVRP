@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
 export type Hyper_parameters = {
   type: string,
   params:{

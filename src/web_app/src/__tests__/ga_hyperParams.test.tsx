@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as ShallowRenderer from "react-test-renderer/shallow";
 import {render, screen} from "@testing-library/react";
 import "@testing-library/jest-dom";
@@ -27,7 +24,7 @@ describe("<GaHyperParamsPage />", () => {
 jest.mock("react-router-dom", () => ({
     __esModule : true,
     useLocation: jest.fn().mockReturnValue({
-        pathname: "/run/:type/algo_choice/ga",
+        pathname: "/run/:bench_type/algo_choice/ga",
         search  : "",
         hash    : "",
         state   : null

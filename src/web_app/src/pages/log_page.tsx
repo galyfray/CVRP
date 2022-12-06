@@ -9,7 +9,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import React, {useEffect} from "react";
+import React, {useCallback, useEffect} from "react";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import * as Types from "../types/data";
@@ -28,9 +28,31 @@ export function LogsPage() {
         }
     ]);
 
+    //New version
+    const getLogs = useCallback(async() => {
+        await http.get("get_logs")
+            .then(response => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                console.log(response.data);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                setLogs(response.data);
+            });
+    }, []);
+
+    useEffect(() => {
+        (
+            () => {
+                getLogs();
+            }
+        )();
+    }, [getLogs]);
+
+    /*
+    Last version
     useEffect(() => {
         (
             async() => {
+                getLogs();
                 await http.get("get_logs")
                     .then(response => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
@@ -41,6 +63,7 @@ export function LogsPage() {
             }
         )();
     }, []);
+    */
     return (
         <React.Fragment>
             <GlobalStyles styles={{

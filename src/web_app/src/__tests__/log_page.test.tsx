@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as ShallowRenderer from "react-test-renderer/shallow";
 import {render, screen} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import {AppbarStyle} from "../components/appBar";
 import {LogsPage} from "../pages/log_page";
+
+// TODO test to check the type of the get request
 
 describe("<LogsPage />", () => {
     test("the rendering of the components", () => {

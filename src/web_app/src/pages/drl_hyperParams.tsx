@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import React, {useEffect} from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -76,8 +74,7 @@ export function DrlHyperParamsPage() {
         logging.info(`Loading ${url}`);
     });
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    const handleClickNext = async() => {
+    const handleClickNext = () => {
         setEnablebutton(false);
         setParam({
             "type"  : "drl",
