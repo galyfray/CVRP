@@ -37,13 +37,14 @@ function App() {
                     <Route path="/logs" element={<LogsPage />} />
                     <Route path="/run" element={<RunPage />}>
                     </Route>
-                    <Route path="/run/:type/algo_choice" element={<AlgoChoosingPage />} />
-                    <Route path="/run/:type/algo_choice/ga" element={<GaHyperParamsPage />}>
+                    <Route path="/run/:bench_type/algo_choice" element={<AlgoChoosingPage />} />
+                    <Route path="/run/:bench_type/algo_choice/ga" element={<GaHyperParamsPage />}>
                     </Route>
-                    <Route path="/run/:type/algo_choice/ga/operation" element={<OperationPage />}>
+                    <Route path="/run/:bench_type/algo_choice/drl" element={<DrlHyperParamsPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/algo_choice/:algo_type/operation" element={<OperationPage />}>
                         <Route index path="result" element={<ResultPage />}/>
                     </Route>
-                    <Route path="drl" element={<DrlHyperParamsPage />} />
                     <Route element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>

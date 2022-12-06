@@ -23,6 +23,10 @@ import Checkbox from "@mui/material/Checkbox";
 export function DrlHyperParamsPage() {
     const url = useLocation().pathname;
     const dataset_choice = url.split("/")[2];
+    const [
+        enablebutton,
+        setEnablebutton
+    ] = React.useState(true);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const navigate = useNavigate();
     const [
@@ -74,6 +78,7 @@ export function DrlHyperParamsPage() {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     const handleClickNext = async() => {
+        setEnablebutton(false);
         setParam({
             "type"  : "drl",
             "params": {
@@ -192,7 +197,7 @@ export function DrlHyperParamsPage() {
                     justifyContent="center"
                 >
                     <Button variant="contained" sx={{height: 40, width: 120}}
-                        href={url + "operation"}
+                        disabled={!enablebutton}
                         onClick= {handleClickNext}>
                 Suivant
                     </Button>

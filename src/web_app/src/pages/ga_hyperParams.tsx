@@ -26,6 +26,10 @@ export function GaHyperParamsPage() {
     const dataset_choice = url.split("/")[2];
     const navigate = useNavigate();
     const [
+        enablebutton,
+        setEnablebutton
+    ] = React.useState(true);
+    const [
         open,
         setOpen
     ] = React.useState(false);
@@ -73,7 +77,7 @@ export function GaHyperParamsPage() {
     });
 
     const handleClickNext = async() => {
-        setOpen(true);
+        setEnablebutton(false);
         setParam({
             type  : "ga",
             params: {
@@ -95,9 +99,11 @@ export function GaHyperParamsPage() {
             "hyper_params": JSON.stringify(param)
         }, {headers: {"Content-Type": "multipart/form-data"}})
             .then(async() => {
-                await sleep(10000);
+                setOpen(true);
+                await sleep(5000);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                navigate(url + "operation");
                 setOpen(false);
-                navigate(url + "operation", {replace: true});
             })
             .catch(error => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -189,8 +195,8 @@ export function GaHyperParamsPage() {
                     justifyContent="center"
                 >
                     <Button variant="contained" sx={{height: 40, width: 120}}
+                        disabled={!enablebutton}
                         onClick= {handleClickNext}
-                        href={url + "/operation"}
                     >
                     Suivant
                     </Button>

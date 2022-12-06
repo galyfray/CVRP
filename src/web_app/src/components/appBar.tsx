@@ -70,7 +70,7 @@ export function AppbarStyle() {
                         backgroundColor: "#000000"
                     }}
                     sx={{mr: 5}}
-                    href="mailto:kwassisenam@gmail.com">
+                    href="mailto:blablabla@gmail.com">
                 Contact
                     </Button>
                 </nav>
