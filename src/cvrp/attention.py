@@ -8,11 +8,11 @@ class Attention(ABC):
     """
 
     @abstractmethod
-    def attention(self, v: tf.Tensor) -> list: #Les vecteurs sont représentés comme des listes mais ça peut être changé
+    def attention(self, v: tf.Tensor) -> tf.Tensor:
         """
-        :param v: a vector on which we want to execute the attention mecanism
+        :param v: a tensor on which we want to execute the attention mecanism
         
-        :return: a vector of the probabilities to compute the learning on each element of the vector
+        :return: a tensor of the probabilities to compute the learning on each element of the vector
         """
         pass
 
@@ -28,7 +28,8 @@ class AttentionFactory(ABC):
 
 class AttentionClass(Attention, tf.keras.Model):
     def __init__(self, n:int):
-        """
+        """:param n: the number of nodes that are not the depot
+        Initialize the 4 layers of neurons used by the Attention.
         """
         super(AttentionClass,self).__init__(name = '')
         self._v = layers.Dense(64, activation = "tanh")
@@ -38,9 +39,10 @@ class AttentionClass(Attention, tf.keras.Model):
         self._n = n
         self.training = True
 
-    def _context_vector(self, mu : tf.Tensor, h : tf.Tensor):
+    def _context_vector(self, mu : tf.TensorArray, h : tf.Tensor):
         value = 0
         for i in range(self._n + 1):
-            v_i = self._v(mu + h)
+            v_i = self._v(tf.concat[mu[i],h])
             a_i = self._a(v_i)
             value+=a_i*mu[i]
+        return value
