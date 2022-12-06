@@ -77,7 +77,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def get_roads(self) -> tuple[tuple[int, ...], ...]:
         """Split the solution in individual roads that can be manipulated \
         without altering the main object."""
-
         i = 0
         roads = []
         while i < len(self._solution) - 1:
@@ -480,7 +479,7 @@ class ECVRPInstance:
         return index == self.__depot
 
     def get_depot(self) -> int:
-        """Return the ID of the depot"""
+        """Return the ID of the depot."""
         return self.__depot
 
     def get_distance(self, start: int, end: int) -> float:

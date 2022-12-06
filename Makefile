@@ -1,5 +1,5 @@
 # TODO: check if this work on windows and mac
-
+REQUIREMENT:="requirements.txt"
 ifeq ($(OS),Windows_NT)
 	ifeq (,$(shell python3 --version 2>nul))# Python detection
 		PYTHON:=python
@@ -15,10 +15,13 @@ ifeq ($(OS),Windows_NT)
 
 # Command generalization
 	RM_CMD=FOR /d /r . %%d IN ("__pycache__") DO @IF EXIST "%%d" rd /s /q "%%d"
-	EXPORT_CMD=make wexport
 
 else
-# The default shel used on unix doesn't support `source`
+	ifeq ($(shell uname -s),Darwin)
+		REQUIREMENT:="requirements_mac.txt"
+	endif 
+
+# The default shell used on unix doesn't support `source`
 	SHELL=/bin/bash 
     PYTHON:=python3 # Python detection
 	
@@ -30,8 +33,6 @@ else
 
 # Command generalization
 	RM_CMD=rm -rf ./**/__pycache__;rm -rf __pycache__
-	EXPORT_CMD=$(PY_CONDA) -m pip freeze | grep -v "@ file" >requirements.txt;
-
 endif
 
 .PHONY: test
@@ -44,7 +45,7 @@ init:
 	$(PYTHON) -m pip install --upgrade pip
 	conda update -n base -c defaults conda
 	conda create -p ./venv python=3.9
-	$(PY_CONDA) -m pip install -r requirements.txt
+	$(PY_CONDA) -m pip install -r $(REQUIREMENT)
 
 coverage:
 	make clean
@@ -54,15 +55,10 @@ coverage:
 	$(PY_CONDA) -m coverage report -m --skip-covered --skip-empty
 
 update:
-	$(PY_CONDA) -m pip install -r requirements.txt
+	$(PY_CONDA) -m pip install -r $(REQUIREMENT)
 
 export:
-	$(EXPORT_CMD)
-
-wexport:
-	$(PY_CONDA) -m pip freeze >requirement.txt
-	findstr /v "@ file" requirement.txt >requirements.txt
-	del .\requirement.txt
+	$(PY_CONDA) -m pip list --format=freeze > $(REQUIREMENT)
 
 # TODO: re create the make run command
 run:
