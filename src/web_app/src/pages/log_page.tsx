@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import GlobalStyles from "@mui/material/GlobalStyles";
@@ -42,7 +41,7 @@ export function LogsPage() {
     useEffect(() => {
         (
             () => {
-                getLogs();
+                void getLogs();
             }
         )();
     }, [getLogs]);
