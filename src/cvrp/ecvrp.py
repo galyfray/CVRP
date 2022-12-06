@@ -7,8 +7,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-12-03
-@version: 1.0
+@date: 2022-12-06
+@version: 1.1
 """
 
 # CVRP
@@ -108,20 +108,21 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         self._fitness = self._compute_fitness(self.get_roads())
         return self._fitness
 
-    def _compute_fitness(self, solution: tuple[tuple[int]]) -> float:
+    def _compute_fitness(self, solution: tuple[tuple[int, ...], ...]) -> float:
         """
         Compute the fitness of the solution held in this individual.
+
+        The fitness is, in our case, the maximal time made by a vehicle to
+        delivery the designated clients. Because all the vehicle are leaving
+        the depot at the same time, the fitness will be the vehicle which is
+        taken the most of the time.
         """
         max_time = 0.
-        fitness = 0.
         for road in solution:
-            fitness += self._compute_road_fitness(road)
             current = self._compute_road_fitness(road)
             if current > max_time:
                 max_time = current
-        fitness = max_time
-
-        return fitness
+        return max_time
 
     def _compute_road_fitness(self, road: Sequence[int]) -> float:
         road_time = 0.
@@ -131,7 +132,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-    def best_place_for(self, solution: list[list[int]], i_point: int) -> tuple[int]:
+    def best_place_for(self, solution: list[list[int]], i_point: int) -> tuple[int, int]:
         """
         Find the best place to add a point to delivery.
 
@@ -178,13 +179,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         of the charger founded.
         """
         list_chargers = self.__instance.get_chargers()
-        if not list_chargers:
+        if len(list_chargers) == 0:
             size = len(self.get_roads())
             if self.__instance.get_ev_count() > size:
                 return self.__instance.get_depot()
 
         d_min = float("inf")
-        closest = -1
+        closest = self.__instance.get_depot()
         for charger in list_chargers:
             dist = self.__instance.get_distance(point, charger)
             if dist < d_min:
@@ -192,16 +193,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 closest = charger
         return closest
 
-    def _road_correction(self, road: list[int], battery: int) -> list[int]:
+    def _road_correction(self, road: list[int]) -> list[int]:
         """
-        Add the closest electric charge beatween 2 points.
+        Add the closest electric charge between 2 points.
 
         Algorithm which is able to add the closest electric charger to the point
         where the battery would not be enough to go to the next point.
         It will use the function closestCharger() to find the most efficient solution.
         """
         valid_road: list[int] = [road[0]]
-        capacity_battery = battery
+        capacity_battery = self.__instance.get_ev_battery()
 
         for point in road[1:]:
             charger = self.__closest_charger(point)
@@ -212,7 +213,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     ):
 
                 valid_road.append(self.__closest_charger(valid_road[-1]))
-                capacity_battery = battery
+                capacity_battery = self.__instance.get_ev_battery()
 
             capacity_battery -= self.__instance.get_batterie_consumption(valid_road[-1], point)
             valid_road.append(point)
@@ -234,8 +235,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 break
         return solution
 
-    def __tuple_to_list(self, tuple_element: tuple[tuple[int]]) -> list[list[int]]:
-        """Convert a tuple[tuple[int] into a list[list[int]]."""
+    def __tuple_to_list(self, tuple_element: tuple[tuple[int, ...], ...]) -> list[list[int]]:
+        """Convert a tuple[tuple[int]] into a list[list[int]]."""
         return [list(x) for x in tuple_element]
 
     def __merge_roads(self, solution: list[list[int]]) -> list[int]:
@@ -299,15 +300,17 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         best_distance = self._compute_road_fitness(road)
         best_road = road
 
-        road.remove(0)  # remove the first depot
-        road.remove(0)  # remove the last depot
+        depot = self.__instance.get_depot()
+
+        road.remove(depot)  # remove the first depot
+        road.remove(depot)  # remove the last depot
 
         for index_point1 in range(len(road)):
             for index_point2 in range(len(road)):
                 if index_point1 != index_point2:
                     tmp_road = self.__reversed_content(road, index_point1, index_point2)
-                    tmp_road.insert(0, 0)  # add the depot at the begining
-                    tmp_road.append(0)  # add the depot at the end
+                    tmp_road.insert(0, depot)  # add the depot at the begining
+                    tmp_road.append(depot)  # add the depot at the end
                     distance = self._compute_road_fitness(tmp_road)
                     if distance < best_distance:
                         best_distance = distance
@@ -316,9 +319,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return best_road
 
     def delete_empty_road(self, solution: list[list[int]]) -> list[list[int]]:
-        """Delete empty road which are represented by [0, 0]."""
+        """Delete empty road which are represented by [0, 0] if depot is 0."""
+        depot = self.__instance.get_depot()
         for road in solution:
-            if road == [0, 0]:
+            if road == [depot, depot]:
                 solution.remove(road)
         return solution
 
@@ -328,18 +332,18 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         This changement is done in place.
         """
-        solution = self.get_roads()
-        solution = self.__tuple_to_list(solution)
+        solution_tuple = self.get_roads()
+        solution = self.__tuple_to_list(solution_tuple)
 
         choice = randrange(0, len(solution))
         road = solution[choice]
 
-        road = self.__pull_off_chargers(road)
+        road_without_chargers = self.__pull_off_chargers(road)
 
         # algo 2-opt
-        mutant_road = self.__two_opt(road)
+        mutant_road = self.__two_opt(road_without_chargers)
 
-        new_road = self._road_correction(mutant_road, self.__instance.get_ev_battery())
+        new_road = self._road_correction(mutant_road)
         solution[choice] = new_road
 
         solution = self.delete_empty_road(solution)
@@ -354,12 +358,12 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         This function might not return the same result with the same argument and
         will probably not be comutative.
         """
-        s_1 = self.get_roads()  # self is the parent 1
-        s_2 = other.get_roads()
+        s_1_tuple = self.get_roads()  # self is the parent 1
+        s_2_tuple = other.get_roads()
 
         # convert tuple into list to modify th content
-        s_1 = self.__tuple_to_list(s_1)
-        s_2 = self.__tuple_to_list(s_2)
+        s_1 = self.__tuple_to_list(s_1_tuple)
+        s_2 = self.__tuple_to_list(s_2_tuple)
 
         # pull of charger for the crossover opration
         for index_road, road in enumerate(s_1):
@@ -393,7 +397,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         shuffle(road_2)
         for point in road_2:
-            # print("element ", point, " dans ", s_1)
             position = self.best_place_for(s_1, point)
             if position[0] == len(s_1):
                 s_1.append([0, 0])
@@ -401,10 +404,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         # add chargers
         for index_road, road in enumerate(s_1):
-            s_1[index_road] = self._road_correction(road, self.__instance.get_ev_battery())
+            s_1[index_road] = self._road_correction(road)
 
         for index_road, road in enumerate(s_2):
-            s_2[index_road] = self._road_correction(road, self.__instance.get_ev_battery())
+            s_2[index_road] = self._road_correction(road)
 
         # delete empty road
         s_1 = self.delete_empty_road(s_1)

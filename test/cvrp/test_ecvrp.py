@@ -6,8 +6,8 @@ This module holds tests for the cvrp.ecvrp module.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-12-03
-@version: 0.3
+@date: 2022-12-06
+@version: 0.4
 """
 
 # CVRP
@@ -28,8 +28,8 @@ This module holds tests for the cvrp.ecvrp module.
 
 
 from copy import copy
-import pytest
 import random
+import pytest
 # pylint: disable=E0401 # False positive. This import works fine.
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 from src.cvrp.constraints_validators import\
@@ -226,6 +226,8 @@ def test_d_matrix():
 
 
 def test_depot():
+    """ Test if the depot can be correctly detected.
+    """
     assert test_instance_1.is_depot(0)
     assert not test_instance_1.is_depot(1)
 
@@ -233,7 +235,6 @@ def test_depot():
 def test_demand():
     """ Test the `get_demand` function of the ECVRPInstance class.
     """
-
     assert test_instance_1.get_demand(2) == 5
 
     with pytest.raises(KeyError):
@@ -241,11 +242,15 @@ def test_demand():
 
 
 def test_charger():
+    """ Test if a charger can be correctly detected.
+    """
     assert test_instance_1.is_charger(1)
     assert not test_instance_1.is_charger(2)
 
 
 def test_crossover():
+    """ Test if the crossover method works correctly.
+    """
     random.seed(8)
 
     parent_1 = ECVRPSolution([], [0, 4, 2, 0, 3, 1, 0], test_instance_1)
@@ -261,20 +266,18 @@ def test_crossover():
 
 
 def test_mutation():
+    """ Test if the mutation method works correctly.
+    """
     random.seed(3)
 
     mutant = ECVRPSolution([], [0, 4, 1, 2, 0, 3, 0], test_instance_1)
-
-    print("mutant.get_roads() avant : ", mutant.get_roads())
-
     mutant.mutate()
-
-    print("mutant.get_roads() après : ", mutant.get_roads())
-
     assert mutant.get_roads() == ((0, 2, 4, 0), (0, 3, 0))
 
 
 def test_empty_road():
+    """ Test if an empty road can be find.
+    """
     instance = ECVRPSolution([], [0, 4, 1, 0, 2, 3, 0, 0], test_instance_1)
     solution = instance.get_roads()
     solution = [list(x) for x in solution]
@@ -282,7 +285,10 @@ def test_empty_road():
 
 
 def test_road_correction():
+    """ Test the road correction algorithm.
+    """
     instance = ECVRPSolution([], [0, 3, 1, 2, 0], test_instance_2)
     roads = instance.get_roads()
-    new_road = instance._road_correction(roads[0], instance.get_instance().get_ev_battery())
+    list_roads = [list(x) for x in roads]
+    new_road = instance._road_correction(list_roads[0])
     assert new_road == [0, 3, 0, 1, 2, 0]
