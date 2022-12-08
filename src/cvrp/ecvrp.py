@@ -7,8 +7,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Cyril Obrecht
 @author: Marie Aspro
 @license: GPL-3
-@date: 2022-12-06
-@version: 1.1
+@date: 2022-12-08
+@version: 1.2
 """
 
 # CVRP
@@ -141,15 +141,19 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """
         min_fit = float("inf")
         best_position = (-1, -1)
-        size = len(solution)
-        max_position = size + 1
+        number_roads = len(solution)
         initial_solution = solution
 
-        if self.__instance.get_ev_count() > size:
-            max_position += 1
-
         for index_road, road in enumerate(initial_solution):
-            if len(road) != 2:
+
+            size_road = len(road)
+            if size_road != 2:
+
+                max_position = size_road + 1
+                # because we are going to add a point
+                # the lenght will be size + 1
+
+                # we start at index 1 because the index 0 is depot
                 for index_point in range(1, max_position):
                     solution[index_road].insert(index_point, i_point)
                     fitness = self._compute_fitness(solution)
@@ -165,8 +169,21 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     best_position = (index_road, 1)
                 solution[index_road].remove(i_point)
 
+            if self.__instance.get_ev_count() > number_roads:
+                # If the number of roads is less than the number of vehicules,
+                # the better road can be an additionnal road.
+                depot = self.__instance.get_depot()
+                new_road = [i_point, depot]
+                solution.append(new_road)
+                fitness = self._compute_fitness(solution)
+                if fitness < min_fit:
+                    min_fit = fitness
+                    best_position = (number_roads, 1)
+                solution.remove(new_road)
+
+
         if min_fit == float("inf"):
-            best_position = (size, 1)
+            best_position = (number_roads, 1)
 
         return best_position
 
