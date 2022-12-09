@@ -181,7 +181,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                     best_position = (number_roads, 1)
                 solution.remove(new_road)
 
-
         if min_fit == float("inf"):
             best_position = (number_roads, 1)
 
@@ -366,13 +365,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         self._solution = self.__merge_roads(solution)
 
-    def crossover(self, other: "ECVRPSolution") -> list["ECVRPSolution"]:
+    def __get_solutions(self, other: "ECVRPSolution") -> tuple[list[list[int]], list[list[int]]]:
         """
-        Generate a list of children according to the rules of the individual.
+        Get solutions from ECVRPSolution and prepare it for crossover process.
 
-        The returned list might be empty or contains duplicated children.
-        This function might not return the same result with the same argument and
-        will probably not be comutative.
+        It takes place at the beginning of the crossover method to get the solution from
+        the ECVRPSolution and convert it into a list of list. Moreover, it will remove
+        all the chargers from the solution.
         """
         s_1_tuple = self.get_roads()  # self is the parent 1
         s_2_tuple = other.get_roads()
@@ -388,6 +387,12 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         for index_road, road in enumerate(s_2):
             s_2[index_road] = self.__pull_off_chargers(road)
 
+        return s_1, s_2
+
+    def __choose_roads(self,
+                       s_1: list[list[int]],
+                       s_2: list[list[int]]) -> tuple[list[int], list[int]]:
+        """Choose the roads from which the points will be removed from the solution."""
         # determine which road is chosen
         num_r_1 = randrange(0, len(s_1))
         num_r_2 = randrange(0, len(s_2))
@@ -396,13 +401,14 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         road_1 = list(s_1[num_r_1])[1:-1]
         road_2 = list(s_2[num_r_2])[1:-1]
 
-        # point are removed
-        for point in road_1:
-            s_2 = self.__remove_point(s_2, point)
+        return road_1, road_2
 
-        for point in road_2:
-            s_1 = self.__remove_point(s_1, point)
-
+    def __insert_points(self,
+                        s_1: list[list[int]],
+                        s_2: list[list[int]],
+                        road_1: list[int],
+                        road_2: list[int]) -> tuple[list[list[int]], list[list[int]]]:
+        """Insert at a better place the points removed previously."""
         # insert in the best place for removed points
         shuffle(road_1)
         for point in road_1:
@@ -418,6 +424,19 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 s_1.append([0, 0])
             s_1[position[0]].insert(position[1], point)
 
+        return s_1, s_2
+
+    def __update_solutions(self,
+                           s_1: list[list[int]],
+                           s_2: list[list[int]]) -> tuple[list[list[int]], list[list[int]]]:
+        """
+        End of the crossover process by reshaping a validate solution.
+
+        After the points have been removed and inserted at a better place, the solution
+        must be correct to be valid by adding chargers if needed. Moreover, empty roads
+        should be deleted to have a suitable solution and finally merge the roads to
+        reshape it from his original form.
+        """
         # add chargers
         for index_road, road in enumerate(s_1):
             s_1[index_road] = self._road_correction(road)
@@ -432,6 +451,32 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         # merge my list of road to list of point
         s_1 = self.__merge_roads(s_1)
         s_2 = self.__merge_roads(s_2)
+
+        return s_1, s_2
+
+    def crossover(self, other: "ECVRPSolution") -> list["ECVRPSolution"]:
+        """
+        Generate a list of children according to the rules of the individual.
+
+        The returned list might be empty or contains duplicated children.
+        This function might not return the same result with the same argument and
+        will probably not be comutative.
+        """
+
+        s_1, s_2 = self.__get_solutions(other)
+
+        road_1, road_2 = self.__choose_roads(s_1, s_2)
+
+        # point are removed
+        for point in road_1:
+            s_2 = self.__remove_point(s_2, point)
+
+        for point in road_2:
+            s_1 = self.__remove_point(s_1, point)
+
+        s_1, s_2 = self.__insert_points(s_1, s_2, road_1, road_2)
+
+        s_1, s_2 = self.__update_solutions(s_1, s_2)
 
         # create children
         e_1 = ECVRPSolution(self._validators, s_1, self.__instance)
