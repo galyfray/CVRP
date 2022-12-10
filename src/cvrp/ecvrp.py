@@ -446,13 +446,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         s_1 = self.__insert_points(s_1, road_2)
         s_2 = self.__insert_points(s_2, road_1)
 
-        s_1 = self.__update_solution(s_1)
-        s_2 = self.__update_solution(s_2)
+        s_final_1 = self.__update_solution(s_1)
+        s_final_2 = self.__update_solution(s_2)
 
         # create children
-        e_1 = ECVRPSolution(self._validators, s_1, self.__instance)
+        e_1 = ECVRPSolution(self._validators, s_final_1, self.__instance)
 
-        e_2 = ECVRPSolution(self._validators, s_2, self.__instance)
+        e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
 
         return [e_1, e_2]
 
