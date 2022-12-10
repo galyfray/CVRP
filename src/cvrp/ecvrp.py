@@ -330,9 +330,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
     def _delete_empty_road(self, solution: list[list[int]]) -> list[list[int]]:
         """Delete empty road which are represented by [0, 0] if depot is 0."""
         depot = self.__instance.get_depot()
-        for road in solution:
+        for index_road, road in enumerate(solution):
             if road == [depot, depot]:
-                solution.remove(road)
+                solution.pop(index_road)
         return solution
 
     def mutate(self) -> None:
