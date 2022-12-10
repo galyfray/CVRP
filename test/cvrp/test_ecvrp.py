@@ -281,7 +281,7 @@ def test_empty_road():
     instance = ECVRPSolution([], [0, 4, 1, 0, 2, 3, 0, 0], test_instance_1)
     solution = instance.get_roads()
     solution = [list(x) for x in solution]
-    assert instance.delete_empty_road(solution) == [[0, 4, 1, 0], [0, 2, 3, 0]]
+    assert instance._delete_empty_road(solution) == [[0, 4, 1, 0], [0, 2, 3, 0]]
 
 
 def test_road_correction():
