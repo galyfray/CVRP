@@ -192,10 +192,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         depot ID.
         """
         list_chargers = self.__instance.get_chargers()
-        if len(list_chargers) == 0:
-            size = len(self.get_roads())
-            if self.__instance.get_ev_count() > size:
-                return self.__instance.get_depot()
 
         d_min = float("inf")
         closest = self.__instance.get_depot()
