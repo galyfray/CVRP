@@ -96,6 +96,8 @@ class Server:
         """
         self._runner = None
         self._snapshot = None
+        self._nb_it = 0
+        self._count = 0
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -106,7 +108,9 @@ class Server:
         self.app.add_url_rule("/status", view_func=self.route_status, methods=["GET"])
         self.app.add_url_rule("/snapshot", view_func=self.route_snapshot, methods=["GET"])
         self.app.add_url_rule("/benchmarks", view_func=self.route_benchmarks, methods=["GET"])
-        self.app.add_url_rule("/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"])
+        self.app.add_url_rule(
+                "/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"]
+                )
         self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
@@ -250,9 +254,17 @@ class Server:
                 "generation": -1
             }
 
+        base = {
+                "has_next": False,
+                "snapshot": [],
+                "generation": -1
+            }
+
         gen = next(self._runner)
-        self._snapshot.add_snapshot(gen, time.thread_time())
-        return gen
+
+        base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())
+
+        return base
 
         # TODO : run a genration, send snap to json_io, handle the end of run.
 

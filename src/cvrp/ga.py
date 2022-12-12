@@ -73,19 +73,19 @@ class GA(Generic[TypeIndividual]):
         """
         self._len = generations
 
-        self._current_pop.sort()
+        self._current_pop.sort(key=lambda x: x.get_fitness())
 
         parents_count = len(self._current_pop) // 2
         children_count = len(self._current_pop) - parents_count
 
         for _ in range(generations):
             fitnesses = [i.get_fitness() for i in self._current_pop]
-            sum_fit = sum(fitnesses)
 
             cum = [0]*len(fitnesses)
             parents = [None] * parents_count
 
             for j in range(parents_count):
+                sum_fit = sum(fitnesses)
                 for i, fit in enumerate(fitnesses):
                     cum[i] = fit/sum_fit + (cum[i - 1] if i > 0 else 0)
 
@@ -93,13 +93,15 @@ class GA(Generic[TypeIndividual]):
                 randi = random.random()
                 while cum[index] < randi:
                     index += 1
+                print(index,len(self._current_pop),len(fitnesses))
                 parents[j] = self._current_pop[index]
 
                 fitnesses.pop(index)
 
+
             children = self._mutate(self._crossbreed(parents, children_count))
             self._current_pop = [*parents, *children]
-            self._current_pop.sort()
+            self._current_pop.sort(key=lambda x: x.get_fitness())
             yield self._current_pop
 
     def _crossbreed(self, parents: list[TypeIndividual], count: int) -> list[TypeIndividual]:

@@ -372,7 +372,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :rtype: list[int]
         """
         best_distance = self._compute_road_fitness(road)
-        best_road = road
+        best_road = [*road]
 
         depot = self.__instance.get_depot()
 
@@ -428,6 +428,14 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         solution = self._delete_empty_road(solution)
 
+        self._solution = self.__merge_roads(solution)
+
+    def validate(self) -> None:
+        """Does stuff"""
+        solution_tuple = self.get_roads()
+        solution = []
+        for road in tuple_to_list(solution_tuple):
+            solution.append(self._road_correction(road))
         self._solution = self.__merge_roads(solution)
 
     def get_solution(self) -> list[list[int]]:
