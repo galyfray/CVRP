@@ -355,7 +355,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         self._solution = self.__merge_roads(solution)
 
-    def __get_solution(self) -> list[list[int]]:
+    def get_solution(self) -> list[list[int]]:
         """
         Get solutions from ECVRPSolution and prepare it for crossover process.
 
@@ -426,8 +426,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         will probably not be comutative.
         """
 
-        s_1 = self.__get_solution()
-        s_2 = other.__get_solution()
+        s_1 = self.get_solution()
+        s_2 = other.get_solution()
 
         road_1 = self.__choose_road(s_1)
         road_2 = self.__choose_road(s_2)
