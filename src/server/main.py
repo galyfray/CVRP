@@ -30,6 +30,7 @@ from flask import Flask, request
 from flask_cors import CORS
 
 from src.cvrp.ecvrp import ECVRPInstance
+from .utils import utils
 
 HYPER_LIST = {
     "ga": [
@@ -61,7 +62,7 @@ class Server:
         self.app.add_url_rule("/status", view_func=self.route_status, methods=["GET"])
         self.app.add_url_rule("/snapshot", view_func=self.route_snapshot, methods=["GET"])
         self.app.add_url_rule("/benchmarks", view_func=self.route_benchmarks, methods=["GET"])
-        self.app.add_url_rule("/benchmark", view_func=self.route_benchmark, methods=["GET"])
+        self.app.add_url_rule("/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"])
         self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
@@ -214,19 +215,17 @@ class Server:
 
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks"""
-        # TODO: import bench_dir from parser and list all files in the directory
-        # should I cache this information ?
-        return ["None"]
+        return utils.get_datasets()
 
-    def route_benchmark(self):
+    def route_benchmark(self, bench_id: str):
         """
         Load and return a specific benchmark.
 
         The benchmark is returned in the same format as provider by the benchmark reader.
         """
-        # load the bench
-        # convert the bench to JSON
-        return {}
+        bench = utils.parse_dataset(bench_id)
+        bench["STATIONS"] = list(bench["STATIONS"])
+        return bench
 
     def route_logs(self):
         """

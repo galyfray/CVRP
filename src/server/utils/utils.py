@@ -56,7 +56,7 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
 
     # Variables needed to create our ECVRP Instance
     parameters: dict[str, any] = {}
-    nodes: dict[int, tuple[int, int]] = {}
+    nodes: dict[int, tuple[float, float]] = {}
     chargers: set[int] = set()
     demands: dict[int, int] = {}
     time_windows: dict[int, tuple[float, float]] = {}
@@ -76,8 +76,8 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
                     # Extracts the id and coordinates of each node (3 values per line)
                     if index % 3 == 0:
                         nodes[int(data[i+index+1]) - OFFSET] = \
-                            (int(data[i+index+2]), int(data[i+index+3]))
-                        time_windows[int(data[i+index+1]) - OFFSET] = (0, float('inf'))
+                            (float(data[i+index+2]), float(data[i+index+3]))
+                        time_windows[int(data[i+index+1]) - OFFSET] = (0, sys.maxsize)
             elif value == 'DEMAND_SECTION':
                 for index in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
                     # Extracts the id and demand for each node (2 values per line)
@@ -146,7 +146,7 @@ def get_datasets(dir_path: Path = PATH_TO_DATASETS) -> list[str]:
     return os.listdir(dir_path)
 
 
-def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[float]]:
+def compute_distance_matrix(nodes: dict[int, tuple[float, float]]) -> list[list[float]]:
     """Compute the distance matrix of our nodes."""
 
     distance_matrix = np.zeros(shape=(len(nodes), len(nodes))).tolist()
