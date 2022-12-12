@@ -3,10 +3,11 @@
 """
 This module holds the rest server that bridge the solvers and the front end.
 
-@authors: ["Cyril Obrecht", "Sonia Kwassi"]
+@author: Cyril Obrecht
+@author: Sonia Kwassi
 @license: GPL-3
 @date: 2022-11-02
-@version: 0.1
+@version: 0.2
 """
 
 # CVRP
@@ -26,10 +27,16 @@ This module holds the rest server that bridge the solvers and the front end.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import time
+import random
+import json
+
 from flask import Flask, request
 from flask_cors import CORS
 
-from src.cvrp.ecvrp import ECVRPInstance
+from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
+from src.cvrp.json_io import JsonWriter
+from src.cvrp.ga import GA
+from src.cvrp import constraints_validators
 from .utils import utils
 
 HYPER_LIST = {
@@ -42,6 +49,42 @@ HYPER_LIST = {
 }
 
 
+def build_first_gen(size: int, instance: ECVRPInstance):
+    """Does stuff"""
+    validators = [
+        constraints_validators.BatteryTWValidator(),
+        constraints_validators.CapacityValidator(),
+        constraints_validators.VehiculeCountValidator()
+    ]
+
+    towns = instance.get_towns()
+
+    first_gen = []
+    counter = 0
+    while len(first_gen) < size:
+        counter += 1
+        solution = [*towns]
+        random.shuffle(solution)
+
+        choices = random.choices(range(len(solution)), k=(instance.get_ev_count() - 1))
+
+        for i in choices:
+            solution.insert(i, instance.get_depot())
+
+        solution.insert(0, instance.get_depot())
+        solution.append(instance.get_depot())
+        element = ECVRPSolution(validators, solution, instance)
+
+        # When mutating the solution kind of auto correct itself.
+        # If we don't apply this auto correction there is no way
+        # we produce a single valid solution.
+        element.validate()
+
+        if element.is_valid():
+            first_gen.append(element)
+    return first_gen
+
+
 class Server:
     """This class holds the server, its state and routes"""
 
@@ -52,6 +95,7 @@ class Server:
         :param name: The name of the Flask application
         """
         self._runner = None
+        self._snapshot = None
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -160,14 +204,19 @@ class Server:
             metho = request.form["type"]
             if metho not in HYPER_LIST:
                 pass  # raise error
-            hyper = {key: request.form["param"][key] for key in HYPER_LIST[metho]}
+            param = json.loads(request.form["param"])
+            hyper = {key: param[key] for key in HYPER_LIST[metho]}
 
-            # parsing benchmark
-            # create a snapshot
-            # Seed the random
+            bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
+
+            self._snapshot = JsonWriter(str(utils.PATH_TO_LOGS), "test", request.form["bench_id"])
+
+            random.seed(0)  # TODO add a seed param
 
             if metho == "ga":
-                pass  # create the instance
+                g_a = GA(build_first_gen(hyper["pop_size"], bench), hyper["mutation_rate"])
+                self._runner = g_a.run(hyper["nb_epochs"])
+            return {"busy": False}
 
         return None
 
@@ -201,17 +250,21 @@ class Server:
                 "generation": -1
             }
 
+        gen = next(self._runner)
+        self._snapshot.add_snapshot(gen, time.thread_time())
+        return gen
+
         # TODO : run a genration, send snap to json_io, handle the end of run.
 
-        return {
-                "has_next": True,
-                "snapshot": [
-                    {"time": time.thread_time(), "individuals": [
-                        {"solution": (0, 1, 2, 0, 4, 3, 0), "fitness": 1}
-                    ]}
-                ],
-                "generation": 0
-            }
+        # return {
+        #        "has_next": True,
+        #        "snapshot": [
+        #            {"time": time.thread_time(), "individuals": [
+        #                {"solution": (0, 1, 2, 0, 4, 3, 0), "fitness": 1}
+        #            ]}
+        #        ],
+        #        "generation": 0
+        #    }
 
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks"""
@@ -241,10 +294,8 @@ class Server:
         ]
 
         """
-        # list all files from the logs folder
-        # transform data according to what needs the front
-        # return the data
-        # This should be cached.
+        logs = [{"name": log} for log in utils.get_logs()]
+        return logs
 
     def route_results(self):
         """
