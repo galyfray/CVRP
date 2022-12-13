@@ -99,8 +99,9 @@ class AttentionClass(Attention, tf.keras.Model):
             p.append(p_i)
         return p
 
-    def attention(self, mu: tf.TensorArray, h : tf.Tensor = None) -> tf.Tensor:
+    def call(self, mu, h):
         return self._probability(mu, h)
+
 
 class _Tan_H_Layer(layers.Layer):
     def __init__(self, n_output : int):
@@ -113,3 +114,5 @@ class _Tan_H_Layer(layers.Layer):
 
     def call(self, inputs):
         return self._w1 * tf.nn.tanh(self._w2*inputs)
+
+H = _Tan_H_Layer(64)
