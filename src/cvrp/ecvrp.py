@@ -111,7 +111,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         self._fitness = self._compute_fitness(self.get_roads())
         return self._fitness
 
-    def _compute_fitness(self, solution: tuple[tuple[int, ...], ...]) -> float:
+    def _compute_fitness(self, solution: Sequence[Sequence[int]]) -> float:
         """
         Compute the fitness of the solution held in this individual.
 
@@ -349,12 +349,12 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             index_min = index2
             index_max = index1
 
-        begining = road[0:index_min]
+        beginning = road[0:index_min]
         middle = road[index_min:(index_max+1)]
         middle.reverse()
         ending = road[(index_max+1):size]
 
-        reversed_road = begining + middle + ending
+        reversed_road = beginning + middle + ending
 
         return reversed_road
 
@@ -383,7 +383,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             for index_point2 in range(index_point1):
                 if index_point1 != index_point2:
                     tmp_road = self.__reversed_content(road, index_point1, index_point2)
-                    tmp_road.insert(0, depot)  # add the depot at the begining
+                    tmp_road.insert(0, depot)  # add the depot at the beginning
                     tmp_road.append(depot)  # add the depot at the end
                     distance = self._compute_road_fitness(tmp_road)
                     if distance < best_distance:
