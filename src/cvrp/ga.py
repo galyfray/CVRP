@@ -80,6 +80,9 @@ class GA(Generic[TypeIndividual]):
 
         for _ in range(generations):
             fitnesses = [i.get_fitness() for i in self._current_pop]
+            maxi = max(fitnesses)
+
+            fitnesses = [2*maxi - i for i in fitnesses]
 
             cum = [0]*len(fitnesses)
             parents = [None] * parents_count
@@ -93,7 +96,6 @@ class GA(Generic[TypeIndividual]):
                 randi = random.random()
                 while cum[index] < randi:
                     index += 1
-                print(index,len(self._current_pop),len(fitnesses))
                 parents[j] = self._current_pop[index]
 
                 fitnesses.pop(index)

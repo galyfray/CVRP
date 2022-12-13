@@ -1,0 +1,1 @@
+{"bench_id":"bench_test","snapshots":[{"time":0.950058357,"individuals":[{"solution":[0,1,2,3,0,4,0],"fitness":8.0},{"solution":[0,1,0,2,0,3,0],"fitness":5.0},{"solution":[0,1,0,2,0,3,0,4,0],"fitness":5.0}]}]}

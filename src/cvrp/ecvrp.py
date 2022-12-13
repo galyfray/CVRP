@@ -563,7 +563,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
-        return len([v for v in self._validators if not v.is_valid(self)]) == 0
+        for validator in self._validators:
+            if not validator.is_valid(self):
+                return False
+
+        return True
 
     def __copy__(self) -> "ECVRPSolution":
         """Create a copy."""

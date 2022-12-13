@@ -33,8 +33,10 @@ import json
 from flask import Flask, request
 from flask_cors import CORS
 
+from tqdm import tqdm
+
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
-from src.cvrp.json_io import JsonWriter
+from src.cvrp.json_io import JsonWriter, read_json
 from src.cvrp.ga import GA
 from src.cvrp import constraints_validators
 from .utils import utils
@@ -61,15 +63,28 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
     first_gen = []
     counter = 0
+
+    t = tqdm(total=size)
+
     while len(first_gen) < size:
         counter += 1
         solution = [*towns]
         random.shuffle(solution)
 
-        choices = random.choices(range(len(solution)), k=(instance.get_ev_count() - 1))
+        cum_dem = 0
+        insert_points = []
 
-        for i in choices:
-            solution.insert(i, instance.get_depot())
+        for i, p in enumerate(solution):
+            cum_dem += instance.get_demand(p)
+            if cum_dem > instance.get_ev_capacity():
+                insert_points.append(i-1 + len(insert_points))
+                cum_dem = 0
+
+        if len(insert_points) > instance.get_ev_count():
+            continue
+
+        for p in insert_points:
+            solution.insert(p, instance.get_depot())
 
         solution.insert(0, instance.get_depot())
         solution.append(instance.get_depot())
@@ -82,6 +97,8 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
         if element.is_valid():
             first_gen.append(element)
+            t.update()
+    t.close()
     return first_gen
 
 
@@ -211,6 +228,9 @@ class Server:
             param = json.loads(request.form["param"])
             hyper = {key: param[key] for key in HYPER_LIST[metho]}
 
+            self._nb_it = hyper["nb_epochs"]
+            self._count = 0
+
             bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
 
             self._snapshot = JsonWriter(str(utils.PATH_TO_LOGS), "test", request.form["bench_id"])
@@ -254,15 +274,21 @@ class Server:
                 "generation": -1
             }
 
+        self._count += 1
+
         base = {
-                "has_next": False,
+                "has_next": not self._count == self._nb_it,
                 "snapshot": [],
-                "generation": -1
+                "generation": self._count
             }
 
         gen = next(self._runner)
 
         base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())
+
+        if self._count == self._nb_it:
+            self._snapshot.dump()
+            self._runner = None
 
         return base
 
@@ -306,7 +332,7 @@ class Server:
         ]
 
         """
-        logs = [{"name": log} for log in utils.get_logs()]
+        logs = [{"id": log, "method": "Unknown", "logs": []} for log in utils.get_logs()]
         return logs
 
     def route_results(self):
@@ -315,8 +341,7 @@ class Server:
 
         returns the same json as stored.
         """
-        # load the correct JSON
-        # return it.
+        read_json(utils.PATH_TO_LOGS, request.form["id"])
 
 
 if __name__ == "__main__":
