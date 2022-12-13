@@ -101,6 +101,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         The fitness is here defined as the maximum amount
         of time taken by an EV to travel a road.
         The time taken to go from the town A to B is equals to the distance between those towns.
+
+        :return: the value of the fitness
+        :rtype: float
         """
         if self._fitness is not None:
             return self._fitness
@@ -116,6 +119,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         delivery the designated clients. Because all the vehicle are leaving
         the depot at the same time, the fitness will be the vehicle which is
         taken the most of the time.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: tuple[tuple[int, ...], ...]
+        :return: the value of the fitness
+        :rtype: float
         """
         max_time = 0.
         for road in solution:
@@ -125,6 +133,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return max_time
 
     def _compute_road_fitness(self, road: Sequence[int]) -> float:
+        """
+        Compute the fitness of a road.
+
+        The fitness will be the sum of the distances between each point.
+
+        :param road: the road
+        :type road: Sequence[int]
+        :return: the fitness value for a road
+        :rtype: float
+        """
         road_time = 0.
         latest = road[0]
         for i in road:
@@ -138,7 +156,15 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         This function will be use to find the best place to add a point in a
         new road at the end of the crossover process.
-        It will return the index of the best place and do not do the insertion
+        It will return the index of the best place and do not do the insertion.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param point: the point that needs to be added
+        :type point: int
+        :return: the coordinates found for the best place for the insertion where
+        the fisrt element is which road and the second where in the road
+        :rtype: tuple[int, int]
         """
         min_fit = float("inf")
         best_position = (-1, -1)
@@ -190,6 +216,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         This function will find the closest charger of a point and will return the id
         of the charger founded. If there is no charger, the function will return the
         depot ID.
+
+        :param point: the point from which the nearest charger is searched
+        :type point: int
+        :return: the closest charger found
+        :rtype: int
         """
         list_chargers = self.__instance.get_chargers()
 
@@ -209,6 +240,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         Algorithm which is able to add the closest electric charger to the point
         where the battery would not be enough to go to the next point.
         It will use the function closestCharger() to find the most efficient solution.
+
+        :param road: the road that need a charger to be valid
+        :type road: list[int]
+        :return: the road which has some chargers added
+        :rtype: list[int]
         """
         valid_road: list[int] = [road[0]]
         capacity_battery = self.__instance.get_ev_battery()
@@ -237,6 +273,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         which have been randomly selected from another solution.
         The same process will be done for the other solution with a road which have been
         randomly selected in this solution previously.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param element: the point that must be removed from the solution
+        :type element: int
+        :return: the solution composed of multiple roads without the element
+        :rtype: list[list[int]]
         """
         for road in solution:
             if element in road:
@@ -250,6 +293,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         The goal is to merge a list of road (which each is a list of int)
         to obtain a solution which is a list of integer (ID point).
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the solution composed of multiple merged roads
+        :rtype: list[int]
         """
         fusion_solution: list[int] = []
         for index_road, road in enumerate(solution):
@@ -268,6 +316,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         This function is helping the mutation process by removing all the chargers
         of a road. It will retrun the road without it.
+
+        :param road: the road which can contain no, one or more chargers
+        :type road: list[int]
+        :return: the road with no charger
+        :rtype: list[int]
         """
         for point in road:
             if self.__instance.is_charger(point):
@@ -275,7 +328,18 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return road
 
     def __reversed_content(self, road: list[int], index1: int, index2: int) -> list[int]:
-        """Reverse the content of a road between the point 1 and 2 (included)."""
+        """Reverse the content of a road between the point 1 and 2 (included).
+
+
+        :param road: a road that needs to be reversed in part
+        :type road: list[int]
+        :param index1: index of point 1
+        :type index1: int
+        :param index2: index of point 1
+        :type index2: int
+        :return: a route that was reversed in part
+        :rtype: list[int]
+        """
         size = len(road)
 
         if index1 < index2:
@@ -301,6 +365,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         Algorithm which find the best mutation for this road by calculating
         the distance for each mutation of road. The shortest distance will
         determine the best muatation road.
+
+        :param road: the road that will be used
+        :type road: list[int]
+        :return: the best road found by the algorithm
+        :rtype: list[int]
         """
         best_distance = self._compute_road_fitness(road)
         best_road = road
@@ -324,7 +393,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return best_road
 
     def _delete_empty_road(self, solution: list[list[int]]) -> list[list[int]]:
-        """Delete empty road which are represented by [0, 0] if depot is 0."""
+        """Delete empty road in a solution.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the same solution without empty road
+        :rtype: list[list[int]]
+        """
         depot = self.__instance.get_depot()
         for index_road, road in enumerate(solution):
             if road == [depot, depot]:
@@ -362,6 +437,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         It takes place at the beginning of the crossover method to get the solution from
         the ECVRPSolution and convert it into a list of list. Moreover, it will remove
         all the chargers from the solution.
+
+        :return: the solution ready to be used
+        :rtype: list[list[int]]
         """
         s_tuple = self.get_roads()
 
@@ -375,7 +453,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return solution
 
     def __choose_road(self, solution: list[list[int]]) -> list[int]:
-        """Choose the roads from which the points will be removed from the solution."""
+        """Choose the roads from which the points will be removed from the solution.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the road randomly choosen from the solution
+        :rtype: list[int]
+        """
         # determine which road is chosen
         num_r = randrange(0, len(solution))
 
@@ -385,7 +469,15 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return road
 
     def __insert_points(self, solution: list[list[int]], road: list[int]) -> list[list[int]]:
-        """Insert at a better place the points removed previously."""
+        """Insert at a better place the points removed previously.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param road: points from a choosen road
+        :type road: list[int]
+        :return: the solution after points insertion
+        :rtype: list[list[int]]
+        """
         # insert in the best place for removed points
         shuffle(road)
         for point in road:
@@ -404,6 +496,11 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         must be correct to be valid by adding chargers if needed. Moreover, empty roads
         should be deleted to have a suitable solution and finally merge the roads to
         reshape it from his original form.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the updated and merged solution
+        :rtype: list[int]
         """
         # add chargers
         for index_road, road in enumerate(solution):
@@ -424,8 +521,12 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         The returned list might be empty or contains duplicated children.
         This function might not return the same result with the same argument and
         will probably not be comutative.
-        """
 
+        :param other: a parent with self used by the operator
+        :type other: "ECVRPSolution"
+        :return: list of generated children
+        :rtype: list["ECVRPSolution"]
+        """
         s_1 = self.get_solution()
         s_2 = other.get_solution()
 
