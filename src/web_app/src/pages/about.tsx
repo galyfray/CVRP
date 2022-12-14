@@ -69,7 +69,7 @@ export function AboutPage() {
                     }}>
                         <img src={about_image} alt="about_image" width= "40%" />
                     </Grid>
-                    L'E-CVRPTW est un problème particulier de la famille des problèmes VRP.
+                        L'E-CVRPTW est un problème particulier de la famille des problèmes VRP.
                         Les problèmes VRP sont des problèmes axés autour de plusieurs véhicules
                         qui doivent livrer plusieurs points
                         à partir d’un ou plusieurs dépôts.<br/>
