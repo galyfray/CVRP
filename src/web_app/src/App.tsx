@@ -17,10 +17,6 @@ import {OperationPage} from "./pages/operation";
 import {ResultPage} from "./pages/result";
 import {DrlHyperParamsPage} from "./pages/drl_hyperParams";
 
-/*
-  Import logo from './logo.svg';
-  <img src={logo} className="App-logo" alt="logo" />
-*/
 
 function App() {
 
