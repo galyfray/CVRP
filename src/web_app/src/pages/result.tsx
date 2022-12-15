@@ -99,12 +99,6 @@ export function ResultPage() {
                     Résultat
                 </Typography>
                 <Grid container alignItems="center" spacing={2}>
-                    {/*
-                    <Grid item xs={6} sx={{mb:0}}>
-                        <RoadGraph width={450} height={200} graph={graph_data}/>
-                    </Grid>
-                    */
-                    }
                     <Grid item xs={6} sx={{mb: 0}}>
                         <LineChart
                             width={450}
