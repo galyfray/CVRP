@@ -46,23 +46,6 @@ export function LogsPage() {
         )();
     }, [getLogs]);
 
-    /*
-    Last version
-    useEffect(() => {
-        (
-            async() => {
-                getLogs();
-                await http.get("get_logs")
-                    .then(response => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                        console.log(response.data);
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                        setLogs(response.data);
-                    });
-            }
-        )();
-    }, []);
-    */
     return (
         <React.Fragment>
             <GlobalStyles styles={{
