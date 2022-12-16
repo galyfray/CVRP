@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-This module holds parts of the implementation of
+This module holds parts of the implementation of \
 the genetic algorithm applyed to the ECVRP problem.
 
 @author: Cyril Obrecht
+@author: Marie Aspro
 @license: GPL-3
-@date: 2022-11-02
-@version: 0.1
+@date: 2022-12-08
+@version: 1.2
 """
 
 # CVRP
@@ -27,14 +28,18 @@ the genetic algorithm applyed to the ECVRP problem.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import Union
-from .individual import Individual, TypeIndividual, ConstraintValidator
+from typing import Union, Sequence
+from random import randrange, shuffle
+import random
+from .individual import Individual, ConstraintValidator
 
 
 class ECVRPSolution(Individual["ECVRPSolution"]):
-    """ Holds a solution to the ECVRP problem and methods to help with a GA
-        Mutations is either done via 2-opt or a special algorithm.
-        See the mutate method for more information on this subject
+    """
+    Holds a solution to the ECVRP problem and methods to help with a GA.
+
+    Mutations is either done via 2-opt or a special algorithm.
+    See the mutate method for more information on this subject.
     """
 
     _roads: Union[tuple[tuple[int, ...], ...], None]
@@ -48,6 +53,14 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             solution: list[int],
             instance: "ECVRPInstance"
             ) -> None:
+        """
+        Initialise the ECVRPSolution class.
+
+        :param validators: A list of validator used to determine if the instance is valid.
+        This list will be trasmitted to children.
+        :param solution: A list of indexes that represent a solution to the ECVRP instace
+        :param instance: The instance this object aims to represent a solution.
+        """
         super().__init__(validators)
         self._solution = solution
         self.__instance = instance
@@ -55,18 +68,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         self._fitness = None
 
     def get_instance(self) -> "ECVRPInstance":
+        """Return the instance linked to this solution."""
         return self.__instance
 
     def get_points(self) -> tuple[int, ...]:
+        """Return the solution in an imutable form."""
         return tuple(self._solution)
 
     def get_roads(self) -> tuple[tuple[int, ...], ...]:
-        """ Split the solution in individual roads that can be manipulated
-            without altering the main object.
-        """
-        if self._roads is not None:
-            return self._roads
-
+        """Split the solution in individual roads that can be manipulated \
+        without altering the main object."""
         i = 0
         roads = []
         while i < len(self._solution) - 1:
@@ -80,25 +91,58 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             current.append(current[0])
             roads.append(tuple(current))
         self._roads = tuple(roads)
+
         return self._roads
 
     def get_fitness(self) -> float:
-        """ Compute the fitness of the solution held in this individual
-            The fitness is here defined as the maximum amount
-            of time taken by an EV to travel a road.
-            The time taken to go from the town A to B is equals to the distance between those towns
+        """
+        Compute the fitness of the solution held in this individual.
+
+        The fitness is here defined as the maximum amount
+        of time taken by an EV to travel a road.
+        The time taken to go from the town A to B is equals to the distance between those towns.
+
+        :return: the value of the fitness
+        :rtype: float
         """
         if self._fitness is not None:
             return self._fitness
+
+        self._fitness = self._compute_fitness(self.get_roads())
+        return self._fitness
+
+    def _compute_fitness(self, solution: Sequence[Sequence[int]]) -> float:
+        """
+        Compute the fitness of the solution held in this individual.
+
+        The fitness is, in our case, the maximal time made by a vehicle to
+        delivery the designated clients. Because all the vehicle are leaving
+        the depot at the same time, the fitness will be the vehicle which is
+        taken the most of the time.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: tuple[tuple[int, ...], ...]
+        :return: the value of the fitness
+        :rtype: float
+        """
         max_time = 0.
-        for road in self.get_roads():
+        for road in solution:
             current = self._compute_road_fitness(road)
             if current > max_time:
                 max_time = current
-        self._fitness = max_time
-        return self._fitness
+        return max_time
 
-    def _compute_road_fitness(self, road: tuple[int]) -> float:
+    def _compute_road_fitness(self, road: Sequence[int]) -> float:
+        """
+        Compute the fitness of a road.
+
+        The fitness will be the sum of the distances between each point.
+
+        :param road: the road
+        :type road: Sequence[int]
+        :return: the fitness value for a road
+        :rtype: float
+        """
         road_time = 0.
         latest = road[0]
         for i in road:
@@ -106,32 +150,428 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             latest = i
         return road_time
 
-    def mutate(self) -> None:
-        """ Mutate the current individual according to its internal rules.
-            This changement is done in place.
+    def best_place_for(self, solution: list[list[int]], point: int) -> tuple[int, int]:
         """
+        Find the best place to add a point to delivery.
 
-    def crossover(self, other: TypeIndividual) -> list[TypeIndividual]:
-        """ Generate a list of children according to the rules of the individual.
-            The returned list might be empty or contains duplicated children.
-            This function might not return the same result with the same argument and
-            will probably not be comutative.
+        This function will be use to find the best place to add a point in a
+        new road at the end of the crossover process.
+        It will return the index of the best place and do not do the insertion.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param point: the point that needs to be added
+        :type point: int
+        :return: the coordinates found for the best place for the insertion where
+        the fisrt element is which road and the second where in the road
+        :rtype: tuple[int, int]
         """
+        min_fit = float("inf")
+        best_position = (-1, -1)
+        number_roads = len(solution)
+        initial_solution = solution
+
+        for index_road, road in enumerate(initial_solution):
+
+            size_road = len(road)
+            if size_road != 2:
+
+                # we start at index 1 because the index 0 is depot
+                for index_point in range(1, size_road):
+                    road.insert(index_point, point)
+                    fitness = self._compute_fitness(solution)
+                    if fitness < min_fit:
+                        min_fit = fitness
+                        best_position = (index_road, index_point)
+                    road.remove(point)
+            else:
+                road.insert(1, point)
+                fitness = self._compute_fitness(solution)
+                if fitness < min_fit:
+                    min_fit = fitness
+                    best_position = (index_road, 1)
+                road.remove(point)
+
+            if self.__instance.get_ev_count() > number_roads:
+                # If the number of roads is less than the number of vehicules,
+                # the better road can be an additionnal road.
+                depot = self.__instance.get_depot()
+                new_road = [depot, point, depot]
+                solution.append(new_road)
+                fitness = self._compute_fitness(solution)
+                if fitness < min_fit:
+                    min_fit = fitness
+                    best_position = (number_roads, 1)
+                solution.remove(new_road)
+
+        if min_fit == float("inf"):
+            best_position = (number_roads, 1)
+
+        return best_position
+
+    def __closest_charger(self, point: int) -> int:
+        """
+        Find the closest charger of a point.
+
+        This function will find the closest charger of a point and will return the id
+        of the charger founded. If there is no charger, the function will return the
+        depot ID.
+
+        :param point: the point from which the nearest charger is searched
+        :type point: int
+        :return: the closest charger found
+        :rtype: int
+        """
+        list_chargers = self.__instance.get_chargers()
+
+        d_min = float("inf")
+        closest = self.__instance.get_depot()
+        for charger in list_chargers:
+            dist = self.__instance.get_distance(point, charger)
+            if dist < d_min:
+                d_min = dist
+                closest = charger
+        return closest
+
+    def _road_correction(self, road: list[int]) -> list[int]:
+        """
+        Add the closest electric charge between 2 points.
+
+        Algorithm which is able to add the closest electric charger to the point
+        where the battery would not be enough to go to the next point.
+        It will use the function closestCharger() to find the most efficient solution.
+
+        :param road: the road that need a charger to be valid
+        :type road: list[int]
+        :return: the road which has some chargers added
+        :rtype: list[int]
+        """
+        valid_road: list[int] = [road[0]]
+        capacity_battery = self.__instance.get_ev_battery()
+
+        for point in road[1:]:
+            charger = self.__closest_charger(point)
+            if (
+                    capacity_battery
+                    - self.__instance.get_batterie_consumption(valid_road[-1], point)
+                    < self.__instance.get_batterie_consumption(point, charger)
+                    ):
+
+                valid_road.append(self.__closest_charger(valid_road[-1]))
+                capacity_battery = self.__instance.get_ev_battery()
+
+            capacity_battery -= self.__instance.get_batterie_consumption(valid_road[-1], point)
+            valid_road.append(point)
+
+        return valid_road
+
+    def __remove_point(self, solution: list[list[int]], element: int) -> list[list[int]]:
+        """
+        Remove a precised point in a solution for the crossover process.
+
+        This function will remove a point in a solution. This point comes from the road
+        which have been randomly selected from another solution.
+        The same process will be done for the other solution with a road which have been
+        randomly selected in this solution previously.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param element: the point that must be removed from the solution
+        :type element: int
+        :return: the solution composed of multiple roads without the element
+        :rtype: list[list[int]]
+        """
+        for road in solution:
+            if element in road:
+                road.remove(element)
+                break
+        return solution
+
+    def __merge_roads(self, solution: list[list[int]]) -> list[int]:
+        """
+        Merge roads to obtain a solution in a simple list.
+
+        The goal is to merge a list of road (which each is a list of int)
+        to obtain a solution which is a list of integer (ID point).
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the solution composed of multiple merged roads
+        :rtype: list[int]
+        """
+        fusion_solution: list[int] = []
+        for index_road, road in enumerate(solution):
+            for index_point, point in enumerate(road):
+                if (index_point == 0) and (index_road == 0):
+                    fusion_solution.append(point)
+                elif index_point != 0:
+                    # the goal is to not have 0 in duplicate
+                    # which is all the time in index 0 for each road
+                    fusion_solution.append(point)
+        return fusion_solution
+
+    def __pull_off_chargers(self, road: list[int]) -> list[int]:
+        """
+        Remove all the chargers from a solution.
+
+        This function is helping the mutation process by removing all the chargers
+        of a road. It will retrun the road without it.
+
+        :param road: the road which can contain no, one or more chargers
+        :type road: list[int]
+        :return: the road with no charger
+        :rtype: list[int]
+        """
+        for point in road:
+            if self.__instance.is_charger(point):
+                road.remove(point)
+        return road
+
+    def __reversed_content(self, road: list[int], index1: int, index2: int) -> list[int]:
+        """Reverse the content of a road between the point 1 and 2 (included).
+
+
+        :param road: a road that needs to be reversed in part
+        :type road: list[int]
+        :param index1: index of point 1
+        :type index1: int
+        :param index2: index of point 1
+        :type index2: int
+        :return: a route that was reversed in part
+        :rtype: list[int]
+        """
+        size = len(road)
+
+        if index1 < index2:
+            index_min = index1
+            index_max = index2
+        else:
+            index_min = index2
+            index_max = index1
+
+        beginning = road[0:index_min]
+        middle = road[index_min:(index_max+1)]
+        middle.reverse()
+        ending = road[(index_max+1):size]
+
+        reversed_road = beginning + middle + ending
+
+        return reversed_road
+
+    def __two_opt(self, road: list[int]) -> list[int]:
+        """
+        2-opt variance algorithm.
+
+        Algorithm which find the best mutation for this road by calculating
+        the distance for each mutation of road. The shortest distance will
+        determine the best muatation road.
+
+        :param road: the road that will be used
+        :type road: list[int]
+        :return: the best road found by the algorithm
+        :rtype: list[int]
+        """
+        best_distance = self._compute_road_fitness(road)
+        best_road = road
+
+        depot = self.__instance.get_depot()
+
+        road.remove(depot)  # remove the first depot
+        road.remove(depot)  # remove the last depot
+
+        for index_point1 in range(len(road)):
+            for index_point2 in range(index_point1):
+                if index_point1 != index_point2:
+                    tmp_road = self.__reversed_content(road, index_point1, index_point2)
+                    tmp_road.insert(0, depot)  # add the depot at the beginning
+                    tmp_road.append(depot)  # add the depot at the end
+                    distance = self._compute_road_fitness(tmp_road)
+                    if distance < best_distance:
+                        best_distance = distance
+                        best_road = tmp_road
+
+        return best_road
+
+    def _delete_empty_road(self, solution: list[list[int]]) -> list[list[int]]:
+        """Delete empty road in a solution.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the same solution without empty road
+        :rtype: list[list[int]]
+        """
+        depot = self.__instance.get_depot()
+        for index_road, road in enumerate(solution):
+            if road == [depot, depot]:
+                solution.pop(index_road)
+        return solution
+
+    def mutate(self) -> None:
+        """
+        Mutate the current individual according to its internal rules.
+
+        This changement is done in place.
+        """
+        solution_tuple = self.get_roads()
+        solution = tuple_to_list(solution_tuple)
+
+        index_road = random.choice(range(len(solution)))
+        road = solution[index_road]
+
+        road_without_chargers = self.__pull_off_chargers(road)
+
+        # algo 2-opt
+        mutant_road = self.__two_opt(road_without_chargers)
+
+        new_road = self._road_correction(mutant_road)
+        solution[index_road] = new_road
+
+        solution = self._delete_empty_road(solution)
+
+        self._solution = self.__merge_roads(solution)
+
+    def get_solution(self) -> list[list[int]]:
+        """
+        Get solutions from ECVRPSolution and prepare it for crossover process.
+
+        It takes place at the beginning of the crossover method to get the solution from
+        the ECVRPSolution and convert it into a list of list. Moreover, it will remove
+        all the chargers from the solution.
+
+        :return: the solution ready to be used
+        :rtype: list[list[int]]
+        """
+        s_tuple = self.get_roads()
+
+        # convert tuple into list to modify th content
+        solution = tuple_to_list(s_tuple)
+
+        # pull of charger for the crossover opration
+        for index_road, road in enumerate(solution):
+            solution[index_road] = self.__pull_off_chargers(road)
+
+        return solution
+
+    def __choose_road(self, solution: list[list[int]]) -> list[int]:
+        """Choose the roads from which the points will be removed from the solution.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the road randomly choosen from the solution
+        :rtype: list[int]
+        """
+        # determine which road is chosen
+        num_r = randrange(0, len(solution))
+
+        # road are without depot at the begging and ending
+        road = list(solution[num_r])[1:-1]
+
+        return road
+
+    def __insert_points(self, solution: list[list[int]], road: list[int]) -> list[list[int]]:
+        """Insert at a better place the points removed previously.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param road: points from a choosen road
+        :type road: list[int]
+        :return: the solution after points insertion
+        :rtype: list[list[int]]
+        """
+        # insert in the best place for removed points
+        shuffle(road)
+        for point in road:
+            position = self.best_place_for(solution, point)
+            if position[0] == len(solution):
+                solution.append([0, 0])
+            solution[position[0]].insert(position[1], point)
+
+        return solution
+
+    def __update_solution(self, solution: list[list[int]]) -> list[int]:
+        """
+        End of the crossover process by reshaping a validate solution.
+
+        After the points have been removed and inserted at a better place, the solution
+        must be correct to be valid by adding chargers if needed. Moreover, empty roads
+        should be deleted to have a suitable solution and finally merge the roads to
+        reshape it from his original form.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :return: the updated and merged solution
+        :rtype: list[int]
+        """
+        # add chargers
+        for index_road, road in enumerate(solution):
+            solution[index_road] = self._road_correction(road)
+
+        # delete empty road
+        solution = self._delete_empty_road(solution)
+
+        # merge my list of road to list of point
+        final_solution = self.__merge_roads(solution)
+
+        return final_solution
+
+    def crossover(self, other: "ECVRPSolution") -> list["ECVRPSolution"]:
+        """
+        Generate a list of children according to the rules of the individual.
+
+        The returned list might be empty or contains duplicated children.
+        This function might not return the same result with the same argument and
+        will probably not be comutative.
+
+        :param other: a parent with self used by the operator
+        :type other: "ECVRPSolution"
+        :return: list of generated children
+        :rtype: list["ECVRPSolution"]
+        """
+        s_1 = self.get_solution()
+        s_2 = other.get_solution()
+
+        road_1 = self.__choose_road(s_1)
+        road_2 = self.__choose_road(s_2)
+
+        # points are removed
+        for point in road_1:
+            s_2 = self.__remove_point(s_2, point)
+
+        for point in road_2:
+            s_1 = self.__remove_point(s_1, point)
+
+        s_1 = self.__insert_points(s_1, road_2)
+        s_2 = self.__insert_points(s_2, road_1)
+
+        s_final_1 = self.__update_solution(s_1)
+        s_final_2 = self.__update_solution(s_2)
+
+        # create children
+        e_1 = ECVRPSolution(self._validators, s_final_1, self.__instance)
+
+        e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
+
+        return [e_1, e_2]
 
     def is_valid(self) -> bool:
+        """Run all of its validator and return False if one of them fail."""
         return len([v for v in self._validators if not v.is_valid(self)]) == 0
 
     def __copy__(self) -> "ECVRPSolution":
+        """Create a copy."""
         copy = ECVRPSolution(list(self._validators), list(self._solution), self.__instance)
         copy._fitness = self._fitness
         copy._roads = self._roads
         return copy
 
 
+def tuple_to_list(tuple_element: tuple[tuple[int, ...], ...]) -> list[list[int]]:
+    """Convert a tuple[tuple[int]] into a list[list[int]]."""
+    return [list(x) for x in tuple_element]
+
+
 class ECVRPInstance:
-    """
-        holding class for most of the information that describe an instance of the ECVRP problem
-    """
+    """Holding class for most of the information that describe an instance of the ECVRP problem."""
 
     __d_matrix: list[list[float]]
     __depot: int
@@ -157,6 +597,7 @@ class ECVRPInstance:
             ev_battery: float,
             time_windows: dict[int, tuple[float, float]]
             ) -> None:
+        """Initialize the instance class."""
         self.__d_matrix = distance_matrix
         self.__depot = depot_id
         self.__chargers = chargers
@@ -169,39 +610,64 @@ class ECVRPInstance:
         self.__time_windows = time_windows
 
     def is_depot(self, index: int) -> bool:
+        """Return True if the given index is a depot."""
         return index == self.__depot
 
+    def get_depot(self) -> int:
+        """Return the ID of the depot."""
+        return self.__depot
+
     def get_distance(self, start: int, end: int) -> float:
+        """Return the distance between start and end."""
         return self.__d_matrix[start][end]
 
     def get_time_used(self, start: int, end: int) -> float:
+        """Return the time took by a vehicule to go from start to end."""
         return self.__d_matrix[start][end]
 
+    def get_chargers(self) -> set[int]:
+        """Return the set of chargers."""
+        return self.__chargers
+
     def is_charger(self, index: int) -> bool:
+        """Return True if the given index is a charger."""
         return index in self.__chargers
 
     def get_demand(self, index: int) -> int:
+        """
+        Return the demand of the point at the given index.
+
+        May raise an exception if the index is a depot or a charger.
+        Will raise one if the index is out of bounds
+        """
         return self.__demands[index]
 
-    def get_batterie_consuption(self, start: int, end: int) -> int:
+    def get_batterie_consumption(self, start: int, end: int) -> int:
+        """Return the amount of energy consumed by a vehicule to go from start to end."""
         return round(self.get_distance(start, end) * self.__bat_cost)
 
     def get_batterie_charging_rate(self) -> float:
+        """Return the speed at witch betteries charges."""
         return self.__bat_charge
 
-    def get_ev_count(self) -> float:
+    def get_ev_count(self) -> int:
+        """Return the maximum number of EV allowed."""
         return self.__ev_count
 
     def get_ev_capacity(self) -> float:
+        """Return the cargot capacity of an EV."""
         return self.__ev_capacity
 
     def get_ev_battery(self) -> float:
+        """Return the battery capacity of an EV."""
         return self.__ev_battery
 
     def get_tw(self, index: int) -> tuple[float, float]:
+        """Return tha time window to deliver the point at the given index."""
         return self.__time_windows[index]
 
     def get_towns(self) -> list[int]:
+        """Return all points that are not a depot or a charger."""
         return [
             i for i in range(len(self.__d_matrix)) if not (self.is_depot(i) or self.is_charger(i))
         ]
