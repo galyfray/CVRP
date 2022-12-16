@@ -129,29 +129,6 @@ export function RunPage() {
     ] = React.useState(0);
     const maxSteps = datasets.length;
 
-    /*
-    This code will be used when the api is ready to send this information.
-    Const [
-        datasets,
-        setDatasets
-    ] = React.useState([{}]);
-
-    useEffect(() => {
-        void (
-            async() => {
-                await http.get("benchmarks")
-                    .then(response => {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        setDatasets(response.data);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-
-            }
-        )();
-    }, []);
-    */
 
     const handleNext = () => {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
