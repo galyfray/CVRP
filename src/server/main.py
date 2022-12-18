@@ -34,7 +34,7 @@ from flask import Flask, request
 from flask_cors import CORS
 
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
-from src.cvrp.json_io import JsonWriter, read_json
+from src.cvrp.json_io import JsonWriter, read_json, get_header
 from src.cvrp.ga import GA
 from src.cvrp import constraints_validators
 from .utils import utils
@@ -228,7 +228,12 @@ class Server:
 
             bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
 
-            self._snapshot = JsonWriter(str(utils.PATH_TO_LOGS), "test", request.form["bench_id"])
+            self._snapshot = JsonWriter(
+                str(utils.PATH_TO_LOGS),
+                "test",
+                request.form["bench_id"],
+                metho
+            )
 
             random.seed(0)  # TODO add a seed param
 
@@ -287,18 +292,6 @@ class Server:
 
         return base
 
-        # TODO : run a genration, send snap to json_io, handle the end of run.
-
-        # return {
-        #        "has_next": True,
-        #        "snapshot": [
-        #            {"time": time.thread_time(), "individuals": [
-        #                {"solution": (0, 1, 2, 0, 4, 3, 0), "fitness": 1}
-        #            ]}
-        #        ],
-        #        "generation": 0
-        #    }
-
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks"""
         return utils.get_datasets()
@@ -327,7 +320,11 @@ class Server:
         ]
 
         """
-        logs = [{"id": log, "method": "Unknown", "logs": []} for log in utils.get_logs()]
+        logs = []
+
+        for log in utils.get_logs():
+            logs.append(get_header(utils.PATH_TO_LOGS, log))
+
         return logs
 
     def route_results(self):

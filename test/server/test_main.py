@@ -50,3 +50,10 @@ def test_bench_list(client):
     print(response.json)
     assert response.status_code == 200
     assert "README.txt" not in response.json
+
+
+def test_log_list(client):
+    """Test the benchmarks endpoint"""
+    response = client.get("logs")
+    print(response.json)
+    assert response.status_code == 400
