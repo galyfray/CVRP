@@ -157,7 +157,7 @@ def get_logs(dir_path: Path = PATH_TO_LOGS) -> list[str]:
     :return: A list of all logs contained in the specified directory
     :rtype: list[str]
     """
-    data = [f[:9] for f in os.listdir(dir_path) if f.endswith('json.bz2')]
+    data = [f[:-9] for f in os.listdir(dir_path) if f.endswith('json.bz2')]
     return data
 
 
