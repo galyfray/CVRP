@@ -33,8 +33,6 @@ import json
 from flask import Flask, request
 from flask_cors import CORS
 
-from tqdm import tqdm
-
 from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
 from src.cvrp.json_io import JsonWriter, read_json
 from src.cvrp.ga import GA
@@ -63,8 +61,6 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
     first_gen = []
     counter = 0
-
-    t = tqdm(total=size)
 
     while len(first_gen) < size:
         counter += 1
@@ -97,8 +93,7 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
         if element.is_valid():
             first_gen.append(element)
-            t.update()
-    t.close()
+
     return first_gen
 
 
