@@ -70,8 +70,8 @@ def build_first_gen(size: int, instance: ECVRPInstance):
         cum_dem = 0
         insert_points = []
 
-        for i, p in enumerate(solution):
-            cum_dem += instance.get_demand(p)
+        for i, point in enumerate(solution):
+            cum_dem += instance.get_demand(point)
             if cum_dem > instance.get_ev_capacity():
                 insert_points.append(i-1 + len(insert_points))
                 cum_dem = 0
@@ -79,8 +79,8 @@ def build_first_gen(size: int, instance: ECVRPInstance):
         if len(insert_points) > instance.get_ev_count():
             continue
 
-        for p in insert_points:
-            solution.insert(p, instance.get_depot())
+        for point in insert_points:
+            solution.insert(point, instance.get_depot())
 
         solution.insert(0, instance.get_depot())
         solution.append(instance.get_depot())
@@ -95,7 +95,7 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
 
 class Server:
-    """This class holds the server, its state and routes"""
+    """This class holds the server, its state and routes."""
 
     def __init__(self, name: str) -> None:
         """
@@ -124,7 +124,8 @@ class Server:
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
     def run(self, **kwargs):
-        """Runs the application on a local development server.
+        """Run the application on a local development server.
+
         Do not use ``run()`` in a production setting. It is not intended to
         meet security and performance requirements for a production server.
         Instead, see :doc:`/deploying/index` for WSGI server recommendations.
@@ -183,7 +184,7 @@ class Server:
 
     def route_run(self):
         """
-        Method handling the start of an instance
+        Handle the start of an instance.
 
         expected form :
 
@@ -242,7 +243,7 @@ class Server:
         return None
 
     def route_status(self):
-        """Provide a way to check the status of the server"""
+        """Provide a way to check the status of the server."""
         return {"status": "free"} if self._runner is None else {"status": "busy"}
 
     def route_snapshot(self):
@@ -290,7 +291,7 @@ class Server:
         return base
 
     def route_benchmarks(self):
-        """Provide a list of all the available benchmarks"""
+        """Provide a list of all the available benchmarks."""
         return utils.get_datasets()
 
     def route_benchmark(self, bench_id: str):
@@ -334,4 +335,8 @@ class Server:
 
 
 if __name__ == "__main__":
-    Server(__name__).run(debug=True)
+    # The server is running in debug mode.
+    # This is a problem as it can allow peaple tu run arbitrary code on the machine.
+    # However the server isn't configured to be accessed from the local network,
+    # not to say from the Web.
+    Server(__name__).run(debug=True)  # nosec B201

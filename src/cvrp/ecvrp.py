@@ -328,8 +328,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return road
 
     def __reversed_content(self, road: list[int], index1: int, index2: int) -> list[int]:
-        """Reverse the content of a road between the point 1 and 2 (included).
-
+        """
+        Reverse the content of a road between the point 1 and 2 (included).
 
         :param road: a road that needs to be reversed in part
         :type road: list[int]

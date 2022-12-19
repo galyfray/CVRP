@@ -45,7 +45,7 @@ class JsonWriter:
                 root: str,
                 name: str,
                 bench_name: str,
-                method:str
+                method: str
             ):
         """
         Initialize the JsonWriter class.
@@ -117,7 +117,7 @@ def read_json(root: str, name: str) -> dict[str, any]:
 
 
 def get_header(root: str, name: str) -> dict[str, any]:
-    """Read a header file that describes a log file"""
+    """Read a header file that describes a log file."""
     root = Path(root)
     data: bytes
 

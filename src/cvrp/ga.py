@@ -100,13 +100,13 @@ class GA(Generic[TypeIndividual]):
 
                 fitnesses.pop(index)
 
-
             children = self._mutate(self._crossbreed(parents, children_count))
             self._current_pop = [*parents, *children]
             self._current_pop.sort(key=lambda x: x.get_fitness())
             yield self._current_pop
 
     def _crossbreed(self, parents: list[TypeIndividual], count: int) -> list[TypeIndividual]:
+        """Hold internal logic."""
         children = []
         while len(children) < count:
 
@@ -120,11 +120,12 @@ class GA(Generic[TypeIndividual]):
         return children
 
     def _mutate(self, children: list[TypeIndividual]) -> list[TypeIndividual]:
+        """Hold internal logic."""
         for child in children:
             if random.random() < self._mutation_rate:
                 child.mutate()
         return children
 
     def __len__(self):
-        """Rturns he number of iteration given to the run method."""
+        """Return the number of iteration given to the run method."""
         return self._len
