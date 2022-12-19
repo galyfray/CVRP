@@ -50,7 +50,7 @@ HYPER_LIST = {
 
 
 def build_first_gen(size: int, instance: ECVRPInstance):
-    """Does stuff"""
+    """Build a first geenration of n valid individuals."""
     validators = [
         constraints_validators.BatteryTWValidator(),
         constraints_validators.CapacityValidator(),
@@ -86,9 +86,6 @@ def build_first_gen(size: int, instance: ECVRPInstance):
         solution.append(instance.get_depot())
         element = ECVRPSolution(validators, solution, instance)
 
-        # When mutating the solution kind of auto correct itself.
-        # If we don't apply this auto correction there is no way
-        # we produce a single valid solution.
         element.validate()
 
         if element.is_valid():
