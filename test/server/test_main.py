@@ -47,7 +47,6 @@ def client(app):
 def test_bench_list(client):
     """Test the benchmarks endpoint"""
     response = client.get("benchmarks")
-    print(response.json)
     assert response.status_code == 200
     assert "README.txt" not in response.json
 
@@ -55,5 +54,15 @@ def test_bench_list(client):
 def test_log_list(client):
     """Test the benchmarks endpoint"""
     response = client.get("logs")
-    print(response.json)
-    assert response.status_code == 400
+    assert response.status_code == 200
+    assert isinstance(response.json, list)
+    if len(response.json) > 0:
+        log = response.json[0]
+        assert log["method"] is not None
+        assert log["snapshots"] is not None
+        assert log["bench_id"] is not None
+
+
+def test_bench(client):
+    response = client.get("benchmark/E-n29-k4-s7.evrp")
+    assert response.status_code == 200
