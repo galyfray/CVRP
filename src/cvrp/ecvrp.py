@@ -28,6 +28,7 @@ the genetic algorithm applyed to the ECVRP problem.
 
 
 from typing import Union
+import numpy as np
 from .individual import Individual, TypeIndividual, ConstraintValidator
 
 
@@ -181,7 +182,11 @@ class ECVRPInstance:
         return index in self.__chargers
 
     def get_demand(self, index: int) -> int:
-        return self.__demands[index]
+        demand = self.__demands.get(index)
+        if demand:
+            return demand
+        else:
+            return 0
 
     def get_batterie_consuption(self, start: int, end: int) -> int:
         return round(self.get_distance(start, end) * self.__bat_cost)
@@ -205,3 +210,10 @@ class ECVRPInstance:
         return [
             i for i in range(len(self.__d_matrix)) if not (self.is_depot(i) or self.is_charger(i))
         ]
+
+    def get_neighbors(self, index: int) -> list[int]:
+        neigbors = np.delete(np.arange(len(self.__d_matrix)), index)
+        return neigbors
+
+    def get_node_number(self) -> int:
+        return len(self.__d_matrix)
