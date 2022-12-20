@@ -24,13 +24,18 @@ This module holds the tests for the main part of the server
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import json
+
 import pytest
 
 from src.server.main import Server
 
+BENCHMARK = "E-n29-k4-s7.evrp"
+
 
 @pytest.fixture()
 def app():
+    """Produce a fixture that ease the production of tests"""
     appli = Server(__name__).app
     appli.config.update({
         "TESTING": True,
@@ -66,3 +71,40 @@ def test_log_list(client):
 def test_bench(client):
     response = client.get("benchmark/E-n29-k4-s7.evrp")
     assert response.status_code == 200
+
+
+def test_run_busy(client):
+    """Test if the busy flag is correctly set"""
+    response = client.post("run", data={
+        "type": "ga",
+        "bench_id": BENCHMARK,
+        "seed": 0,
+        "override": "true",
+        "snapshot_rate": 1,
+        "param": json.dumps({
+            "nb_epochs": 2,
+            "pop_size": 4,
+            "mutation_rate": 0.1,
+            "crossover_rate": 1
+        })
+    })
+
+    assert response.status_code == 200
+    assert response.json["busy"] is False
+
+    response = client.post("run", data={
+        "type": "ga",
+        "bench_id": BENCHMARK,
+        "seed": 0,
+        "override": "true",
+        "snapshot_rate": 1,
+        "param": json.dumps({
+            "nb_epochs": 2,
+            "pop_size": 4,
+            "mutation_rate": 0.1,
+            "crossover_rate": 1
+        })
+    })
+
+    assert response.status_code == 200
+    assert response.json["busy"]
