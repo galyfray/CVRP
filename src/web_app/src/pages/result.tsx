@@ -26,10 +26,10 @@ export function ResultPage() {
     const [
         dataXY,
         setDataXY
-    ] = React.useState<[Types.Received_data]>([
+    ] = React.useState<[Types.Point]>([
         {
-            "time"   : 0,
-            "fitness": 0
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
     const [
@@ -142,11 +142,6 @@ export function ResultPage() {
                             <Grid item xs={6} color="#808080">
                                 <Typography sx={{mr: 2}}>
                                     Fitness : {dataXY[length - 1].fitness}
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Typography color="#808080" sx={{ml: 2}}>
-                                    Temps d'exécution : {dataXY[length - 1].time}
                                 </Typography>
                             </Grid>
                             <Grid item alignItems="center" xs={12}>

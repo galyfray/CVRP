@@ -10,12 +10,12 @@ export type Hyper_parameters = {
       momentum?: number
   },
   override: boolean,
-  bench_id: number,
+  bench_id: string,
   snapshot_rate: number
 }
 
 export type Point = {
-  time : number
+  generation : number
   fitness : number
 }
 

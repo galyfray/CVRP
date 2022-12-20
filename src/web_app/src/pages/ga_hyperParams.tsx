@@ -65,7 +65,7 @@ export function GaHyperParamsPage() {
             "momentum"     : 0.2
         },
         override     : false,
-        bench_id     : "nothing",
+        bench_id     : "0",
         snapshot_rate: 3
     });
 
@@ -87,14 +87,11 @@ export function GaHyperParamsPage() {
                 "momentum"     : 0.2
             },
             override     : override_check,
-            bench_id     : "nothing",
+            bench_id     : "0",
             snapshot_rate: 3
         });
 
-        axios.post("http://127.0.0.1:5000/operation_params/ag", {
-            "d_c"         : dataset_choice,
-            "hyper_params": JSON.stringify(param)
-        }, {headers: {"Content-Type": "multipart/form-data"}})
+        axios.post("http://127.0.0.1:5000/run", {"param": param}, {headers: {"Content-Type": "multipart/form-data"}})
             .then(async() => {
                 setOpen(true);
                 await sleep(5000);

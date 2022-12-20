@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import SvgIcon, {SvgIconProps} from "@mui/material/SvgIcon";
 import {alpha, styled} from "@mui/material/styles";
 import TreeItem, {TreeItemProps, treeItemClasses} from "@mui/lab/TreeItem";

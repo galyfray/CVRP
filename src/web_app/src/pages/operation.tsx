@@ -31,37 +31,37 @@ export function OperationPage() {
     const [
         data1,
         setData1
-    ] = React.useState<[Types.Received_data]>([
+    ] = React.useState<[Types.Point]>([
         {
-            "time"   : 0,
-            "fitness": 0
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
     const [
         data2,
         setData2
-    ] = React.useState<[Types.Received_data]>([
+    ] = React.useState<[Types.Point]>([
         {
-            "time"   : 0,
-            "fitness": 0
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
     const [
         data3,
         setData3
-    ] = React.useState<[Types.Received_data]>([
+    ] = React.useState<[Types.Point]>([
         {
-            "time"   : 0,
-            "fitness": 0
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
     const [
         data4,
         setData4
-    ] = React.useState<[Types.Received_data]>([
+    ] = React.useState<[Types.Point]>([
         {
-            "time"   : 0,
-            "fitness": 0
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
     const [
