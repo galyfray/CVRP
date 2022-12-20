@@ -323,6 +323,7 @@ class Server:
     def route_logs(self):
         """
         Provide a list of all available logs.
+
         The snapshot provided is the last used.
 
         returns :
