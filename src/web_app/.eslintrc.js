@@ -1,4 +1,4 @@
-{
+module.exports = {
     "parser": "@typescript-eslint/parser",
     "plugins": [
         "@typescript-eslint",
@@ -6,7 +6,8 @@
     ],
     "parserOptions": {
         "ecmaVersion": "latest",
-        "project": ["./tsconfig.json"]
+        "project": "tsconfig.json",
+        "tsconfigRootDir": __dirname
     },
     "env": {
         "browser": true,
@@ -116,4 +117,11 @@
         "wrap-iife": ["warn", "inside"],
         "yield-star-spacing": ["warn", "after"]
     }
+    //for after
+    //,
+    //"overrides": [
+    //    {
+    //    "files": ["tests/**/*.ts"],
+    //    "env": { "jest": true, "node": true }
+    //    }] 
 }

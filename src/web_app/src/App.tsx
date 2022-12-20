@@ -1,24 +1,49 @@
-import React from "react";
-import logo from "./logo.svg";
+import {useEffect} from "react";
 import "./App.css";
+import logging from "./config/logging";
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from "react-router-dom";
+import {NotFoundPage} from "./pages/notFound";
+import {HomePage} from "./pages/home";
+import {AboutPage} from "./pages/about";
+import {LogsPage} from "./pages/log_page";
+import {RunPage} from "./pages/run";
+import {AlgoChoosingPage} from "./pages/algo_choosing";
+import {GaHyperParamsPage} from "./pages/ga_hyperParams";
+import {OperationPage} from "./pages/operation";
+import {ResultPage} from "./pages/result";
+import {DrlHyperParamsPage} from "./pages/drl_hyperParams";
+
 
 function App() {
+
+    useEffect(() => {
+        logging.info("Loading application");
+    }, []);
+
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-          Learn React
-                </a>
-            </header>
+        <div>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/logs" element={<LogsPage />} />
+                    <Route path="/run" element={<RunPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/algo_choice" element={<AlgoChoosingPage />} />
+                    <Route path="/run/:bench_type/algo_choice/ga" element={<GaHyperParamsPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/algo_choice/drl" element={<DrlHyperParamsPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/algo_choice/:algo_type/operation" element={<OperationPage />}>
+                        <Route index path="result" element={<ResultPage />}/>
+                    </Route>
+                    <Route element={<NotFoundPage />} />
+                </Routes>
+            </BrowserRouter>
         </div>
     );
 }
