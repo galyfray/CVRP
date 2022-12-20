@@ -33,10 +33,13 @@ export default function Row(props: { row: Types.Log }) {
                     </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row">
-                    {row.id}
+                    {row.bench_id}
                 </TableCell>
                 <TableCell align="right">
                     {row.method}
+                </TableCell>
+                <TableCell align="right">
+                    {row.snapshots.time}
                 </TableCell>
             </TableRow>
             <TableRow>
@@ -44,21 +47,21 @@ export default function Row(props: { row: Types.Log }) {
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{margin: 1}}>
                             <Typography variant="h6" gutterBottom component="div">
-                  Performance
+                                Snapshots
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Time</TableCell>
                                         <TableCell>Fitness</TableCell>
+                                        <TableCell>Solution</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {row.logs.map(perf => <TableRow key={perf.time}>
+                                    {row.snapshots.individuals.map(perf => <TableRow key={perf.fitness}>
                                         <TableCell component="th" scope="row">
-                                            {perf.time}
+                                            {perf.fitness}
                                         </TableCell>
-                                        <TableCell>{perf.fitness}</TableCell>
+                                        <TableCell>{perf.solution}</TableCell>
                                     </TableRow>
                                     )}
                                 </TableBody>

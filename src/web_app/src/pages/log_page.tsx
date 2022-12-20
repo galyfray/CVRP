@@ -21,20 +21,26 @@ export function LogsPage() {
         setLogs
     ] = React.useState<Array<Types.Log>>([
         {
-            "id"    : "",
-            "method": "",
-            "logs"  : []
+            "bench_id" : "",
+            "method"   : "",
+            "snapshots": {
+                "time"       : 0,
+                "individuals": [
+                    {
+                        "fitness" : 0,
+                        "solution": []
+                    }
+                ]
+            }
         }
     ]);
 
     //New version
     const getLogs = useCallback(async() => {
-        await http.get("get_logs")
+        await http.get("logs")
             .then(response => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                console.log(response.data);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                setLogs(response.data);
+                setLogs(response.data.data);
             });
     }, []);
 
@@ -55,7 +61,7 @@ export function LogsPage() {
             }} />
             <CssBaseline />
             <AppbarStyle/>
-            <Container component="main" maxWidth="md" sx={{pt: 5}}>
+            <Container component="main" maxWidth="md" sx={{pt: 5, mt: 5}}>
                 <Typography
                     variant="h4"
                     align="center"
@@ -82,6 +88,7 @@ export function LogsPage() {
                                 <TableCell />
                                 <TableCell>Bench_ID</TableCell>
                                 <TableCell align="right">Method</TableCell>
+                                <TableCell align="right">Runtime</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

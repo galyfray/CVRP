@@ -10,29 +10,19 @@ export type Hyper_parameters = {
       momentum?: number
   },
   override: boolean,
-  bench_id: string,
+  bench_id: number,
   snapshot_rate: number
 }
 
-export type AG_hyper_parameters = {
-  nb_epochs: number
-  pop_size: number
-  crossover_rate: number
-  mutation_rate: number
-}
-
-export type DRL_hyper_parameters = {
-  nb_epochs: number
-  learning_rate : number
-  batch_size: number
-  momentum : number
-}
-
 export type Point = {
+  time : number
+  fitness : number
+}
+
+export type Node = {
   id: number
   NODE_COORD_X : number
   NODE_COORD_Y : number
-  is_station : boolean
 }
 
 export type Link = {
@@ -40,13 +30,22 @@ export type Link = {
   target : number
 }
 
-export type Received_data = {
-  "time" : number,
-  "fitness" : number
+export type individual = {
+  "fitness" : number,
+  "solution" : [],
 }
 
 export type Log = {
-  "id" : string,
+  "bench_id" : string,
   "method" : string,
-  "logs": Array<Received_data>
+  "snapshots": {
+    "time" : number,
+    "individuals": [individual]
+  }
+}
+
+export type Snapshot = {
+  "has_next" : boolean,
+  "generation" : number,
+  "snapshot": [individual]
 }
