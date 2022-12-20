@@ -107,6 +107,7 @@ class Server:
         self._snapshot = None
         self._nb_it = 0
         self._count = 0
+        self._tot_time = 0
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -238,6 +239,7 @@ class Server:
             if metho == "ga":
                 g_a = GA(build_first_gen(hyper["pop_size"], bench), hyper["mutation_rate"])
                 self._runner = g_a.run(hyper["nb_epochs"])
+                self._tot_time = 0
             return {"busy": False}
 
         return None
@@ -279,10 +281,13 @@ class Server:
                 "snapshot": [],
                 "generation": self._count
             }
-
+        compute = time.thread_time()
         gen = next(self._runner)
+        compute = time.thread_time() - compute
 
-        base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())["individuals"]
+        self._tot_time += compute
+
+        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)["individuals"]
 
         if self._count == self._nb_it:
             self._snapshot.dump()
