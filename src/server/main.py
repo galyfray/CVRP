@@ -108,6 +108,7 @@ class Server:
         self._tot_time = 0
         self._override = True
         self._name = ""
+        self._rate = 0
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -226,6 +227,8 @@ class Server:
             self._nb_it = hyper["nb_epochs"]
             self._count = 0
 
+            self._rate = int(request.form["snapshot_rate"])
+
             bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
 
             random.seed(int(request.form["seed"]))
@@ -283,17 +286,21 @@ class Server:
             }
 
         self._count += 1
+        compute = time.thread_time()
+        gen = next(self._runner)
+
+        while self._count != self._nb_it and self._count % self._rate != 0:
+            gen = next(self._runner)
+            self._count += 1
+
+        compute = time.thread_time() - compute
+        self._tot_time += compute
 
         base = {
                 "has_next": not self._count == self._nb_it,
                 "snapshot": [],
                 "generation": self._count
             }
-        compute = time.thread_time()
-        gen = next(self._runner)
-        compute = time.thread_time() - compute
-
-        self._tot_time += compute
 
         base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)["individuals"]
 
