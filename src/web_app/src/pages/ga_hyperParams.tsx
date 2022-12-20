@@ -87,7 +87,7 @@ export function GaHyperParamsPage() {
                 "momentum"     : 0.2
             },
             override     : override_check,
-            bench_id     : "0",
+            bench_id     : dataset_choice,
             snapshot_rate: 3
         });
 
@@ -121,7 +121,9 @@ export function GaHyperParamsPage() {
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
                 Entrez les hyperparamètres
                 </Typography>

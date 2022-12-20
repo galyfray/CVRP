@@ -27,7 +27,9 @@ export function HomePage() {
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
           ECVRPTW Solver
                 </Typography>

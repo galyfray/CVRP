@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
 export type d3Node = {
       id: number,
       group: Array<number | boolean>

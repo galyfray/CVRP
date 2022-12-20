@@ -88,7 +88,7 @@ export function DrlHyperParamsPage() {
                 "momentum"     : momemtum
             },
             override     : override_check,
-            bench_id     : "nothing",
+            bench_id     : dataset_choice,
             snapshot_rate: 3
         });
 
@@ -118,11 +118,13 @@ export function DrlHyperParamsPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
-                    data-testid = "drl_hp_title"
+                    data-testid = "ga_hp_title"
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
                 Entrez les hyperparamètres
                 </Typography>

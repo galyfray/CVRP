@@ -31,11 +31,11 @@ export function AlgoChoosingPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
-                    data-testid = "algo_choice_title"
+                    data-testid = "ga_hp_title"
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{fontWeight: "bold", mb: 5, mt:5}}
                 >
                     Choisir un algorithme pour la résolution
                 </Typography>

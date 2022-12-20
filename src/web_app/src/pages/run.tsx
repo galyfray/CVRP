@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import logging from "../config/logging";
 import {useLocation} from "react-router-dom";
+import http from "../http-common";
 
 // Import http from "../http-common";
 
@@ -128,7 +129,31 @@ export function RunPage() {
         setActiveStep
     ] = React.useState(0);
     const maxSteps = datasets.length;
+    const [
+        dataset,
+        setDataset
+    ] = React.useState([
+        {
+            "name"   : "E-n112-k8-s11.evrp",
+            "details": "112 villes - 8 véhicules - 11 stations"
+        }
+    ]);
 
+
+    useEffect(() => {
+        void (
+            async() => {
+                await http.get("benchmarks")
+                    .then(response => {
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        setDataset(response.data);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+        )();
+    }, [url]);
 
     const handleNext = () => {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
@@ -150,11 +175,12 @@ export function RunPage() {
             <Container component="main" maxWidth="md" sx={{pt: 8}}>
                 <Typography
                     variant="h4"
-                    data-testid = "run_title"
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
                     Choisir un jeu de données
                 </Typography>
