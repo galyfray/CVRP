@@ -47,34 +47,34 @@ export function ResultPage() {
     ] = React.useState("");
 
     const getResults = useCallback(async() => {
-        await http.get(`get_points?${dataset_choice}/${method_choice}`)
+        await http.get(`results?id=${dataset_choice}`)
             .then(response1 => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                set_graph_data(response1.data);
+                setDataXY(response1.data);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                setLength(response1.data.length);
             });
-        await http.get(`get_performance?${dataset_choice}/${method_choice}`)
+    }, [dataset_choice]);
+
+    const getFSolution = useCallback(async() => {
+        await http.get(`final_sol?bench_id=${dataset_choice}`)
             .then(response2 => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                setDataXY(response2.data.data);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                setLength(response2.data.data.length);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                setBench_id(response2.data.bench_id);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                set_graph_data(response2.data);
             });
-    }, [
-        dataset_choice,
-        method_choice
-    ]);
+    }, [dataset_choice]);
 
     useEffect(() => {
         (
             () => {
                 setMethod_str(method_choice);
                 void getResults();
+                void getFSolution();
             }
         )();
     }, [
         getResults,
+        getFSolution,
         method_choice
     ]);
 
@@ -87,7 +87,9 @@ export function ResultPage() {
             }} />
             <CssBaseline />
             <AppbarStyle/>
-            <Container disableGutters component="main" maxWidth="md" sx={{pt: 3, ml: 20}}>
+            <Container disableGutters component="main" maxWidth="md" sx={{
+                pt: 3, mt: 8, ml: 20
+            }}>
                 <Typography
                     variant="h4"
                     data-testid = "result_title"
@@ -98,8 +100,15 @@ export function ResultPage() {
                 >
                     Résultat
                 </Typography>
-                <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={6} sx={{mb: 0}}>
+
+                <Grid container alignItems="center" spacing={2} sx={{mt: 3}}>
+                    {/*
+                    <Grid item xs={6} sx={{mb:0}}>
+                        <RoadGraph width={450} height={200} graph={graph_data}/>
+                    </Grid>
+                           */
+                    }
+                    <Grid item xs={6} sx={{mb: 2}}>
                         <LineChart
                             width={450}
                             height={200}
@@ -119,8 +128,30 @@ export function ResultPage() {
                             <Line type="monotone" dataKey="fitness" stroke="#82ca9d" />
                         </LineChart>
                     </Grid>
+
+                    <Grid item xs={6} sx={{mb: 2}}>
+                        <LineChart
+                            width={450}
+                            height={200}
+                            data={dataXY}
+                            margin={{
+                                top   : 5,
+                                right : 30,
+                                left  : 20,
+                                bottom: 3
+                            }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="time" />
+                            <YAxis dataKey="fitness" />
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" />
+                        </LineChart>
+                    </Grid>
+
                 </Grid>
-                <Grid sx={{ml: 40, mb: 5}}>
+                <Grid sx={{ml: 40, mb: 3}}>
                     <Box
                         sx={{
                             width          : 300,
@@ -131,7 +162,7 @@ export function ResultPage() {
                         <Grid container alignItems="center" spacing={2}>
                             <Grid item xs={12}>
                                 <Typography color="#FFFFFF" sx={{ml: 2}}>
-                                    ID : {bench_id}
+                                    ID : {dataset_choice}
                                 </Typography>
                             </Grid>
                             <Grid item xs={6}>
