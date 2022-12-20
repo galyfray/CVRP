@@ -282,7 +282,7 @@ class Server:
 
         gen = next(self._runner)
 
-        base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())
+        base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())["individuals"]
 
         if self._count == self._nb_it:
             self._snapshot.dump()
