@@ -59,16 +59,14 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
     towns = instance.get_towns()
 
-    first_gen = []
-    counter = 0
+    first_gen: list[ECVRPSolution] = []
 
     while len(first_gen) < size:
-        counter += 1
         solution = [*towns]
         random.shuffle(solution)
 
-        cum_dem = 0
-        insert_points = []
+        cum_dem: int = 0
+        insert_points: list[int] = []
 
         for i, point in enumerate(solution):
             cum_dem += instance.get_demand(point)
