@@ -108,6 +108,8 @@ class Server:
         self._nb_it = 0
         self._count = 0
         self._tot_time = 0
+        self._override = True
+        self._name = ""
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -202,7 +204,8 @@ class Server:
             },
             "override":"bool",
             "bench_id":"string",
-            "snapshot_rate":"int"
+            "snapshot_rate":"int",
+            "seed":"int"
         }
 
         Returns :
@@ -218,7 +221,7 @@ class Server:
         if request.method == "POST":
             metho = request.form["type"]
             if metho not in HYPER_LIST:
-                pass  # raise error
+                raise TypeError(f"Unkown method {metho}")
             param = json.loads(request.form["param"])
             hyper = {key: param[key] for key in HYPER_LIST[metho]}
 
@@ -227,19 +230,26 @@ class Server:
 
             bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
 
-            self._snapshot = JsonWriter(
-                str(utils.PATH_TO_LOGS),
-                "test",
-                request.form["bench_id"],
-                metho
-            )
+            random.seed(int(request.form["seed"]))
 
-            random.seed(0)  # TODO add a seed param
+            self._name = f"{request.form['bench_id']}_{metho}_{request.form['seed']}"
+            for param in hyper.values():
+                self._name += f"_{param}"
 
             if metho == "ga":
                 g_a = GA(build_first_gen(hyper["pop_size"], bench), hyper["mutation_rate"])
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
+
+            self._override = bool(request.form["override"])
+
+            self._snapshot = JsonWriter(
+                str(utils.PATH_TO_LOGS),
+                self._name,
+                request.form["bench_id"],
+                metho
+            )
+
             return {"busy": False}
 
         return None
@@ -260,7 +270,7 @@ class Server:
 
         {
             "has_next":"bool",
-            "snapshot":"snapshot",
+            "snapshot":"[Individual]",
             "generation":"int"
         }
 
@@ -290,7 +300,8 @@ class Server:
         base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)["individuals"]
 
         if self._count == self._nb_it:
-            self._snapshot.dump()
+            if self._override or self._name not in utils.get_logs():
+                self._snapshot.dump()
             self._runner = None
 
         return base
@@ -312,13 +323,15 @@ class Server:
     def route_logs(self):
         """
         Provide a list of all available logs.
+        The snapshot provided is the last used.
 
         returns :
 
         [
             {
-                name: str,
-                first_gen: "snaphshot"
+                bench_id: str,
+                method: ga|drl
+                snapshots: "snaphshot"
             }
         ]
 
