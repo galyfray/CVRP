@@ -145,3 +145,25 @@ def test_snapshot_rate(client):
     assert len(responses) == 4
 
 
+def test_seed(client):
+    """Test if the seed does make the whole process repeatable"""
+    client.post("run", data=BASE_DATA)
+
+    response = client.get("snapshot")
+    firsts = [response.json]
+
+    while response.json["has_next"]:
+        response = client.get("snapshot")
+        firsts.append(response.json)
+
+    client.post("run", data=BASE_DATA)
+
+    response = client.get("snapshot")
+    seconds = [response.json]
+
+    while response.json["has_next"]:
+        response = client.get("snapshot")
+        seconds.append(response.json)
+
+    for first, second in zip(firsts, seconds):
+        assert first == second
