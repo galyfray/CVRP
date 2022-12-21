@@ -25,6 +25,7 @@ This module holds the tests for the main part of the server
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import json
+from copy import copy
 
 import pytest
 
@@ -73,9 +74,7 @@ def test_bench(client):
     assert response.status_code == 200
 
 
-def test_run_busy(client):
-    """Test if the busy flag is correctly set"""
-    response = client.post("run", data={
+BASE_DATA = {
         "type": "ga",
         "bench_id": BENCHMARK,
         "seed": 0,
@@ -87,24 +86,62 @@ def test_run_busy(client):
             "mutation_rate": 0.1,
             "crossover_rate": 1
         })
-    })
+}
+
+
+def test_run_busy(client):
+    """Test if the busy flag is correctly set"""
+    response = client.post("run", data=BASE_DATA)
 
     assert response.status_code == 200
     assert response.json["busy"] is False
 
-    response = client.post("run", data={
-        "type": "ga",
-        "bench_id": BENCHMARK,
-        "seed": 0,
-        "override": "true",
-        "snapshot_rate": 1,
-        "param": json.dumps({
-            "nb_epochs": 2,
+    response = client.post("run", data=BASE_DATA)
+
+    assert response.status_code == 200
+    assert response.json["busy"]
+
+
+def test_snapshot(client):
+    """Test the snapshot route"""
+    client.post("run", data=BASE_DATA)
+    response = client.get("snapshot")
+
+    assert response.status_code == 200
+    assert response.json["has_next"]
+    assert response.json["generation"] == 1
+    assert len(response.json["snapshot"]) == 4
+
+    response = client.get("snapshot")
+    assert response.status_code == 200
+    assert response.json["has_next"] is False
+    assert response.json["generation"] == 2
+    assert len(response.json["snapshot"]) == 4
+
+
+def test_snapshot_rate(client):
+    """Test if the snapshot rate works as intended"""
+    data = copy(BASE_DATA)
+    data["snapshot_rate"] = 2
+    data["param"] = json.dumps({
+            "nb_epochs": 7,
             "pop_size": 4,
             "mutation_rate": 0.1,
             "crossover_rate": 1
         })
-    })
 
-    assert response.status_code == 200
-    assert response.json["busy"]
+    client.post("run", data=data)
+
+    response = client.get("snapshot")
+    responses = [response]
+
+    while response.json["has_next"]:
+        response = client.get("snapshot")
+        responses.append(response)
+
+        assert response.status_code == 200
+        assert response.json["generation"] % 2 == 0 or response.json["generation"] == 7
+
+    assert len(responses) == 4
+
+
