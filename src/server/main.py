@@ -238,7 +238,11 @@ class Server:
                 self._name += f"_{param}"
 
             if metho == "ga":
-                g_a = GA(build_first_gen(hyper["pop_size"], bench), hyper["mutation_rate"])
+                g_a = GA(
+                        build_first_gen(hyper["pop_size"], bench),
+                        hyper["mutation_rate"],
+                        request.form["seed"]
+                    )
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
 
