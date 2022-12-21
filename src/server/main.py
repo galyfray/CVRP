@@ -50,7 +50,7 @@ HYPER_LIST = {
 
 
 def build_first_gen(size: int, instance: ECVRPInstance):
-    """Build a first geenration of n valid individuals."""
+    """Build a first generation of n valid individuals."""
     validators = [
         constraints_validators.BatteryTWValidator(),
         constraints_validators.CapacityValidator(),
