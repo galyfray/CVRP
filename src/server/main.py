@@ -221,7 +221,7 @@ class Server:
             metho = request.form["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
-            param = json.loads(request.form["param"])
+            param = json.loads(request.form["params"])
             hyper = {key: param[key] for key in HYPER_LIST[metho]}
 
             self._nb_it = hyper["nb_epochs"]

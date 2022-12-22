@@ -80,7 +80,7 @@ BASE_DATA = {
         "seed": 0,
         "override": "false",
         "snapshot_rate": 1,
-        "param": json.dumps({
+        "params": json.dumps({
             "nb_epochs": 2,
             "pop_size": 4,
             "mutation_rate": 0.1,
@@ -123,7 +123,7 @@ def test_snapshot_rate(client):
     """Test if the snapshot rate works as intended"""
     data = copy(BASE_DATA)
     data["snapshot_rate"] = 2
-    data["param"] = json.dumps({
+    data["params"] = json.dumps({
             "nb_epochs": 7,
             "pop_size": 4,
             "mutation_rate": 0.1,
