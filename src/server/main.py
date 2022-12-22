@@ -218,6 +218,7 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
+            print(request.form)
             metho = request.form["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -310,6 +311,7 @@ class Server:
 
         if self._count == self._nb_it:
             if self._override or self._name not in utils.get_logs():
+                print(self._override)
                 self._snapshot.dump()
             self._runner = None
 
@@ -317,7 +319,7 @@ class Server:
 
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks."""
-        return utils.get_datasets()
+        return [ {"name": b, "details": utils.get_ds_description(b)} for b in utils.get_datasets()]
 
     def route_benchmark(self, bench_id: str):
         """

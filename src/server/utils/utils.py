@@ -173,3 +173,10 @@ def compute_distance_matrix(nodes: dict[int, tuple[float, float]]) -> list[list[
                 distance_matrix[node][next_node] = dist
 
     return distance_matrix
+
+
+def get_ds_description(bench_id: str):
+    """Return the description of the dataset."""
+    values = bench_id.split('-')[1:]
+
+    return f'{values[0][1:]} villes - {values[1][1:]} véhicules - {values[2][1:-5]} stations'
