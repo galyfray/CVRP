@@ -39,8 +39,8 @@ function App() {
                     <Route path="/run/:bench_type/algo_choice/drl" element={<DrlHyperParamsPage />}>
                     </Route>
                     <Route path="/run/:bench_type/algo_choice/:algo_type/operation" element={<OperationPage />}>
-                        <Route index path="result" element={<ResultPage />}/>
                     </Route>
+                    <Route path="/run/:bench_type/algo_choice/:algo_type/operation/result" element={<ResultPage />}/>
                     <Route element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>
