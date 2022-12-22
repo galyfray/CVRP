@@ -15,7 +15,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import http from "../http-common";
+import axios from "axios";
 
 export function GaHyperParamsPage() {
     const url = useLocation().pathname;
@@ -90,7 +90,7 @@ export function GaHyperParamsPage() {
             snapshot_rate: 3
         });
 
-        http.post("run", {"data": param}, {headers: {"Content-Type": "multipart/form-data"}})
+        axios.post("http://127.0.0.1:5000/run", {"data": param}, {headers: {"Content-Type": "multipart/form-data"}})
             .then(() => {
                 setOpen(true);
                 setTimeout(() => {

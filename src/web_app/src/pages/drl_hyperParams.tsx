@@ -13,7 +13,6 @@ import Button from "@mui/material/Button";
 import * as Types from "../types/data";
 import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
-import sleep from "../config/sleep_funct";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
