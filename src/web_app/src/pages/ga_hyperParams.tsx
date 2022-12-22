@@ -11,12 +11,11 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import * as Types from "../types/data";
-import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
-import sleep from "../config/sleep_funct";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import http from "../http-common";
 
 export function GaHyperParamsPage() {
     const url = useLocation().pathname;
@@ -91,16 +90,17 @@ export function GaHyperParamsPage() {
             snapshot_rate: 3
         });
 
-        axios.post("http://127.0.0.1:5000/run", param, {headers: {"Content-Type": "multipart/form-data"}})
-            .then(async() => {
+        http.post("run", {"data": param}, {headers: {"Content-Type": "multipart/form-data"}})
+            .then(() => {
                 setOpen(true);
-                await sleep(5000);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                navigate(url + "operation");
-                setOpen(false);
+                setTimeout(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    navigate(url + "operation");
+                    setOpen(false);
+                }, 5000);
             })
             .catch(error => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 console.log(error.response);
             });
     };

@@ -61,7 +61,7 @@ export function RunPage() {
                     });
             }
         )();
-    }, [url]);
+    }, []);
 
     useEffect(() => {
         void (

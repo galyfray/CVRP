@@ -93,12 +93,13 @@ export function DrlHyperParamsPage() {
         });
 
         axios.post("http://127.0.0.1:5000/run", param, {headers: {"Content-Type": "multipart/form-data"}})
-            .then(async() => {
+            .then(() => {
                 setOpen(true);
-                await sleep(5000);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                navigate(url + "operation");
-                setOpen(false);
+                setTimeout(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    navigate(url + "operation");
+                    setOpen(false);
+                }, 5000);
             })
             .catch(error => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
