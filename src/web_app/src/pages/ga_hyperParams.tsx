@@ -89,8 +89,23 @@ export function GaHyperParamsPage() {
             bench_id     : dataset_choice,
             snapshot_rate: 3
         });
+        const inter = {
+            type  : "ga",
+            params: JSON.stringify({
+                "nb_epochs"    : nb_epochs,
+                "pop_size"     : pop_size,
+                "seed"         : seed,
+                "mutation_rate": mutation_rate,
+                "learning_rate": 0.9,
+                "batch_size"   : 32,
+                "momentum"     : 0.2
+            }),
+            override     : override_check,
+            bench_id     : dataset_choice,
+            snapshot_rate: 3
+        };
 
-        axios.post("http://127.0.0.1:5000/run", {"data": param}, {headers: {"Content-Type": "multipart/form-data"}})
+        axios.post("http://127.0.0.1:5000/run", inter, {headers: {"X-Requested-With": "XMLHttpRequest"}})
             .then(() => {
                 setOpen(true);
                 setTimeout(() => {

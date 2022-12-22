@@ -91,7 +91,7 @@ export function DrlHyperParamsPage() {
             snapshot_rate: 3
         });
 
-        axios.post("http://127.0.0.1:5000/run", param, {headers: {"Content-Type": "multipart/form-data"}})
+        axios.post("http://127.0.0.1:5000/run", JSON.stringify(param), {headers: {"Content-Type": "multipart/form-data"}})
             .then(() => {
                 setOpen(true);
                 setTimeout(() => {

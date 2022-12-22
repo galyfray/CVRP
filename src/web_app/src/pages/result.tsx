@@ -114,10 +114,7 @@ export function ResultPage() {
                 });
         }
         void getNodes();
-    }, [
-        bench_id,
-        dataset_choice
-    ]);
+    }, [bench_id]);
 
     useEffect(() => {
         setBench_id(datasets[parseInt(dataset_choice)]);
