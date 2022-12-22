@@ -58,7 +58,7 @@ export function AppbarStyle() {
                             my: 1, mx: 3, mr: 35
                         }}
                         color="text.primary"
-                        href="#"
+                        href="/logs"
                         underline="hover"
                     >
               Logs

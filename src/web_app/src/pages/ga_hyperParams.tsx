@@ -45,7 +45,7 @@ export function GaHyperParamsPage() {
     const [
         seed,
         setSeed
-    ] = React.useState<number>(0.5);
+    ] = React.useState<number>(30);
     const [
         mutation_rate,
         setMutation_rate
@@ -58,7 +58,7 @@ export function GaHyperParamsPage() {
         params: {
             "nb_epochs"    : 1000,
             "pop_size"     : 512,
-            "seed"         : 0.5,
+            "seed"         : 30,
             "mutation_rate": 0.2,
             "learning_rate": 0.9,
             "batch_size"   : 32,
