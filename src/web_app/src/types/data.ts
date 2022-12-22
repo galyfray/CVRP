@@ -19,12 +19,6 @@ export type Point = {
   fitness : number
 }
 
-export type Node = {
-  id: number
-  NODE_COORD_X : number
-  NODE_COORD_Y : number
-}
-
 export type Link = {
   source : number,
   target : number

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
@@ -61,7 +62,7 @@ export default function Row(props: { row: Types.Log }) {
                                         <TableCell component="th" scope="row">
                                             {perf.fitness}
                                         </TableCell>
-                                        <TableCell>{perf.solution}</TableCell>
+                                        <TableCell>{perf.solution.slice(0, -1).map(el => el + "-")}0</TableCell>
                                     </TableRow>
                                     )}
                                 </TableBody>

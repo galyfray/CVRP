@@ -8,7 +8,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import React, {useCallback, useEffect} from "react";
+import React, {useEffect} from "react";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import * as Types from "../types/data";
@@ -35,22 +35,16 @@ export function LogsPage() {
         }
     ]);
 
-    //New version
-    const getLogs = useCallback(async() => {
-        await http.get("logs")
-            .then(response => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                setLogs(response.data.data);
-            });
-    }, []);
-
     useEffect(() => {
-        (
-            () => {
-                void getLogs();
-            }
-        )();
-    }, [getLogs]);
+        async function getLogs() {
+            await http.get("logs")
+                .then(response => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                    setLogs(response.data);
+                });
+        }
+        void getLogs();
+    }, []);
 
     return (
         <React.Fragment>

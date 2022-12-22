@@ -1,14 +1,15 @@
-export type d3Node = {
-      id: number,
-      group: Array<number | boolean>
-    };
+export type Node = {
+  "id": number,
+  "group": string
+  "coord": Array<number>
+};
 
-export type d3Link = {
+export type Link = {
       source: number,
       target: number,
     };
 
 export type d3Graph = {
-      nodes: d3Node[],
-      links: d3Link[]
+      nodes: Node[],
+      links: Link[]
     };
