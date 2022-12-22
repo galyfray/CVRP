@@ -78,7 +78,7 @@ BASE_DATA = {
         "type": "ga",
         "bench_id": BENCHMARK,
         "seed": 0,
-        "override": "true",
+        "override": "false",
         "snapshot_rate": 1,
         "param": json.dumps({
             "nb_epochs": 2,
