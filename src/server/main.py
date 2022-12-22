@@ -218,7 +218,6 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
-            print(request.form)
             metho = request.form["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -247,7 +246,7 @@ class Server:
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
 
-            self._override = bool(request.form["override"])
+            self._override = request.form["override"].lower() == "true"
 
             self._snapshot = JsonWriter(
                 str(utils.PATH_TO_LOGS),
@@ -311,7 +310,6 @@ class Server:
 
         if self._count == self._nb_it:
             if self._override or self._name not in utils.get_logs():
-                print(self._override)
                 self._snapshot.dump()
             self._runner = None
 
