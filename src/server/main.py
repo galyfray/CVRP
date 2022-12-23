@@ -370,6 +370,7 @@ class Server:
         return read_json(utils.PATH_TO_LOGS, log_id)
 
     def route_results(self):
+        """Return the latest snapshot to date or an empty dict if no snapshot was computed."""
         return self._latest
 
 
