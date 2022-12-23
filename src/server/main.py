@@ -29,6 +29,7 @@ This module holds the rest server that bridge the solvers and the front end.
 import time
 import random
 import json
+from copy import copy
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -109,6 +110,7 @@ class Server:
         self._override = True
         self._name = ""
         self._rate = 0
+        self._latest = {}
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -123,6 +125,7 @@ class Server:
                 "/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"]
                 )
         self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
+        self.app.add_url_rule("/log/<log_id>", view_func=self.route_log, methods=["GET"])
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
     def run(self, **kwargs):
@@ -218,6 +221,7 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
+            print(request.form)
             metho = request.form["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -306,7 +310,11 @@ class Server:
                 "generation": self._count
             }
 
-        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)["individuals"]
+        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)
+
+        self._latest = copy(base)
+
+        base["snapshot"] = base["snapshot"]["individuals"]
 
         if self._count == self._nb_it:
             if self._override or self._name not in utils.get_logs():
@@ -317,7 +325,7 @@ class Server:
 
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks."""
-        return [ {"name": b, "details": utils.get_ds_description(b)} for b in utils.get_datasets()]
+        return [{"name": b, "details": utils.get_ds_description(b)} for b in utils.get_datasets()]
 
     def route_benchmark(self, bench_id: str):
         """
@@ -353,13 +361,16 @@ class Server:
 
         return logs
 
-    def route_results(self):
+    def route_log(self, log_id):
         """
         Load a log file and provide its content.
 
         returns the same json as stored.
         """
-        read_json(utils.PATH_TO_LOGS, request.form["id"])
+        return read_json(utils.PATH_TO_LOGS, log_id)
+
+    def route_results(self):
+        return self._latest
 
 
 if __name__ == "__main__":
