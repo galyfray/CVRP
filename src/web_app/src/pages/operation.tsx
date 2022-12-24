@@ -44,10 +44,6 @@ export function OperationPage() {
     const url = useLocation().pathname;
     const method_choice = url.split("/")[4];
     const [
-        method_str,
-        setMethod_str
-    ] = React.useState("");
-    const [
         data,
         setData
     ] = React.useState<Array<Types.Point>>([
@@ -130,16 +126,6 @@ export function OperationPage() {
         setEnableButton
     ] = React.useState(false);
 
-    useEffect(() => {
-        // SetBench_id(datasets[parseInt(dataset_choice)]);
-        setStart(true);
-        if (method_choice === "ga") {
-            setMethod_str("Genetic Algorithm");
-        } else {
-            setMethod_str("Deep Reinforcement Learning");
-        }
-    }, [method_choice]);
-
     const gather_data = useCallback(async() => {
         async function get_snapshot(): Promise<boolean> {
             const response = await http.get("snapshot");
@@ -163,6 +149,9 @@ export function OperationPage() {
     }, [data]);
 
     useEffect(() => {
+        // SetBench_id(datasets[parseInt(dataset_choice)]);
+        setStart(true);
+
         //While(start){
         let i = 0;
         while (i < 3) {
@@ -199,7 +188,7 @@ export function OperationPage() {
                         fontWeight: "bold", mr: 9, mb: 2
                     }}
                 >
-                    {method_str}
+                    Evolution de la fitness au cours des générations
                 </Typography>
 
                 {start && <Grid container alignItems="center" spacing={2}>

@@ -16,6 +16,7 @@ import {GaHyperParamsPage} from "./pages/ga_hyperParams";
 import {OperationPage} from "./pages/operation";
 import {ResultPage} from "./pages/result";
 import {DrlHyperParamsPage} from "./pages/drl_hyperParams";
+import {ReviewPage} from "./pages/review";
 
 
 function App() {
@@ -32,6 +33,10 @@ function App() {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/logs" element={<LogsPage />} />
                     <Route path="/run" element={<RunPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/review" element={<ReviewPage />}>
+                    </Route>
+                    <Route path="/run/:bench_type/review/result" element={<ResultPage />}>
                     </Route>
                     <Route path="/run/:bench_type/algo_choice" element={<AlgoChoosingPage />} />
                     <Route path="/run/:bench_type/algo_choice/ga" element={<GaHyperParamsPage />}>

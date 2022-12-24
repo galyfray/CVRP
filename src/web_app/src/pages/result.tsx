@@ -170,8 +170,6 @@ export function ResultPage() {
                 n++;
                 current = next;
             }
-
-            //Set_graph_data(Array.from(myMap.values()));
             set_graph_data(series);
             console.log(series);
 
@@ -214,12 +212,9 @@ export function ResultPage() {
 
                 <Grid container spacing={2} sx={{mt: 5}}>
                     <Grid item xs={7} sx={{ml: 7}}>
-                        <ResponsiveContainer >
+                        <ResponsiveContainer width={600}
+                            height={300}>
                             <LineChart
-                                width={600}
-                                height={400}
-
-                                //Data={graph_data}
                             >
                                 <CartesianGrid strokeDasharray="5 5" />
                                 <XAxis dataKey="x" type="number" unit="km"/>
@@ -241,7 +236,7 @@ export function ResultPage() {
                                 width          : 320,
                                 height         : 210,
                                 backgroundColor: "black",
-                                mt             : 3,
+                                mt             : 5,
                                 ml             : 5
                             }}
                         >
