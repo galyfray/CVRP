@@ -42,7 +42,6 @@ const datasets = [
 
 export function OperationPage() {
     const url = useLocation().pathname;
-    const method_choice = url.split("/")[4];
     const [
         data,
         setData

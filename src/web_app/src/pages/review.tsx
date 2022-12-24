@@ -91,13 +91,6 @@ export function ReviewPage() {
 
     const reduce_data = useCallback((step:number, reducer: Array<Types.Point>) => { //  Create a loop function
         setTimeout(() => {
-            /*
-            If (reducer.slice(0, step).length > 0) {
-                console.log("plot 1", reducer.length);
-                reducer = reducer.slice(step, reducer.length);
-                setPlotdata1(reducer.slice(0, step));
-            }
-*/
             while (reducer.length > 0) {
                 reducer = reducer.slice(step, reducer.length);
                 if (reducer.slice(0, step).length > 0) {
