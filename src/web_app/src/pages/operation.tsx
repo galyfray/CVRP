@@ -51,74 +51,22 @@ export function OperationPage() {
             "fitness"   : 0
         }
     ]);
-
-    /*
-    Const [
-        nodes,
-        setNodes
-    ] = React.useState<{ [key: string]: [number, number] }>(
-        {
-            "0": [
-                0,
-                0
-            ]
-        }
-    );
     const [
-        data3,
-        setData3
-    ] = React.useState([
+        plotdata1,
+        setPlotdata1
+    ] = React.useState<Array<Types.Point>>([
         {
-            "id"  : "",
-            "data": [
-                {
-                    "node": 0,
-                    "x"   : 0,
-                    "y"   : 0
-                }
-            ]
+            "generation": 0,
+            "fitness"   : 0
         }
     ]);
-    const [
-        data4,
-        setData4
-    ] = React.useState([
-        {
-            "id"  : "",
-            "data": [
-                {
-                    "node": 0,
-                    "x"   : 0,
-                    "y"   : 0
-                }
-            ]
-        }
-    ]);
-
-    const [
-        colors,
-        setColors
-    ] = React.useState<Array<string>>([]);
-
-    const [
-        bench_id,
-        setBench_id
-    ] = React.useState("");
-
-    useEffect(() => {
-        async function getNodes() {
-            await http.get(`benchmark?bench_id=${bench_id}`)
-                .then(response => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-                    setNodes(response.data);
-                });
-        }
-        void getNodes();
-    }, [bench_id]);
-    */
     const [
         start,
         setStart
+    ] = React.useState<boolean>(true);
+    const [
+        checking,
+        setChecking
     ] = React.useState<boolean>(true);
     const [
         enableButton,
@@ -134,37 +82,43 @@ export function OperationPage() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                 "fitness"   : response.data.snapshot[0].fitness
             };
-            data.push(graph_data);
+            setData(data.concat([graph_data]));
             console.log(graph_data);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (response.data.has_next) {
                 return await get_snapshot();
             } else {
+                setChecking(false);
                 setEnableButton(true);
             }
-            return false;
+            return true;
         }
         return await get_snapshot();
     }, [data]);
 
-    useEffect(() => {
-        // SetBench_id(datasets[parseInt(dataset_choice)]);
-        setStart(true);
+    const update_plot = useCallback(() => {
+        const myInterval = setInterval(() => {
+            setPlotdata1(data);
+        }, 5000);
 
-        //While(start){
-        let i = 0;
-        while (i < 3) {
-            setTimeout(() => {
-                void gather_data();
-            }, 5000);
-            i++;
-            if (i === 2) {
-                setEnableButton(true);
-            }
+        if (!checking) {
+            clearInterval(myInterval);
         }
-    }, [
+    }, []);
+
+    useEffect(() => {
+        setStart(true);
+        for (let i = 0;i < 8;i++) {
+            void gather_data();
+        }
+        if (data.length > 4) { // 25 comme step plus tard avec de vrais données;
+            update_plot();
+        }
+    },
+    [
+        data,
         gather_data,
-        start
+        update_plot
     ]);
 
     return (
@@ -191,11 +145,11 @@ export function OperationPage() {
                 </Typography>
 
                 {start && <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={6} sx={{mb: 0}}>
+                    <Grid item xs={12} sx={{mt: 7, ml: 33}}>
                         <LineChart
-                            width={450}
-                            height={200}
-                            data={data}
+                            width={600}
+                            height={300}
+                            data={plotdata1}
                             margin={{
                                 top   : 5,
                                 right : 30,
@@ -205,31 +159,10 @@ export function OperationPage() {
                         >
                             <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2} />
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis dataKey="fitness" />
+                            <XAxis dataKey="generation" type="number"/>
+                            <YAxis dataKey="fitness" type="number"/>
                             <Tooltip />
                             <Legend />
-
-                        </LineChart>
-                    </Grid>
-                    <Grid item xs={6} sx={{mb: 0}}>
-                        <LineChart
-                            width={450}
-                            height={200}
-                            data={data}
-                            margin={{
-                                top   : 5,
-                                right : 30,
-                                left  : 20,
-                                bottom: 3
-                            }}
-                        >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis dataKey="fitness" />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2}/>
                         </LineChart>
                     </Grid>
                     <Grid item xs={8}></Grid>
@@ -239,12 +172,11 @@ export function OperationPage() {
                         }}
                         href={url + "/result"}
                         >
-                    Continuer
+                            Continuer
                         </Button>}
                     </Grid>
                 </Grid>
                 }
-
             </Container>
         </React.Fragment>
     );

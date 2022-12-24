@@ -171,7 +171,6 @@ export function ResultPage() {
                 current = next;
             }
             set_graph_data(series);
-            console.log(series);
 
             const inter:Array<string> = [];
             for (let i = 0;i < Object.keys(series).length;i++) {
@@ -205,30 +204,28 @@ export function ResultPage() {
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 2}}
+                    sx={{fontWeight: "bold"}}
                 >
                     Résultat
                 </Typography>
 
-                <Grid container spacing={2} sx={{mt: 5}}>
+                <Grid container spacing={2} sx={{mt: 3}}>
                     <Grid item xs={7} sx={{ml: 7}}>
-                        <ResponsiveContainer width={600}
-                            height={300}>
-                            <LineChart
-                            >
-                                <CartesianGrid strokeDasharray="5 5" />
-                                <XAxis dataKey="x" type="number" unit="km"/>
-                                <YAxis dataKey="y" type="number" unit="km"/>
-                                <Tooltip />
-                                <Legend />
-                                {graph_data.map((s, index) => <Line dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
-                                    stroke={colors[index]} key={s.id}>
-                                    <LabelList dataKey="node" position="inside" />
-                                </Line>
-                                )}
-                            </LineChart>
-                        </ResponsiveContainer>
-
+                        <LineChart
+                            width={600}
+                            height={350}
+                        >
+                            <CartesianGrid strokeDasharray="5 5" />
+                            <XAxis dataKey="x" type="number" unit="km"/>
+                            <YAxis dataKey="y" type="number" unit="km"/>
+                            <Tooltip />
+                            <Legend />
+                            {graph_data.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
+                                stroke={colors[index]} key={s.id}>
+                                <LabelList dataKey="node" position="top" />
+                            </Line>
+                            )}
+                        </LineChart>
                     </Grid>
                     <Grid item xs={4} >
                         <Box
@@ -237,7 +234,7 @@ export function ResultPage() {
                                 height         : 210,
                                 backgroundColor: "black",
                                 mt             : 5,
-                                ml             : 5
+                                ml             : 2
                             }}
                         >
                             <Grid container alignItems="center" spacing={2}>
@@ -263,7 +260,7 @@ export function ResultPage() {
                                 </Grid>
                                 <Grid item alignItems="center" xs={12}>
                                     <Button variant="contained" sx={{
-                                        height: 20, width: 260, ml: 2.5
+                                        height: 20, width: 260, ml: 3
                                     }} href="/logs" >
                                         Plus de détails
                                     </Button>
@@ -271,7 +268,7 @@ export function ResultPage() {
                                 <Grid item alignItems="center" xs={12}>
                                     <Button variant="contained"
                                         sx={{
-                                            height: 20, width: 260, backgroundColor: "#434343", ml: 2.5
+                                            height: 20, width: 260, backgroundColor: "#434343", ml: 3
                                         }} href="/run" >
                                         <Typography color="#5455AF">
                                             Relancer
@@ -283,7 +280,7 @@ export function ResultPage() {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography sx={{
-                            fontWeight: "bold", ml: 8, mt: 3
+                            fontWeight: "bold", ml: 8
                         }}>
                             Solution Finale:<br/>
                         </Typography>

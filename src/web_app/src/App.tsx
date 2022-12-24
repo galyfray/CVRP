@@ -18,7 +18,6 @@ import {ResultPage} from "./pages/result";
 import {DrlHyperParamsPage} from "./pages/drl_hyperParams";
 import {ReviewPage} from "./pages/review";
 
-
 function App() {
 
     useEffect(() => {
