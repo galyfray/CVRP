@@ -74,19 +74,23 @@ def test_bench(client):
     assert response.status_code == 200
 
 
-BASE_DATA = {
+BASE_DIR = {
+    "data": {
         "type": "ga",
         "bench_id": BENCHMARK,
-        "seed": 0,
-        "override": "false",
+        "override": False,
         "snapshot_rate": 1,
-        "params": json.dumps({
+        "params": {
+            "seed": 0,
             "nb_epochs": 2,
             "pop_size": 4,
             "mutation_rate": 0.1,
             "crossover_rate": 1
-        })
+        }
+    }
 }
+
+BASE_DATA = json.dumps(BASE_DIR)
 
 
 def test_run_busy(client):
@@ -121,14 +125,17 @@ def test_snapshot(client):
 
 def test_snapshot_rate(client):
     """Test if the snapshot rate works as intended"""
-    data = copy(BASE_DATA)
-    data["snapshot_rate"] = 2
-    data["params"] = json.dumps({
+    data = copy(BASE_DIR)
+    data["data"]["snapshot_rate"] = 2
+    data["data"]["params"] = {
             "nb_epochs": 7,
             "pop_size": 4,
             "mutation_rate": 0.1,
-            "crossover_rate": 1
-        })
+            "crossover_rate": 1,
+            "seed": 0
+        }
+
+    data = json.dumps(data)
 
     client.post("run", data=data)
 

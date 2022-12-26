@@ -226,8 +226,8 @@ class Server:
             metho = data["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
-            param = data["params"]
-            hyper = {key: param[key] for key in HYPER_LIST[metho]}
+
+            hyper = {key: data["params"][key] for key in HYPER_LIST[metho]}
 
             self._nb_it = hyper["nb_epochs"]
             self._count = 0
