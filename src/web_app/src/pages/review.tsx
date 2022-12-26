@@ -53,7 +53,7 @@ export function ReviewPage() {
     useEffect(() => {
         async function getData() {
             setStart(true);
-            await http.get(`log?log_id=${log_id}`)
+            await http.get(`log/${log_id}`)
                 .then(response => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                     const individuals:Array<Types.individual> = response.data.snapshots.individuals;
