@@ -35,7 +35,7 @@ function App() {
                     </Route>
                     <Route path="/logs/review" element={<ReviewPage/>}>
                     </Route>
-                    <Route path="/run/:bench_type/review/result" element={<ResultPage />}>
+                    <Route path="/logs/review/result" element={<ResultPage />}>
                     </Route>
                     <Route path="/run/:bench_type/algo_choice" element={<AlgoChoosingPage />} />
                     <Route path="/run/:bench_type/algo_choice/ga" element={<GaHyperParamsPage />}>

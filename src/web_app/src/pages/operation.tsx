@@ -12,17 +12,14 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {useLocation} from "react-router-dom";
 import * as Types from "../types/data";
+import Badge from "@mui/material/Badge";
+import Stack from "@mui/material/Stack";
 export function OperationPage() {
     const url = useLocation().pathname;
     const [
-        data,
-        setData
-    ] = React.useState<Array<Types.Point>>([
-        {
-            "generation": 0,
-            "fitness"   : 0
-        }
-    ]);
+        nb_epochs,
+        setNb_epochs
+    ] = React.useState(1);
     const [
         plotdata1,
         setPlotdata1
@@ -42,38 +39,31 @@ export function OperationPage() {
         setToggle
     ] = React.useState<boolean>(true);
 
-    const gather_data = useCallback(async() => {
-        async function get_snapshot(): Promise<boolean> {
-            const response = await http.get("snapshot");
-            const graph_data:Types.Point = {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                "generation": response.data.generation,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                "fitness"   : response.data.snapshot[0].fitness
-            };
-            setData(data.concat([graph_data]));
-            console.log(data.length);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            if (response.data.has_next) {
-                return await get_snapshot();
-            } else {
-                setToggle(false);
-                setEnableButton(true);
-            }
-            return true;
+    const update_plot = useCallback(async() => {
+        const response = await http.get("snapshot");
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const snapshot:Array<Types.individual> = response.data.snapshot;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+        setNb_epochs(response.data.generation);
+        const graph_data:Array<Types.Point> = [];
+        for (let i = 0;i < snapshot.length;i++) {
+            graph_data.push(
+                {"generation": i, "fitness": snapshot[i].fitness}
+            );
         }
-        return await get_snapshot();
-    }, [data]);
+        setPlotdata1(graph_data);
+        console.log("plot data", plotdata1);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (!response.data.has_next) {
+            setToggle(false);
+            setEnableButton(true);
+        }
+    }, [plotdata1]);
 
     useEffect(() => {
-        void gather_data();
-    }, [gather_data]);
-
-    React.useEffect(() => {
         ref.current = setInterval(() => {
             if (toggle) {
-                setPlotdata1(data);
-                console.log(plotdata1);
+                void update_plot();
             }
         }, 3000);
 
@@ -83,11 +73,9 @@ export function OperationPage() {
             }
         };
     }, [
-        data,
-        plotdata1,
-        toggle
+        toggle,
+        update_plot
     ]);
-
 
     return (
         <React.Fragment>
@@ -106,14 +94,21 @@ export function OperationPage() {
                     color="text.primary"
                     gutterBottom
                     sx={{
-                        fontWeight: "bold", mr: 9, mb: 2
+                        fontWeight: "bold", mt: 12, mb: 2
                     }}
                 >
                     Evolution de la fitness au cours des générations
                 </Typography>
+                <Stack direction="row" justifyContent="center">
+                    <Typography variant="h6" fontStyle="italic">
+                            Génération
+                    </Typography>
+                    <Badge badgeContent={nb_epochs} color="secondary" sx={{ml: 2}}>
+                    </Badge>
+                </Stack>
 
                 <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={12} sx={{mt: 7, ml: 33}}>
+                    <Grid item xs={12} sx={{mt: 5, ml: 33}}>
                         <LineChart
                             width={600}
                             height={300}
