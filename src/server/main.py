@@ -44,7 +44,8 @@ HYPER_LIST = {
     "ga": [
         "nb_epochs",
         "pop_size",
-        "mutation_rate"
+        "mutation_rate",
+        "seed"
     ]
 }
 
@@ -201,12 +202,12 @@ class Server:
                 "crossover_rate?":"float",
                 "learning_rate?":"float",
                 "batch_size?":"int",
-                "momentum?":"float"
+                "momentum?":"float",
+                "seed":"int"
             },
             "override":"bool",
             "bench_id":"string",
-            "snapshot_rate":"int",
-            "seed":"int"
+            "snapshot_rate":"int"
         }
 
         Returns :
@@ -237,9 +238,9 @@ class Server:
 
             bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
 
-            random.seed(int(data["seed"]))
+            random.seed(int(hyper["seed"]))
 
-            self._name = f"{data['bench_id']}_{metho}_{data['seed']}"
+            self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
             for param in hyper.values():
                 self._name += f"_{param}"
 
@@ -247,7 +248,7 @@ class Server:
                 g_a = GA(
                         build_first_gen(hyper["pop_size"], bench),
                         hyper["mutation_rate"],
-                        data["seed"]
+                        hyper["seed"]
                     )
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
