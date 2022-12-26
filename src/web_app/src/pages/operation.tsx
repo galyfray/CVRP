@@ -33,17 +33,14 @@ export function OperationPage() {
         }
     ]);
     const [
-        start,
-        setStart
-    ] = React.useState<boolean>(true);
-    const [
-        checking,
-        setChecking
-    ] = React.useState<boolean>(true);
-    const [
         enableButton,
         setEnableButton
     ] = React.useState(false);
+    const ref = React.useRef<NodeJS.Timeout | null>(null);
+    const [
+        toggle,
+        setToggle
+    ] = React.useState<boolean>(true);
 
     const gather_data = useCallback(async() => {
         async function get_snapshot(): Promise<boolean> {
@@ -55,12 +52,12 @@ export function OperationPage() {
                 "fitness"   : response.data.snapshot[0].fitness
             };
             setData(data.concat([graph_data]));
-            console.log(graph_data);
+            console.log(data.length);
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (response.data.has_next) {
                 return await get_snapshot();
             } else {
-                setChecking(false);
+                setToggle(false);
                 setEnableButton(true);
             }
             return true;
@@ -68,34 +65,29 @@ export function OperationPage() {
         return await get_snapshot();
     }, [data]);
 
-    const update_plot = useCallback(() => {
-        /*
-        Const myInterval = setInterval(() => {
-            setPlotdata1(data);
-        }, 5000);
-
-        if (!checking) {
-            clearInterval(myInterval);
-        }
-        */
-    }, []);
-
     useEffect(() => {
-        setStart(true);
-        for (let i = 0;i < 8;i++) {
-            void gather_data();
-        }
-        if (data.length > 4) { // 25 comme step plus tard avec de vrais données;
-            console.log(data);
+        void gather_data();
+    }, [gather_data]);
 
-            // Update_plot();
-        }
-    },
-    [
+    React.useEffect(() => {
+        ref.current = setInterval(() => {
+            if (toggle) {
+                setPlotdata1(data);
+                console.log(plotdata1);
+            }
+        }, 3000);
+
+        return () => {
+            if (ref.current) {
+                clearInterval(ref.current);
+            }
+        };
+    }, [
         data,
-        gather_data,
-        update_plot
+        plotdata1,
+        toggle
     ]);
+
 
     return (
         <React.Fragment>
@@ -120,7 +112,7 @@ export function OperationPage() {
                     Evolution de la fitness au cours des générations
                 </Typography>
 
-                {start && <Grid container alignItems="center" spacing={2}>
+                <Grid container alignItems="center" spacing={2}>
                     <Grid item xs={12} sx={{mt: 7, ml: 33}}>
                         <LineChart
                             width={600}
@@ -152,7 +144,6 @@ export function OperationPage() {
                         </Button>}
                     </Grid>
                 </Grid>
-                }
             </Container>
         </React.Fragment>
     );

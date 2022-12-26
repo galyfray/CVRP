@@ -14,13 +14,13 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import Button from "@mui/material/Button";
-import {ReviewPage} from "../pages/review";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 
 
 export default function Row(props: { row: Types.Log }) {
     const {row} = props;
     const url = useLocation().pathname;
+    const navigate = useNavigate();
     const [
         open,
         setOpen
@@ -28,7 +28,7 @@ export default function Row(props: { row: Types.Log }) {
 
     const handleClick = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        <ReviewPage log_id={row.log_id} />;
+        navigate(url + "/review", {state: {log_id: row.log_id}});
     };
 
     return (
@@ -53,7 +53,7 @@ export default function Row(props: { row: Types.Log }) {
                     {row.snapshots.time}
                 </TableCell>
                 <TableCell align="right">
-                    <Button onClick={handleClick} href={url + "/review"}
+                    <Button onClick={handleClick}
                     >
                         <PlayCircleFilledIcon sx={{ml: 2}}/>
                     </Button>
