@@ -223,8 +223,6 @@ class Server:
         if request.method == "POST":
             data = json.loads(request.data)["data"]
             
-            print(data)
-            
             metho = data["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -253,7 +251,7 @@ class Server:
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
 
-            self._override = data["override"].lower() == "true"
+            self._override = data["override"]
 
             self._snapshot = JsonWriter(
                 str(utils.PATH_TO_LOGS),
