@@ -40,7 +40,7 @@ const datasets = [
     "X-n920-k207-s4.evrp"
 ];
 
-export function ReviewPage() {
+export function ReviewPage(props: { log_id: string }) {
     const url = useLocation().pathname;
     const dataset_choice = url.split("/")[2];
     const [
@@ -149,7 +149,7 @@ export function ReviewPage() {
                 </Typography>
 
                 {start && <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={12} sx={{mt: 7, ml: 33}}>
+                    <Grid item xs={12} sx={{mt: 5, ml: 33}}>
                         <LineChart
                             width={600}
                             height={300}

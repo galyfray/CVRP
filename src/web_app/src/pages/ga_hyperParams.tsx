@@ -104,6 +104,7 @@ export function GaHyperParamsPage() {
             "headers": {"content-type": "text/json"}
         })
             .then(response => {
+                console.log(response);
                 setOpen(true);
                 setTimeout(() => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call

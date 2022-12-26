@@ -22,6 +22,7 @@ export function LogsPage() {
     ] = React.useState<Array<Types.Log>>([
         {
             "bench_id" : "",
+            "log_id"   : "",
             "method"   : "",
             "snapshots": {
                 "time"       : 0,
@@ -83,6 +84,7 @@ export function LogsPage() {
                                 <TableCell>Bench_ID</TableCell>
                                 <TableCell align="right">Method</TableCell>
                                 <TableCell align="right">Runtime</TableCell>
+                                <TableCell align="right">Option</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

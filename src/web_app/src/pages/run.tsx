@@ -16,11 +16,6 @@ import logging from "../config/logging";
 import {useLocation} from "react-router-dom";
 import http from "../http-common";
 import Alert from "@mui/material/Alert";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
 
 export function RunPage() {
     const url = useLocation().pathname;
@@ -52,41 +47,6 @@ export function RunPage() {
         }
     ]);
     const maxSteps = datasets.length;
-    const [
-        value,
-        setValue
-    ] = React.useState("");
-    const [
-        error,
-        setError
-    ] = React.useState(false);
-    const [
-        review,
-        setReview
-    ] = React.useState(false);
-    const [
-        helperText,
-        setHelperText
-    ] = React.useState("");
-
-    const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        setValue(event.target.value);
-        console.log(event.target.value);
-        if (event.target.value === "Passez directement à l'enregistrement de la résolution") {
-            setReview(true);
-            setError(false);
-            setHelperText("");
-        } else if (event.target.value === "Démarrer une nouvelle résolution") {
-            setReview(false);
-            setError(false);
-            setHelperText("");
-        } else {
-            setHelperText("Veuillez sélectionner une option");
-            setReview(true);
-            setError(true);
-        }
-    };
 
     useEffect(() => {
         void (
@@ -200,34 +160,14 @@ export function RunPage() {
                     </Grid>
                 </Grid>
                 <Stack
+                    sx={{mt: 8, mb: 5}}
                     direction="row"
                     justifyContent="center"
                 >
-                    <FormControl sx={{m: 3}} error={error} variant="standard">
-                        <RadioGroup
-                            aria-labelledby="radios-for-review"
-                            value={value}
-                            defaultValue="Passez directement à l'enregistrement de la résolution"
-                            onChange={handleRadioChange}
-                        >
-                            <FormControlLabel value="Passez directement à l'enregistrement de la résolution" control={<Radio />} label="Passez directement à l'enregistrement de la résolution" />
-                            <FormControlLabel value="Démarrer une nouvelle résolution" control={<Radio />} label="Démarrer une nouvelle résolution" />
-                        </RadioGroup>
-                        <FormHelperText>{helperText}</FormHelperText>
-                        {!review && <Button type="submit" variant="contained" sx={{
-                            height: 40, width: 120, ml: 20
-                        }}
-                        href={url + "/" + activeStep + "/algo_choice"} >
-                            Suivant
-                        </Button>}
-                        {review && <Button type="submit" variant="contained" sx={{
-                            height: 40, width: 120, ml: 20
-                        }}
-                        href={url + "/" + activeStep + "/review"}
-                        >
-                            Suivant
-                        </Button>}
-                    </FormControl>
+                    <Button variant="contained" sx={{height: 40, width: 120}}
+                        href={url + "/" + activeStep.toString() + "/algo_choice"} >
+                Suivant
+                    </Button>
                 </Stack>
                 { open &&
             <Alert onClose={handleClose} severity="warning" sx={{width: "100%"}}>

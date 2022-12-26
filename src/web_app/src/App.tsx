@@ -33,7 +33,7 @@ function App() {
                     <Route path="/logs" element={<LogsPage />} />
                     <Route path="/run" element={<RunPage />}>
                     </Route>
-                    <Route path="/run/:bench_type/review" element={<ReviewPage />}>
+                    <Route path="/logs/review" element={<ReviewPage log_id={""}/>}>
                     </Route>
                     <Route path="/run/:bench_type/review/result" element={<ResultPage />}>
                     </Route>

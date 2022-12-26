@@ -12,14 +12,24 @@ import Typography from "@mui/material/Typography";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import Button from "@mui/material/Button";
+import {ReviewPage} from "../pages/review";
+import {useLocation} from "react-router-dom";
 
 
 export default function Row(props: { row: Types.Log }) {
     const {row} = props;
+    const url = useLocation().pathname;
     const [
         open,
         setOpen
     ] = React.useState(false);
+
+    const handleClick = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        <ReviewPage log_id={row.log_id} />;
+    };
 
     return (
         <React.Fragment>
@@ -41,6 +51,12 @@ export default function Row(props: { row: Types.Log }) {
                 </TableCell>
                 <TableCell align="right">
                     {row.snapshots.time}
+                </TableCell>
+                <TableCell align="right">
+                    <Button onClick={handleClick} href={url + "/review"}
+                    >
+                        <PlayCircleFilledIcon />
+                    </Button>
                 </TableCell>
             </TableRow>
             <TableRow>

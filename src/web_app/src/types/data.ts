@@ -31,6 +31,7 @@ export type individual = {
 
 export type Log = {
   "bench_id" : string,
+  "log_id": string,
   "method" : string,
   "snapshots": {
     "time" : number,

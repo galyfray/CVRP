@@ -62,6 +62,7 @@ export function ResultPage() {
     ] = React.useState<Types.Log>(
         {
             "bench_id" : "",
+            "log_id"   : "",
             "method"   : "",
             "snapshots": {
                 "time"       : 0,
