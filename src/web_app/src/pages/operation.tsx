@@ -12,34 +12,6 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {useLocation} from "react-router-dom";
 import * as Types from "../types/data";
-
-const datasets = [
-    "E-n112-k8-s11.evrp",
-    "E-n29-k4-s7.evrp",
-    "E-n30-k3-s7.evrp",
-    "E-n35-k3-s5.evrp",
-    "E-n37-k4-s4.evrp",
-    "E-n60-k5-s9.evrp",
-    "E-n89-k7-s13.evrp",
-    "F-n140-k5-s5.evrp",
-    "F-n49-k4-s4.evrp",
-    "F-n80-k4-s8.evrp",
-    "M-n110-k10-s9.evrp",
-    "M-n126-k7-s5.evrp",
-    "M-n163-k12-s12.evrp",
-    "M-n212-k16-s12.evrp",
-    "X-n1006-k43-s5.evrp",
-    "X-n147-k7-s4.evrp",
-    "X-n221-k11-s7.evrp",
-    "X-n360-k40-s9.evrp",
-    "X-n469-k26-s10.evrp",
-    "X-n577-k30-s4.evrp",
-    "X-n698-k75-s13.evrp",
-    "X-n759-k98-s10.evrp",
-    "X-n830-k171-s11.evrp",
-    "X-n920-k207-s4.evrp"
-];
-
 export function OperationPage() {
     const url = useLocation().pathname;
     const [
@@ -97,13 +69,15 @@ export function OperationPage() {
     }, [data]);
 
     const update_plot = useCallback(() => {
-        const myInterval = setInterval(() => {
+        /*
+        Const myInterval = setInterval(() => {
             setPlotdata1(data);
         }, 5000);
 
         if (!checking) {
             clearInterval(myInterval);
         }
+        */
     }, []);
 
     useEffect(() => {
@@ -112,7 +86,9 @@ export function OperationPage() {
             void gather_data();
         }
         if (data.length > 4) { // 25 comme step plus tard avec de vrais données;
-            update_plot();
+            console.log(data);
+
+            // Update_plot();
         }
     },
     [

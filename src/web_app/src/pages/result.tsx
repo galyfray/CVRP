@@ -9,7 +9,7 @@ import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import {useLocation} from "react-router-dom";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList, ResponsiveContainer
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList
 } from "recharts";
 import * as Types from "../types/data";
 import {getRandomColor} from "../config/utils";
@@ -279,9 +279,7 @@ export function ResultPage() {
                         </Box>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography sx={{
-                            fontWeight: "bold", ml: 8
-                        }}>
+                        <Typography sx={{fontWeight: "bold", ml: 8}}>
                             Solution Finale:<br/>
                         </Typography>
                         <Typography sx={{ml: 13}}>
