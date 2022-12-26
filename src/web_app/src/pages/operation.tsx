@@ -103,7 +103,7 @@ export function OperationPage() {
                     <Typography variant="h6" fontStyle="italic">
                             Génération
                     </Typography>
-                    <Badge badgeContent={nb_epochs} color="secondary" sx={{ml: 2}}>
+                    <Badge badgeContent={nb_epochs} max={10000} color="secondary" sx={{ml: 2}}>
                     </Badge>
                 </Stack>
 
