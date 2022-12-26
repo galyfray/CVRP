@@ -55,7 +55,7 @@ export default function Row(props: { row: Types.Log }) {
                 <TableCell align="right">
                     <Button onClick={handleClick} href={url + "/review"}
                     >
-                        <PlayCircleFilledIcon />
+                        <PlayCircleFilledIcon sx={{ml: 2}}/>
                     </Button>
                 </TableCell>
             </TableRow>
