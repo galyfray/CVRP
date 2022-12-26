@@ -339,4 +339,4 @@ if __name__ == "__main__":
     # This is a problem as it can allow peaple tu run arbitrary code on the machine.
     # However the server isn't configured to be accessed from the local network,
     # not to say from the Web.
-    Server(__name__).run(debug=True)  # nosec B201
+    Server(__name__).run(debug=True, host='0.0.0.0')  # nosec B201
