@@ -44,8 +44,7 @@ HYPER_LIST = {
     "ga": [
         "nb_epochs",
         "pop_size",
-        "mutation_rate",
-        "crossover_rate"
+        "mutation_rate"
     ]
 }
 
@@ -191,7 +190,7 @@ class Server:
         """
         Handle the start of an instance.
 
-        expected form :
+        expected data :
 
         {
             "type":"drl|ga",
@@ -221,23 +220,26 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
-            print(request.form)
-            metho = request.form["type"]
+            data = json.loads(request.data)["data"]
+            
+            print(data)
+            
+            metho = data["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
-            param = json.loads(request.form["params"])
+            param = data["params"]
             hyper = {key: param[key] for key in HYPER_LIST[metho]}
 
             self._nb_it = hyper["nb_epochs"]
             self._count = 0
 
-            self._rate = int(request.form["snapshot_rate"])
+            self._rate = int(data["snapshot_rate"])
 
-            bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
+            bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
 
-            random.seed(int(request.form["seed"]))
+            random.seed(int(data["seed"]))
 
-            self._name = f"{request.form['bench_id']}_{metho}_{request.form['seed']}"
+            self._name = f"{data['bench_id']}_{metho}_{data['seed']}"
             for param in hyper.values():
                 self._name += f"_{param}"
 
@@ -245,17 +247,17 @@ class Server:
                 g_a = GA(
                         build_first_gen(hyper["pop_size"], bench),
                         hyper["mutation_rate"],
-                        request.form["seed"]
+                        data["seed"]
                     )
                 self._runner = g_a.run(hyper["nb_epochs"])
                 self._tot_time = 0
 
-            self._override = request.form["override"].lower() == "true"
+            self._override = data["override"].lower() == "true"
 
             self._snapshot = JsonWriter(
                 str(utils.PATH_TO_LOGS),
                 self._name,
-                request.form["bench_id"],
+                data["bench_id"],
                 metho
             )
 
