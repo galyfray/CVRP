@@ -55,8 +55,8 @@ export function ReviewPage() {
             setStart(true);
             await http.get(`log/${log_id}`)
                 .then(response => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                    const individuals:Array<Types.individual> = response.data.snapshots.individuals;
+                    // eslint-disable-next-line
+                    const individuals:Array<Types.individual> = response.data.snapshots.at(-1).individuals;
                     const inter:Array<Types.Point> = [];
                     for (let i = 0;i < individuals.length;i++) {
                         inter.push({"generation": i, "fitness": individuals[i].fitness});
