@@ -64,24 +64,34 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
     while len(first_gen) < size:
         solution = [*towns]
+        roads = [
+            [instance.get_depot()]
+            for _ in range(instance.get_ev_count())
+        ]
+        cumulatives = [0] * instance.get_ev_count()
         random.shuffle(solution)
-
-        cum_dem: int = 0
-        insert_points: list[int] = []
-
-        for i, point in enumerate(solution):
-            cum_dem += instance.get_demand(point)
-            if cum_dem > instance.get_ev_capacity():
-                insert_points.append(i-1 + len(insert_points))
-                cum_dem = 0
-
-        if len(insert_points) > instance.get_ev_count():
+        not_inserted = True
+        for point in solution:
+            not_inserted = True
+            i = 0
+            while not_inserted:
+                if i >= len(cumulatives):
+                    print("i is too big")
+                    break
+                if cumulatives[i] + instance.get_demand(point) <= instance.get_ev_capacity():
+                    cumulatives[i] += instance.get_demand(point)
+                    roads[i].append(point)
+                    not_inserted = False
+                i += 1
+            if not_inserted:
+                print("not inserted")
+                break
+        if not_inserted:
             continue
 
-        for point in insert_points:
-            solution.insert(point, instance.get_depot())
-
-        solution.insert(0, instance.get_depot())
+        solution = []
+        for road in roads:
+            solution.extend(road)
         solution.append(instance.get_depot())
         element = ECVRPSolution(validators, solution, instance)
 
