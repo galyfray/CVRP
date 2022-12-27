@@ -28,7 +28,7 @@ export default function Row(props: { row: Types.Log }) {
 
     const handleClick = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        navigate(url + "/review", {state: {log_id: row.log_id}});
+        navigate(url + "/review", {state: {log_id: row.log_id, bench_id: row.bench_id}});
     };
 
     return (

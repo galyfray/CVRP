@@ -1,4 +1,5 @@
 import {Link} from "../types/d3Types";
+import * as Types from "../types/data";
 
 export function getRandomColor() {
     const letters = "0123456789ABCDEF";
@@ -21,4 +22,12 @@ export function getLinks(sol: []) {
         links.push(d);
     }
     return links;
+}
+
+export function getFitness(data: Array<Types.individual>) {
+    return data.map(d => d.fitness);
+}
+
+export function getMinFitness(data: Array<Types.individual>) {
+    return Math.min(...getFitness(data));
 }

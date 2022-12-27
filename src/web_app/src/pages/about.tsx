@@ -30,7 +30,7 @@ export function AboutPage() {
             >
                 <AppbarStyle/>
 
-                <Grid container justifyContent="space-between" sx={{mt: 10}}>
+                <Grid container justifyContent="space-between" sx={{mt: 12}}>
                     <Grid item xs={12} sx={{ml: 10, mr: 10}}>
                         <Typography
                             variant="h5"
@@ -54,8 +54,6 @@ export function AboutPage() {
                             <StyledTreeItem nodeId="1" label="Sommaire">
                                 <StyledTreeItem nodeId="2" label="Problème" />
                                 <StyledTreeItem nodeId="4" label="Benchmark" />
-                                <StyledTreeItem nodeId="5" label="Programme" />
-                                <StyledTreeItem nodeId="5" label="Notice d'utilisation" />
                             </StyledTreeItem>
                         </TreeView>
                     </Grid>
@@ -121,28 +119,6 @@ export function AboutPage() {
                     Tableau détaillant le contenu de notre benchmark
                     </Typography>
                     <img src={benchmark} alt="benchmark" width= "85%"/>
-                    <Typography
-                        variant="h5"
-                        color="#344E6B"
-                        sx={{mt: 3}}
-                    >
-                    Programme
-                    </Typography>
-                    <Divider />
-                    <Typography variant="body1" align="justify" component="p" sx={{mt: 1}}>
-                    to do
-                    </Typography>
-                    <Typography
-                        variant="h5"
-                        color="#344E6B"
-                        sx={{mt: 3}}
-                    >
-                    Notice d'utilisation
-                    </Typography>
-                    <Divider />
-                    <Typography variant="body1" align="justify" component="p" sx={{mt: 1}}>
-                    to do
-                    </Typography>
                 </Container>
             </Drawer>
         </React.Fragment>

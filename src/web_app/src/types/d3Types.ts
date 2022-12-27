@@ -1,7 +1,10 @@
 export type Node = {
-  "id": number,
-  "group": string
-  "coord": Array<number>
+  "id": string,
+  "data" : {
+    "node": number,
+    "x": number,
+    "y": number
+  }[]
 };
 
 export type Link = {
