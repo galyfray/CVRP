@@ -149,8 +149,49 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             road_time += self.get_instance().get_distance(latest, i)
             latest = i
         return road_time
-
+    
     def best_place_for(self, solution: list[list[int]], point: int) -> tuple[int, int]:
+        min_fit = float("inf")
+        best_position = (-1, -1)
+        number_roads = len(solution)
+
+        for index_road, road in enumerate(solution):
+            # we start at index 1 because the index 0 is depot
+            min_roads = float("inf")
+            best_index = -1
+            for index_point in range(1, len(road)):
+                road.insert(index_point, point)
+                fitness = self._compute_road_fitness(road)
+                if fitness < min_roads:
+                    min_roads = fitness
+                    best_index = index_point
+                road.pop(index_point)
+
+            road.insert(best_index, point)
+            fitness = self._compute_fitness(solution)
+            if fitness < min_fit:
+                min_fit = fitness
+                best_position = (index_road, best_index)
+            road.pop(best_index)
+
+        if self.__instance.get_ev_count() > number_roads:
+            # If the number of roads is less than the number of vehicules,
+            # the better road can be an additionnal road.
+            depot = self.__instance.get_depot()
+            new_road = [depot, point, depot]
+            solution.append(new_road)
+            fitness = self._compute_fitness(solution)
+            if fitness < min_fit:
+                min_fit = fitness
+                best_position = (number_roads, 1)
+            solution.pop()
+
+        if min_fit == float("inf"):
+            best_position = (number_roads, 1)
+
+        return best_position
+
+    def old_best_place_for(self, solution: list[list[int]], point: int) -> tuple[int, int]:
         """
         Find the best place to add a point to delivery.
 
@@ -169,28 +210,17 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         min_fit = float("inf")
         best_position = (-1, -1)
         number_roads = len(solution)
-        initial_solution = solution
 
-        for index_road, road in enumerate(initial_solution):
+        for index_road, road in enumerate(solution):
 
-            size_road = len(road)
-            if size_road != 2:
-
-                # we start at index 1 because the index 0 is depot
-                for index_point in range(1, size_road):
-                    road.insert(index_point, point)
-                    fitness = self._compute_fitness(solution)
-                    if fitness < min_fit:
-                        min_fit = fitness
-                        best_position = (index_road, index_point)
-                    road.remove(point)
-            else:
-                road.insert(1, point)
+            # we start at index 1 because the index 0 is depot
+            for index_point in range(1, len(road)):
+                road.insert(index_point, point)
                 fitness = self._compute_fitness(solution)
                 if fitness < min_fit:
                     min_fit = fitness
-                    best_position = (index_road, 1)
-                road.remove(point)
+                    best_position = (index_road, index_point)
+                road.pop(index_point)
 
             if self.__instance.get_ev_count() > number_roads:
                 # If the number of roads is less than the number of vehicules,
@@ -202,7 +232,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 if fitness < min_fit:
                     min_fit = fitness
                     best_position = (number_roads, 1)
-                solution.remove(new_road)
+                solution.pop()
 
         if min_fit == float("inf"):
             best_position = (number_roads, 1)
@@ -429,6 +459,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         solution = self._delete_empty_road(solution)
 
         self._solution = self.__merge_roads(solution)
+        self._fitness = None
 
     def validate(self) -> None:
         """Try to correct the solution."""

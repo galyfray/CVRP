@@ -386,8 +386,4 @@ class Server:
 
 
 if __name__ == "__main__":
-    # The server is running in debug mode.
-    # This is a problem as it can allow peaple tu run arbitrary code on the machine.
-    # However the server isn't configured to be accessed from the local network,
-    # not to say from the Web.
-    Server(__name__).run(debug=True)  # nosec B201
+    Server(__name__).run()
