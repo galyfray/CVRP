@@ -149,8 +149,23 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             road_time += self.get_instance().get_distance(latest, i)
             latest = i
         return road_time
-    
+
     def best_place_for(self, solution: list[list[int]], point: int) -> tuple[int, int]:
+        """
+        Find the best place to add a point to delivery.
+
+        This function will be use to find the best place to add a point in a
+        new road at the end of the crossover process.
+        It will return the index of the best place and do not do the insertion.
+
+        :param solution: the solution composed of multiple roads
+        :type solution: list[list[int]]
+        :param point: the point that needs to be added
+        :type point: int
+        :return: the coordinates found for the best place for the insertion where
+        the fisrt element is which road and the second where in the road
+        :rtype: tuple[int, int]
+        """
         min_fit = float("inf")
         best_position = (-1, -1)
         number_roads = len(solution)
@@ -185,54 +200,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
                 min_fit = fitness
                 best_position = (number_roads, 1)
             solution.pop()
-
-        if min_fit == float("inf"):
-            best_position = (number_roads, 1)
-
-        return best_position
-
-    def old_best_place_for(self, solution: list[list[int]], point: int) -> tuple[int, int]:
-        """
-        Find the best place to add a point to delivery.
-
-        This function will be use to find the best place to add a point in a
-        new road at the end of the crossover process.
-        It will return the index of the best place and do not do the insertion.
-
-        :param solution: the solution composed of multiple roads
-        :type solution: list[list[int]]
-        :param point: the point that needs to be added
-        :type point: int
-        :return: the coordinates found for the best place for the insertion where
-        the fisrt element is which road and the second where in the road
-        :rtype: tuple[int, int]
-        """
-        min_fit = float("inf")
-        best_position = (-1, -1)
-        number_roads = len(solution)
-
-        for index_road, road in enumerate(solution):
-
-            # we start at index 1 because the index 0 is depot
-            for index_point in range(1, len(road)):
-                road.insert(index_point, point)
-                fitness = self._compute_fitness(solution)
-                if fitness < min_fit:
-                    min_fit = fitness
-                    best_position = (index_road, index_point)
-                road.pop(index_point)
-
-            if self.__instance.get_ev_count() > number_roads:
-                # If the number of roads is less than the number of vehicules,
-                # the better road can be an additionnal road.
-                depot = self.__instance.get_depot()
-                new_road = [depot, point, depot]
-                solution.append(new_road)
-                fitness = self._compute_fitness(solution)
-                if fitness < min_fit:
-                    min_fit = fitness
-                    best_position = (number_roads, 1)
-                solution.pop()
 
         if min_fit == float("inf"):
             best_position = (number_roads, 1)
