@@ -360,7 +360,7 @@ class Server:
             {
                 bench_id: str,
                 method: ga|drl
-                snapshots: "snaphshot"
+                snapshots: "snapshot"
             }
         ]
 
