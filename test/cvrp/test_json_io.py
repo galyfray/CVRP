@@ -61,24 +61,14 @@ test_instance = ECVRPInstance(
 )
 
 
-def test_meta_writing(tmpdir: Path):
-    """ writes meta data to the JSON file format
-    """
-    writer = JsonWriter(
-        str(tmpdir),
-        "writter",
-        "bench_test"
-    )
-    writer.dump()
-
-
 def test_snapshot_writting(tmpdir: Path):
     """ writes meta data and a snapshot to the JSON file format
     """
     writer = JsonWriter(
         str(tmpdir),
         "writter_snap",
-        "bench_test"
+        "bench_test",
+        "ga"
     )
 
     writer.add_snapshot([
@@ -97,7 +87,8 @@ def test_snapshots_writting(tmpdir: Path):
     writer = JsonWriter(
         str(tmpdir),
         "writter_snaps",
-        "bench_test"
+        "bench_test",
+        "ga"
     )
     for _ in range(9):
         writer.add_snapshot([
@@ -116,7 +107,8 @@ def test_snapshots_io(tmpdir: Path):
     writer = JsonWriter(
         str(tmpdir),
         "writter_snaps",
-        "bench_test"
+        "bench_test",
+        "ga"
     )
     for _ in range(9):
         writer.add_snapshot([

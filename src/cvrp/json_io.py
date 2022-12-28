@@ -44,7 +44,8 @@ class JsonWriter:
                 self,
                 root: str,
                 name: str,
-                bench_name: str
+                bench_name: str,
+                method: str
             ):
         """
         Initialize the JsonWriter class.
@@ -57,6 +58,7 @@ class JsonWriter:
         self.__root = Path(root)
         self.__name = name
         self.__bench_name = bench_name
+        self.__method = method
 
     def add_snapshot(self, snapshot: list[ECVRPSolution], time: float) \
             -> dict[str, Union[float, list[dict[str, Union[int, tuple[int, ...]]]]]]:
@@ -87,9 +89,16 @@ class JsonWriter:
         """
         data = {
             "bench_id": self.__bench_name,
+            "method": self.__method,
             "snapshots": self.__snapshots
         }
         with BZ2File(str(self.__root.joinpath(f"{self.__name}.json.bz2")), "wb") as file:
+            dump = json.dumps(data, separators=(",", ":")).encode("U7")
+            file.write(dump)
+            file.close()
+
+        data["snapshots"] = data["snapshots"][-1]
+        with BZ2File(str(self.__root.joinpath(f"{self.__name}.header")), "wb") as file:
             dump = json.dumps(data, separators=(",", ":")).encode("U7")
             file.write(dump)
             file.close()
@@ -105,3 +114,19 @@ def read_json(root: str, name: str) -> dict[str, any]:
         file.close()
 
     return json.loads(data.decode("U7"))
+
+
+def get_header(root: str, name: str) -> dict[str, any]:
+    """Read a header file that describes a log file."""
+    root = Path(root)
+    data: bytes
+
+    with BZ2File(str(root.joinpath(f"{name}.header")), "rb") as file:
+        data = file.read()
+        file.close()
+
+    data = json.loads(data.decode("U7"))
+
+    data["log_id"] = name
+
+    return data

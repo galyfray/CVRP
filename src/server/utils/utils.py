@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 This module contains the necessary functions to parse and create ECVRP instances.
-@authors: Axel Velez
+@author: Axel Velez
+@author: Cyril Obrecht
 @license: GPL-3
 @date: 2022-11-22
-@version: 0.6
+@version: 0.7
 """
 
 # CVRP
@@ -38,6 +39,7 @@ from cvrp.ecvrp import ECVRPInstance # noqa E402
 # pylint: enable=wrong-import-position enable=E0401
 
 PATH_TO_DATASETS = Path('src/server/datasets')
+PATH_TO_LOGS = Path('src/server/logs')
 
 # Offset used to map the original cities id to their new values
 OFFSET = 1
@@ -56,7 +58,7 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
 
     # Variables needed to create our ECVRP Instance
     parameters: dict[str, any] = {}
-    nodes: dict[int, tuple[int, int]] = {}
+    nodes: dict[int, tuple[float, float]] = {}
     chargers: set[int] = set()
     demands: dict[int, int] = {}
     time_windows: dict[int, tuple[float, float]] = {}
@@ -76,8 +78,8 @@ def parse_dataset(filename: str, dir_path: Path = PATH_TO_DATASETS) -> dict[str,
                     # Extracts the id and coordinates of each node (3 values per line)
                     if index % 3 == 0:
                         nodes[int(data[i+index+1]) - OFFSET] = \
-                            (int(data[i+index+2]), int(data[i+index+3]))
-                        time_windows[int(data[i+index+1]) - OFFSET] = (0, float('inf'))
+                            (float(data[i+index+2]), float(data[i+index+3]))
+                        time_windows[int(data[i+index+1]) - OFFSET] = (0, sys.maxsize)
             elif value == 'DEMAND_SECTION':
                 for index in range((parameters['DIMENSION']-parameters['STATIONS'])*2):
                     # Extracts the id and demand for each node (2 values per line)
@@ -136,17 +138,30 @@ def create_ecvrp(parameters: dict[str, any]) -> ECVRPInstance:
 
 
 def get_datasets(dir_path: Path = PATH_TO_DATASETS) -> list[str]:
-    """List all the files in the dataset folder.
+    """List all the datasets in the dataset folder.
 
     :param dir_path: The path of the datasets directory, defaults to PATH_TO_DATASETS
     :type dir_path: Path, optional
-    :return: A list of all files contained in the specified directory
+    :return: A list of all datasets contained in the specified directory
     :rtype: list[str]
     """
-    return os.listdir(dir_path)
+    data = [f for f in os.listdir(dir_path) if f.endswith('evrp')]
+    return data
 
 
-def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[float]]:
+def get_logs(dir_path: Path = PATH_TO_LOGS) -> list[str]:
+    """List all the logs in the logs folder.
+
+    :param dir_path: The path of the logs directory, defaults to PATH_TO_LOGS
+    :type dir_path: Path, optional
+    :return: A list of all logs contained in the specified directory
+    :rtype: list[str]
+    """
+    data = [f[:-9] for f in os.listdir(dir_path) if f.endswith('json.bz2')]
+    return data
+
+
+def compute_distance_matrix(nodes: dict[int, tuple[float, float]]) -> list[list[float]]:
     """Compute the distance matrix of our nodes."""
 
     distance_matrix = np.zeros(shape=(len(nodes), len(nodes))).tolist()
@@ -158,3 +173,10 @@ def compute_distance_matrix(nodes: dict[int, tuple[int, int]]) -> list[list[floa
                 distance_matrix[node][next_node] = dist
 
     return distance_matrix
+
+
+def get_ds_description(bench_id: str):
+    """Return the description of the dataset."""
+    values = bench_id.split('-')[1:]
+
+    return f'{values[0][1:]} villes - {values[1][1:]} véhicules - {values[2][1:-5]} stations'
