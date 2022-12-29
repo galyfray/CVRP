@@ -77,6 +77,11 @@ export function ReviewPage() {
         enableButton,
         setEnableButton
     ] = React.useState(false);
+    const [
+        toggle,
+        setToggle
+    ] = React.useState<boolean>(true);
+    const ref = React.useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         async function getNodes() {
@@ -134,55 +139,72 @@ export function ReviewPage() {
             current = next;
         }
         return series;
-
     }, [nodes]);
 
-    useEffect(() => {
-        if (mainData.length > 1) {
-            console.log(mainData.length);
-            setPlotdata(
-                [
-                    {
-                        "generation": 0,
-                        "fitness"   : mainData[0].individuals[0].fitness
-                    }
-                ]
-            );
-            let count = 1;
-            const ID = setInterval(() => {
-                setPlotdata(g => g.concat(
-                    [
-                        {
-                            "generation": count,
-                            "fitness"   : mainData[count].individuals[0].fitness
-                        }
-                    ]
-                ));
+    const update_plot = useCallback((count: number) => {
+        console.log(count);
+        setPlotdata(g => g.concat(
+            [
+                {
+                    "generation": count,
+                    "fitness"   : mainData[count].individuals[0].fitness
+                }
+            ]
+        ));
 
-                const individual = mainData[count].individuals[0];
-                if (individual) {
-                    const sol: number[] = individual.solution;
-                    const res = getSeriesB(sol);
-                    const inter:Array<string> = [];
-                    for (let i = 0;i < Object.keys(res).length;i++) {
-                        const c = getRandomColor();
-                        if (!inter.find(element => element === c)) {
-                            inter.push(c);
-                        }
-                    }
-                    setgraphdata(res);
-                    setColors(inter);
+        const individual = mainData[count].individuals[0];
+        if (individual) {
+            const sol: number[] = individual.solution;
+            const res = getSeriesB(sol);
+            const inter:Array<string> = [];
+            for (let i = 0;i < Object.keys(res).length;i++) {
+                const c = getRandomColor();
+                if (!inter.find(element => element === c)) {
+                    inter.push(c);
                 }
-                count = count + 1;
-                console.log(count);
-                if (count > mainData.length) {
-                    setEnableButton(true);
-                    clearInterval(ID);
-                }
-            }, 3000);
+            }
+            setgraphdata(res);
+            setColors(inter);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [getSeriesB]);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (count + 1 > mainData.length) {
+            setToggle(false);
+            setEnableButton(true);
+        }
+    }, [
+        getSeriesB,
+        mainData
+    ]);
+
+    useEffect(() => {
+        setPlotdata(
+            [
+                {
+                    "generation": 0,
+                    "fitness"   : mainData[0].individuals[0].fitness
+                }
+            ]
+        );
+        let count = 1;
+        ref.current = setInterval(() => {
+            if (toggle) {
+                count = count + 1;
+                void update_plot(count);
+            }
+        }, 3000);
+
+        return () => {
+            if (ref.current) {
+                clearInterval(ref.current);
+            }
+        };
+    }, [
+        mainData,
+        toggle,
+        update_plot
+    ]);
+
 
     return (
         <React.Fragment>

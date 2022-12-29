@@ -151,7 +151,7 @@ export function OperationPage() {
         return [];
     }, [nodes]);
 
-    const update_plot = useCallback(async() => {
+    const update_plot = useCallback(async(count: number) => {
         const response = await http.get("snapshot");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const snapshot:Array<Types.individual> = response.data.snapshot;
@@ -163,8 +163,15 @@ export function OperationPage() {
                 {"generation": i, "fitness": snapshot[i].fitness}
             );
         }
-        setplotdata(graph_data);
-        console.log("plot data", plotdata);
+        setplotdata(g => g.concat([
+            {
+                "generation": count,
+                "fitness"   : snapshot[0].fitness
+            }
+        ]));
+
+        // Setplotdata(graph_data);
+        console.log("plot data", plotdata.length);
 
         const res = getSeries(snapshot);
         setgraphdata(res);
@@ -177,7 +184,6 @@ export function OperationPage() {
             }
         }
         setColors(inter);
-
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (!response.data.has_next) {
@@ -192,7 +198,9 @@ export function OperationPage() {
     useEffect(() => {
         ref.current = setInterval(() => {
             if (toggle) {
-                void update_plot();
+                let count = 1;
+                void update_plot(count);
+                count = count + 1;
             }
         }, 3000);
 
