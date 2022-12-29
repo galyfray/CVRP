@@ -64,15 +64,17 @@ export function ResultPage() {
             "bench_id" : "",
             "log_id"   : "",
             "method"   : "",
-            "snapshots": {
-                "time"       : 0,
-                "individuals": [
-                    {
-                        "fitness" : 0,
-                        "solution": []
-                    }
-                ]
-            }
+            "snapshots": [
+                {
+                    "time"       : 0,
+                    "individuals": [
+                        {
+                            "fitness" : 0,
+                            "solution": []
+                        }
+                    ]
+                }
+            ]
         }
     );
     const [
@@ -125,7 +127,7 @@ export function ResultPage() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     setLogs(response.data);
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                    setLength(response.data.snapshots.individuals.length);
+                    setLength(response.data.snapshots[0].individuals.length);
                 });
         }
         void getResults();
@@ -137,7 +139,7 @@ export function ResultPage() {
 
     useEffect(() => {
         if (Object.keys(nodes).length > 1) {
-            const solution = logs.snapshots.individuals[length - 1].solution;
+            const solution = logs.snapshots[0].individuals[length - 1].solution;
             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             setSol(solution.slice(0, -1).map(el => el + "-"));
             const zeros = [];
@@ -184,7 +186,7 @@ export function ResultPage() {
         }
     }, [
         nodes,
-        logs.snapshots.individuals,
+        logs.snapshots,
         length
     ]);
 
@@ -251,12 +253,12 @@ export function ResultPage() {
                                 </Grid>
                                 <Grid item xs={6} color="#808080" >
                                     <Typography>
-                                        Fitness : {logs.snapshots.individuals[length - 1].fitness}
+                                        Fitness : {logs.snapshots[0].individuals[length - 1].fitness}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} color="#808080" sx={{ml: 3}}>
                                     <Typography sx={{mr: 2}}>
-                                        Temps d'exécution : {logs.snapshots.time}
+                                        Temps d'exécution : {logs.snapshots[0].time}
                                     </Typography>
                                 </Grid>
                                 <Grid item alignItems="center" xs={12}>

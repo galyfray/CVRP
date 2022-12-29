@@ -24,15 +24,17 @@ export function LogsPage() {
             "bench_id" : "",
             "log_id"   : "",
             "method"   : "",
-            "snapshots": {
-                "time"       : 0,
-                "individuals": [
-                    {
-                        "fitness" : 0,
-                        "solution": []
-                    }
-                ]
-            }
+            "snapshots": [
+                {
+                    "time"       : 0,
+                    "individuals": [
+                        {
+                            "fitness" : 0,
+                            "solution": []
+                        }
+                    ]
+                }
+            ]
         }
     ]);
 

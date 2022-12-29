@@ -12,7 +12,7 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {useLocation} from "react-router-dom";
 import * as Types from "../types/data";
-import {getMinFitness, getRandomColor} from "../config/utils";
+import {getRandomColor} from "../config/utils";
 
 export function ReviewPage() {
     const url = useLocation().pathname;
@@ -51,18 +51,22 @@ export function ReviewPage() {
         }
     );
     const [
-        data,
-        setData
-    ] = React.useState<Array<{"generation" : number, "fitness" : number, "solution": []}>>([
+        mainData,
+        setMainData
+    ] = React.useState([
         {
-            "generation": 0,
-            "fitness"   : 0,
-            "solution"  : []
+            "time"       : 0,
+            "individuals": [
+                {
+                    "fitness" : 0,
+                    "solution": []
+                }
+            ]
         }
     ]);
     const [
-        plotdata1,
-        setPlotdata1
+        plotdata,
+        setPlotdata
     ] = React.useState<Array<Types.Point>>([
         {
             "generation": 0,
@@ -89,53 +93,16 @@ export function ReviewPage() {
         async function getData() {
             await http.get(`log/${log_id}`)
                 .then(response => {
-                    // eslint-disable-next-line
-                    const snapshots:Array<{"time" : number, "individuals": [Types.individual]}> = response.data.snapshots;
-                    const inter:Array<{"generation" : number, "fitness" : number, "solution": []}> = [];
-
-                    for (let i = 0;i < snapshots.length;i++) {
-                        const s = snapshots[i];
-                        const bestFitness = getMinFitness(s.individuals);
-                        const bestSnapshot = s.individuals.find(e => e.fitness === bestFitness);
-                        if (bestSnapshot) {
-                            const solution = bestSnapshot.solution;
-                            inter.push({
-                                "generation": i, "fitness": bestFitness, "solution": solution
-                            });
-                        }
-                    }
-                    console.log(inter);
-                    setData(inter);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                    setMainData(response.data.snapshots);
                 });
         }
         void getData();
     }, [log_id]);
 
-    const reduce_data = useCallback((step:number, reducer: Array<Types.Point>) => { //  Create a loop function
-        setTimeout(() => {
-            while (reducer.length > 0) {
-                reducer = reducer.slice(step, reducer.length);
-                if (reducer.slice(0, step).length > 0) {
-                    console.log("plot 1", reducer.slice(0, step));
-                    setPlotdata1(reducer.slice(0, step));
-                }
-                reducer = reduce_data(step, reducer);
-                if (reducer.length - step < 0) {
-                    step = reducer.length;
-                }
-                if (step === 0) {
-                    setEnableButton(true);
-                    break;
-                }
-            }
-        }, 5000);
-
-        return reducer;
-    }, []);
-
-    const getSeriesB = useCallback((snapshot: Types.individual) => {
+    const getSeriesB = useCallback((sol : number[]) => {
         const zeros = [];
-        const sol = snapshot.solution;
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const i in sol) {
             if (sol[i] === 0) {
                 zeros.push(parseInt(i));
@@ -171,34 +138,51 @@ export function ReviewPage() {
     }, [nodes]);
 
     useEffect(() => {
-        if (data.length > 1) {
-            const step = data.length / 2; // 25 comme step plus tard avec de vrais données;
-            const reducer = data;
-            setPlotdata1(reducer.slice(0, step));
-
-            const snapshot = reducer.at(step - 1);
-            if (snapshot) {
-                const res = getSeriesB(snapshot);
-                setgraphdata(res);
-                const inter:Array<string> = [];
-                for (let i = 0;i < Object.keys(res).length;i++) {
-                    const c = getRandomColor();
-                    if (!inter.find(element => element === c)) {
-                        inter.push(c);
+        if (mainData.length > 1) {
+            console.log(mainData.length);
+            setPlotdata(
+                [
+                    {
+                        "generation": 0,
+                        "fitness"   : mainData[0].individuals[0].fitness
                     }
-                }
-                setColors(inter);
-            }
+                ]
+            );
+            let count = 1;
+            const ID = setInterval(() => {
+                setPlotdata(g => g.concat(
+                    [
+                        {
+                            "generation": count,
+                            "fitness"   : mainData[count].individuals[0].fitness
+                        }
+                    ]
+                ));
 
-            console.log("plot 1", reducer.slice(0, step));
-            reduce_data(step, reducer);
+                const individual = mainData[count].individuals[0];
+                if (individual) {
+                    const sol: number[] = individual.solution;
+                    const res = getSeriesB(sol);
+                    const inter:Array<string> = [];
+                    for (let i = 0;i < Object.keys(res).length;i++) {
+                        const c = getRandomColor();
+                        if (!inter.find(element => element === c)) {
+                            inter.push(c);
+                        }
+                    }
+                    setgraphdata(res);
+                    setColors(inter);
+                }
+                count = count + 1;
+                console.log(count);
+                if (count > mainData.length) {
+                    setEnableButton(true);
+                    clearInterval(ID);
+                }
+            }, 3000);
         }
-    },
-    [
-        data,
-        getSeriesB,
-        reduce_data
-    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [getSeriesB]);
 
     return (
         <React.Fragment>
@@ -228,7 +212,7 @@ export function ReviewPage() {
                         <LineChart
                             width={450}
                             height={350}
-                            data={plotdata1}
+                            data={plotdata}
                             margin={{
                                 top   : 5,
                                 right : 30,

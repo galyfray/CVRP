@@ -33,10 +33,10 @@ export type Log = {
   "bench_id" : string,
   "log_id": string,
   "method" : string,
-  "snapshots": {
+  "snapshots": [{
     "time" : number,
     "individuals": [individual]
-  }
+  }]
 }
 
 export type Snapshot = {
