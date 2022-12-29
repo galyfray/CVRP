@@ -29,6 +29,7 @@ This module holds the rest server that bridge the solvers and the front end.
 import time
 import random
 import json
+from copy import copy
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -44,13 +45,13 @@ HYPER_LIST = {
         "nb_epochs",
         "pop_size",
         "mutation_rate",
-        "crossover_rate"
+        "seed"
     ]
 }
 
 
 def build_first_gen(size: int, instance: ECVRPInstance):
-    """Build a first geenration of n valid individuals."""
+    """Build a first generation of n valid individuals."""
     validators = [
         constraints_validators.BatteryTWValidator(),
         constraints_validators.CapacityValidator(),
@@ -59,30 +60,38 @@ def build_first_gen(size: int, instance: ECVRPInstance):
 
     towns = instance.get_towns()
 
-    first_gen = []
-    counter = 0
+    first_gen: list[ECVRPSolution] = []
 
     while len(first_gen) < size:
-        counter += 1
         solution = [*towns]
+        roads = [
+            [instance.get_depot()]
+            for _ in range(instance.get_ev_count())
+        ]
+        cumulatives = [0] * instance.get_ev_count()
         random.shuffle(solution)
-
-        cum_dem = 0
-        insert_points = []
-
-        for i, point in enumerate(solution):
-            cum_dem += instance.get_demand(point)
-            if cum_dem > instance.get_ev_capacity():
-                insert_points.append(i-1 + len(insert_points))
-                cum_dem = 0
-
-        if len(insert_points) > instance.get_ev_count():
+        not_inserted = True
+        for point in solution:
+            not_inserted = True
+            i = 0
+            while not_inserted:
+                if i >= len(cumulatives):
+                    print("i is too big")
+                    break
+                if cumulatives[i] + instance.get_demand(point) <= instance.get_ev_capacity():
+                    cumulatives[i] += instance.get_demand(point)
+                    roads[i].append(point)
+                    not_inserted = False
+                i += 1
+            if not_inserted:
+                print("not inserted")
+                break
+        if not_inserted:
             continue
 
-        for point in insert_points:
-            solution.insert(point, instance.get_depot())
-
-        solution.insert(0, instance.get_depot())
+        solution = []
+        for road in roads:
+            solution.extend(road)
         solution.append(instance.get_depot())
         element = ECVRPSolution(validators, solution, instance)
 
@@ -107,6 +116,11 @@ class Server:
         self._snapshot = None
         self._nb_it = 0
         self._count = 0
+        self._tot_time = 0
+        self._override = True
+        self._name = ""
+        self._rate = 0
+        self._latest = {}
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -121,6 +135,7 @@ class Server:
                 "/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"]
                 )
         self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
+        self.app.add_url_rule("/log/<log_id>", view_func=self.route_log, methods=["GET"])
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
     def run(self, **kwargs):
@@ -186,7 +201,7 @@ class Server:
         """
         Handle the start of an instance.
 
-        expected form :
+        expected data :
 
         {
             "type":"drl|ga",
@@ -197,7 +212,8 @@ class Server:
                 "crossover_rate?":"float",
                 "learning_rate?":"float",
                 "batch_size?":"int",
-                "momentum?":"float"
+                "momentum?":"float",
+                "seed":"int"
             },
             "override":"bool",
             "bench_id":"string",
@@ -215,29 +231,45 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
-            metho = request.form["type"]
+            data = json.loads(request.data)["data"]
+            
+            metho = data["type"]
             if metho not in HYPER_LIST:
-                pass  # raise error
-            param = json.loads(request.form["param"])
-            hyper = {key: param[key] for key in HYPER_LIST[metho]}
+                raise TypeError(f"Unkown method {metho}")
+
+            hyper = {key: data["params"][key] for key in HYPER_LIST[metho]}
 
             self._nb_it = hyper["nb_epochs"]
             self._count = 0
 
-            bench = utils.create_ecvrp(utils.parse_dataset(request.form["bench_id"]))
+            self._rate = int(data["snapshot_rate"])
+
+            bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
+
+            random.seed(int(hyper["seed"]))
+
+            self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
+            for param in hyper.values():
+                self._name += f"_{param}"
+
+            if metho == "ga":
+                g_a = GA(
+                        build_first_gen(hyper["pop_size"], bench),
+                        hyper["mutation_rate"],
+                        hyper["seed"]
+                    )
+                self._runner = g_a.run(hyper["nb_epochs"])
+                self._tot_time = 0
+
+            self._override = data["override"]
 
             self._snapshot = JsonWriter(
                 str(utils.PATH_TO_LOGS),
-                "test",
-                request.form["bench_id"],
+                self._name,
+                data["bench_id"],
                 metho
             )
 
-            random.seed(0)  # TODO add a seed param
-
-            if metho == "ga":
-                g_a = GA(build_first_gen(hyper["pop_size"], bench), hyper["mutation_rate"])
-                self._runner = g_a.run(hyper["nb_epochs"])
             return {"busy": False}
 
         return None
@@ -258,7 +290,7 @@ class Server:
 
         {
             "has_next":"bool",
-            "snapshot":"snapshot",
+            "snapshot":"[Individual]",
             "generation":"int"
         }
 
@@ -273,6 +305,15 @@ class Server:
             }
 
         self._count += 1
+        compute = time.thread_time()
+        gen = next(self._runner)
+
+        while self._count != self._nb_it and self._count % self._rate != 0:
+            gen = next(self._runner)
+            self._count += 1
+
+        compute = time.thread_time() - compute
+        self._tot_time += compute
 
         base = {
                 "has_next": not self._count == self._nb_it,
@@ -280,19 +321,22 @@ class Server:
                 "generation": self._count
             }
 
-        gen = next(self._runner)
+        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)
 
-        base["snapshot"] = self._snapshot.add_snapshot(gen, time.thread_time())
+        self._latest = copy(base)
+
+        base["snapshot"] = base["snapshot"]["individuals"]
 
         if self._count == self._nb_it:
-            self._snapshot.dump()
+            if self._override or self._name not in utils.get_logs():
+                self._snapshot.dump()
             self._runner = None
 
         return base
 
     def route_benchmarks(self):
         """Provide a list of all the available benchmarks."""
-        return utils.get_datasets()
+        return [{"name": b, "details": utils.get_ds_description(b)} for b in utils.get_datasets()]
 
     def route_benchmark(self, bench_id: str):
         """
@@ -308,12 +352,15 @@ class Server:
         """
         Provide a list of all available logs.
 
+        The snapshot provided is the last used.
+
         returns :
 
         [
             {
-                name: str,
-                first_gen: "snaphshot"
+                bench_id: str,
+                method: ga|drl
+                snapshots: "snapshot"
             }
         ]
 
@@ -325,18 +372,18 @@ class Server:
 
         return logs
 
-    def route_results(self):
+    def route_log(self, log_id):
         """
         Load a log file and provide its content.
 
         returns the same json as stored.
         """
-        read_json(utils.PATH_TO_LOGS, request.form["id"])
+        return read_json(utils.PATH_TO_LOGS, log_id)
+
+    def route_results(self):
+        """Return the latest snapshot to date or an empty dict if no snapshot was computed."""
+        return self._latest
 
 
 if __name__ == "__main__":
-    # The server is running in debug mode.
-    # This is a problem as it can allow peaple tu run arbitrary code on the machine.
-    # However the server isn't configured to be accessed from the local network,
-    # not to say from the Web.
-    Server(__name__).run(debug=True, host='0.0.0.0')  # nosec B201
+    Server(__name__).run()

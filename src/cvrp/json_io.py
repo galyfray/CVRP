@@ -125,4 +125,8 @@ def get_header(root: str, name: str) -> dict[str, any]:
         data = file.read()
         file.close()
 
-    return json.loads(data.decode("U7"))
+    data = json.loads(data.decode("U7"))
+
+    data["log_id"] = name
+
+    return data
