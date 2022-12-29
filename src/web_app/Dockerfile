@@ -4,6 +4,7 @@ WORKDIR /app
 COPY ./src/web_app .
 
 RUN npm ci
+RUN npm run build
 
 FROM nginx:1.23
 
