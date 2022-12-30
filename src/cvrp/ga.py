@@ -104,15 +104,11 @@ class GA(Generic[TypeIndividual]):
             children = self._mutate(self._crossbreed(parents, children_count))
             self._current_pop = [*parents, *children]
             self._current_pop.sort(key=lambda x: x.get_fitness())
-            print("done")
             yield self._current_pop
 
     def _crossbreed(self, parents: list[TypeIndividual], count: int) -> list[TypeIndividual]:
         """Hold internal logic."""
         children = []
-        t = tqdm(total=count)
-        t_2 = tqdm()
-        last = 0
         while len(children) < count:
 
             first = random.randint(0, len(parents)-1)
@@ -121,12 +117,6 @@ class GA(Generic[TypeIndividual]):
                 second = random.randint(0, len(parents)-1)
 
             children.extend(parents[first].crossover(parents[second]))
-            t_2.update()
-            if len(children) > last:
-                t.update()
-                t_2.close()
-                t_2 = tqdm()
-                last = len(children)
 
         return children
 

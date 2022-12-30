@@ -169,6 +169,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         min_fit = float("inf")
         best_position = (-1, -1)
         number_roads = len(solution)
+        from .constraints_validators import CapacityValidator
+        validators = [CapacityValidator()]
 
         for index_road, road in enumerate(solution):
             # we start at index 1 because the index 0 is depot
@@ -176,18 +178,19 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             best_index = -1
             for index_point in range(1, len(road)):
                 road.insert(index_point, point)
-                fitness = self._compute_road_fitness(road)
-                if fitness < min_roads:
-                    min_roads = fitness
-                    best_index = index_point
+                if ECVRPSolution(validators, road, self.__instance).is_valid():
+                    fitness = self._compute_road_fitness(road)
+                    if fitness < min_roads:
+                        min_roads = fitness
+                        best_index = index_point
                 road.pop(index_point)
-
-            road.insert(best_index, point)
-            fitness = self._compute_fitness(solution)
-            if fitness < min_fit:
-                min_fit = fitness
-                best_position = (index_road, best_index)
-            road.pop(best_index)
+            if best_index != -1:
+                road.insert(best_index, point)
+                fitness = self._compute_fitness(solution)
+                if fitness < min_fit:
+                    min_fit = fitness
+                    best_position = (index_road, best_index)
+                road.pop(best_index)
 
         if self.__instance.get_ev_count() > number_roads:
             # If the number of roads is less than the number of vehicules,
@@ -569,7 +572,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """Run all of its validator and return False if one of them fail."""
         for validator in self._validators:
             if not validator.is_valid(self):
-                print(f"Invalid due to {validator.__class__}")
                 return False
 
         return True
