@@ -436,13 +436,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             solution.append(self._road_correction(road))
         self._solution = self.__merge_roads(solution)
 
-    def validate(self) -> None:
-        """Try to correct the solution."""
-        solution_tuple = self.get_roads()
-        solution = []
-        for road in tuple_to_list(solution_tuple):
-            solution.append(self._road_correction(road))
-        self._solution = self.__merge_roads(solution)
 
     def get_solution(self) -> list[list[int]]:
         """
