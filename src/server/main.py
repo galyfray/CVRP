@@ -246,6 +246,12 @@ class Server:
 
             bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
 
+            self._latest = {
+                 "bench_id": data["bench_id"],
+                 "method": metho,
+                 "snapshots": {}
+            }
+
             random.seed(int(hyper["seed"]))
 
             self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
@@ -315,17 +321,13 @@ class Server:
         compute = time.thread_time() - compute
         self._tot_time += compute
 
+        self._latest["snapshots"] = self._snapshot.add_snapshot(gen, self._tot_time)
+
         base = {
                 "has_next": not self._count == self._nb_it,
-                "snapshot": [],
+                "snapshot": self._latest["snapshots"]["individuals"],
                 "generation": self._count
             }
-
-        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)
-
-        self._latest = copy(base)
-
-        base["snapshot"] = base["snapshot"]["individuals"]
 
         if self._count == self._nb_it:
             if self._override or self._name not in utils.get_logs():
