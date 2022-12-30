@@ -45,6 +45,8 @@ const datasets = [
 
 export function OperationPage() {
     const url = useLocation().pathname;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const gen:number = useLocation().state.nb_epochs;
     const dataset_choice = url.split("/")[2];
     const [
         nb_epochs,
@@ -93,7 +95,6 @@ export function OperationPage() {
         enableButton,
         setEnableButton
     ] = React.useState(false);
-    const ref = React.useRef<NodeJS.Timeout | null>(null);
     const [
         toggle,
         setToggle
@@ -101,7 +102,7 @@ export function OperationPage() {
 
     useEffect(() => {
         async function getNodes() {
-            await http.get(`benchmark?bench_id=${datasets[parseInt(dataset_choice)]}`)
+            await http.get(`benchmark/${datasets[parseInt(dataset_choice)]}`)
                 .then(response => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
                     setNodes(response.data);
@@ -151,27 +152,19 @@ export function OperationPage() {
         return [];
     }, [nodes]);
 
-    const update_plot = useCallback(async(count: number) => {
+    const update_plot = useCallback(async() => {
         const response = await http.get("snapshot");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const snapshot:Array<Types.individual> = response.data.snapshot;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setNb_epochs(response.data.generation);
-        const graph_data:Array<Types.Point> = [];
-        for (let i = 0;i < snapshot.length;i++) {
-            graph_data.push(
-                {"generation": i, "fitness": snapshot[i].fitness}
-            );
-        }
+
         setplotdata(g => g.concat([
             {
-                "generation": count,
+                "generation": nb_epochs,
                 "fitness"   : snapshot[0].fitness
             }
         ]));
-
-        // Setplotdata(graph_data);
-        console.log("plot data", plotdata.length);
 
         const res = getSeries(snapshot);
         setgraphdata(res);
@@ -191,25 +184,16 @@ export function OperationPage() {
             setEnableButton(true);
         }
     }, [
-        plotdata,
+        nb_epochs,
         getSeries
     ]);
 
     useEffect(() => {
-        ref.current = setInterval(() => {
-            if (toggle) {
-                let count = 1;
-                void update_plot(count);
-                count = count + 1;
-            }
-        }, 3000);
-
-        return () => {
-            if (ref.current) {
-                clearInterval(ref.current);
-            }
-        };
+        if (toggle) {
+            void update_plot();
+        }
     }, [
+        plotdata,
         toggle,
         update_plot
     ]);
@@ -249,11 +233,15 @@ export function OperationPage() {
                         <LineChart
                             width={450}
                             height={300}
-                            data={plotdata}
+                            data={plotdata.slice(1, plotdata.length)}
                         >
                             <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2} />
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="generation" type="number"/>
+                            <XAxis dataKey="generation" type="number"
+                                domain={[
+                                    1,
+                                    gen + 10
+                                ]}/>
                             <YAxis dataKey="fitness" type="number"/>
                             <Tooltip/>
                             <Legend/>

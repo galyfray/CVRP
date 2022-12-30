@@ -85,7 +85,7 @@ export function ReviewPage() {
 
     useEffect(() => {
         async function getNodes() {
-            await http.get(`benchmark?bench_id=${bench_id}`)
+            await http.get(`benchmark/${bench_id}`)
                 .then(response => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
                     setNodes(response.data);

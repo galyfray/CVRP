@@ -108,7 +108,7 @@ export function GaHyperParamsPage() {
                 setOpen(true);
                 setTimeout(() => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    navigate(url + "operation"); //Comment this because the operation page not ready yet
+                    navigate(url + "operation", {state: {nb_epochs: inter.params.nb_epochs}}); //Comment this because the operation page not ready yet
                     setOpen(false);
                 }, 5000);
             })

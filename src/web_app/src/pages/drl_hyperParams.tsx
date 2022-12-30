@@ -107,7 +107,7 @@ export function DrlHyperParamsPage() {
                 setOpen(true);
                 setTimeout(() => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    navigate(url + "operation");
+                    navigate(url + "operation", {state: {nb_epochs: inter.params.nb_epochs}});
                     setOpen(false);
                 }, 5000);
             })

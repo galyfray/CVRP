@@ -21,10 +21,10 @@ export function LogsPage() {
         setLogs
     ] = React.useState<Array<Types.Log>>([
         {
-            "bench_id" : "",
-            "log_id"   : "",
-            "method"   : "",
-            "snapshots": [
+            "bench_id": "",
+            "log_id"  : "",
+            "method"  : "",
+            "snapshots":
                 {
                     "time"       : 0,
                     "individuals": [
@@ -34,7 +34,6 @@ export function LogsPage() {
                         }
                     ]
                 }
-            ]
         }
     ]);
 

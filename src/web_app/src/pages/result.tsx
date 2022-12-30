@@ -61,10 +61,10 @@ export function ResultPage() {
         setLogs
     ] = React.useState<Types.Log>(
         {
-            "bench_id" : "",
-            "log_id"   : "",
-            "method"   : "",
-            "snapshots": [
+            "bench_id": "",
+            "log_id"  : "",
+            "method"  : "",
+            "snapshots":
                 {
                     "time"       : 0,
                     "individuals": [
@@ -74,7 +74,6 @@ export function ResultPage() {
                         }
                     ]
                 }
-            ]
         }
     );
     const [
@@ -139,7 +138,7 @@ export function ResultPage() {
 
     useEffect(() => {
         if (Object.keys(nodes).length > 1) {
-            const solution = logs.snapshots[0].individuals[length - 1].solution;
+            const solution = logs.snapshots.individuals[length - 1].solution;
             // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             setSol(solution.slice(0, -1).map(el => el + "-"));
             const zeros = [];
@@ -253,12 +252,12 @@ export function ResultPage() {
                                 </Grid>
                                 <Grid item xs={6} color="#808080" >
                                     <Typography>
-                                        Fitness : {logs.snapshots[0].individuals[length - 1].fitness}
+                                        Fitness : {logs.snapshots.individuals[length - 1].fitness}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={12} color="#808080" sx={{ml: 3}}>
                                     <Typography sx={{mr: 2}}>
-                                        Temps d'exécution : {logs.snapshots[0].time}
+                                        Temps d'exécution : {logs.snapshots.time}
                                     </Typography>
                                 </Grid>
                                 <Grid item alignItems="center" xs={12}>

@@ -50,7 +50,7 @@ export default function Row(props: { row: Types.Log }) {
                     {row.method}
                 </TableCell>
                 <TableCell align="right">
-                    {row.snapshots[0].time}
+                    {row.snapshots.time}
                 </TableCell>
                 <TableCell align="right">
                     <Button onClick={handleClick}
@@ -74,7 +74,7 @@ export default function Row(props: { row: Types.Log }) {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {row.snapshots[0].individuals.map(perf => <TableRow key={perf.fitness}>
+                                    {row.snapshots.individuals.map(perf => <TableRow key={perf.fitness}>
                                         <TableCell component="th" scope="row">
                                             {perf.fitness}
                                         </TableCell>
