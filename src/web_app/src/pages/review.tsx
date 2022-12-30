@@ -87,8 +87,8 @@ export function ReviewPage() {
         async function getNodes() {
             await http.get(`benchmark/${bench_id}`)
                 .then(response => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-                    setNodes(response.data);
+                    // eslint-disable-next-line
+                    setNodes(response.data["NODES"]);
                 });
         }
         void getNodes();
