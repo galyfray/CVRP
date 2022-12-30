@@ -24,11 +24,6 @@ export type Link = {
   target : number
 }
 
-export type individual = {
-  "fitness" : number,
-  "solution" : [],
-}
-
 export type Log = {
   "bench_id" : string,
   "log_id": string,
@@ -39,8 +34,14 @@ export type Log = {
   }
 }
 
+export type individual = {
+  "fitness" : number,
+  "solution" : [],
+}
+
 export type Snapshot = {
   "has_next" : boolean,
   "generation" : number,
   "snapshot": [individual]
 }
+

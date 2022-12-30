@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList, ResponsiveContainer
 } from "recharts";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -14,7 +14,11 @@ import {useLocation} from "react-router-dom";
 import * as Types from "../types/data";
 import Badge from "@mui/material/Badge";
 import Stack from "@mui/material/Stack";
-import {getMinFitness, getRandomColor} from "../config/utils";
+import {
+    getMaxX,
+    getMaxY,
+    getMinFitness, getMinX, getMinY, getRandomColor
+} from "../config/utils";
 
 const datasets = [
     "E-n112-k8-s11.evrp",
@@ -48,6 +52,7 @@ export function OperationPage() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const gen:number = useLocation().state.nb_epochs;
     const dataset_choice = url.split("/")[2];
+    const nb_cars = datasets[parseInt(dataset_choice)].split("-")[2][1];
     const [
         nb_epochs,
         setNb_epochs
@@ -104,12 +109,23 @@ export function OperationPage() {
         async function getNodes() {
             await http.get(`benchmark/${datasets[parseInt(dataset_choice)]}`)
                 .then(response => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
-                    setNodes(response.data);
+                    // eslint-disable-next-line
+                    setNodes(response.data["NODES"]);
                 });
         }
         void getNodes();
     }, [dataset_choice]);
+
+    useEffect(() => {
+        const inter:Array<string> = [];
+        for (let i = 0;i < parseInt(nb_cars);i++) {
+            const c = getRandomColor();
+            if (!inter.find(element => element === c)) {
+                inter.push(c);
+            }
+        }
+        setColors(inter);
+    }, [nb_cars]);
 
     const getSeries = useCallback((s: Array<Types.individual>) => {
         const bestFitness = getMinFitness(s);
@@ -155,7 +171,7 @@ export function OperationPage() {
     const update_plot = useCallback(async() => {
         const response = await http.get("snapshot");
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        const snapshot:Array<Types.individual> = response.data.snapshot;
+        const snapshot:Types.individual[] = response.data.snapshot;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
         setNb_epochs(response.data.generation);
 
@@ -168,15 +184,6 @@ export function OperationPage() {
 
         const res = getSeries(snapshot);
         setgraphdata(res);
-
-        const inter:Array<string> = [];
-        for (let i = 0;i < Object.keys(res).length;i++) {
-            const c = getRandomColor();
-            if (!inter.find(element => element === c)) {
-                inter.push(c);
-            }
-        }
-        setColors(inter);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (!response.data.has_next) {
@@ -253,10 +260,16 @@ export function OperationPage() {
                             height={300}
                         >
                             <CartesianGrid strokeDasharray="5 5" />
-                            <XAxis dataKey="x" type="number" unit="km"/>
-                            <YAxis dataKey="y" type="number" unit="km"/>
-                            <Tooltip />
-                            <Legend />
+                            <XAxis dataKey="x" type="number" unit="km" domain={[
+                                getMinX(graphdata) + 10,
+                                getMaxX(graphdata) + 10
+                            ]}/>
+                            <YAxis dataKey="y" type="number" unit="km" domain={[
+                                getMinY(graphdata) + 10,
+                                getMaxY(graphdata) + 10
+                            ]}/>
+                            <Legend layout="vertical" verticalAlign="middle" align="right" />
+                            <Tooltip/>
                             {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
                                 stroke={colors[index]} key={s.id}>
                                 <LabelList dataKey="node" position="top" />

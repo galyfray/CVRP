@@ -168,7 +168,7 @@ export function ReviewPage() {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (count + 1 > mainData.length) {
+        if (count === mainData.length) {
             setToggle(false);
             setEnableButton(true);
         }
