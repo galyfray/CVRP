@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList, ResponsiveContainer
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList
 } from "recharts";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -238,43 +238,39 @@ export function OperationPage() {
 
                 <Grid container alignItems="center">
                     <Grid item xs={6} sx={{mt: 5}}>
-                        <ResponsiveContainer width={500} height={300}>
-                            <LineChart
-                                data={plotdata.slice(1, plotdata.length)}
-                            >
-                                <Line type="monotone" dataKey="fitness" stroke="#82ca9d" isAnimationActive={false} strokeWidth={2} />
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="generation" type="number"
-                                    domain={[
-                                        1,
-                                        gen + 10
-                                    ]}/>
-                                <YAxis dataKey="fitness" type="number"/>
-                                <Tooltip/>
-                                <Legend/>
-                            </LineChart>
-                        </ResponsiveContainer>
+                        <LineChart width={500} height={300}
+                            data={plotdata.slice(1, plotdata.length)}
+                        >
+                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" isAnimationActive={false} strokeWidth={2} />
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="generation" type="number"
+                                domain={[
+                                    1,
+                                    gen + 10
+                                ]}/>
+                            <YAxis dataKey="fitness" type="number"/>
+                            <Tooltip/>
+                            <Legend/>
+                        </LineChart>
                     </Grid>
                     <Grid item xs={6} sx={{mt: 2}}>
-                        <ResponsiveContainer width={500}height={300}>
-                            <LineChart>
-                                <CartesianGrid strokeDasharray="5 5" />
-                                <XAxis dataKey="x" type="number" unit="km" domain={[
-                                    getMinX(graphdata) + 10,
-                                    getMaxX(graphdata) + 10
-                                ]}/>
-                                <YAxis dataKey="y" type="number" unit="km" domain={[
-                                    getMinY(graphdata) + 10,
-                                    getMaxY(graphdata) + 10
-                                ]}/>
-                                <Tooltip/>
-                                {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
-                                    stroke={colors[index]} key={s.id}>
-                                    <LabelList dataKey="node" position="top" />
-                                </Line>
-                                )}
-                            </LineChart>
-                        </ResponsiveContainer>
+                        <LineChart width={500}height={300}>
+                            <CartesianGrid strokeDasharray="5 5" />
+                            <XAxis dataKey="x" type="number" unit="km" domain={[
+                                getMinX(graphdata) + 10,
+                                getMaxX(graphdata) + 10
+                            ]}/>
+                            <YAxis dataKey="y" type="number" unit="km" domain={[
+                                getMinY(graphdata) + 10,
+                                getMaxY(graphdata) + 10
+                            ]}/>
+                            <Tooltip/>
+                            {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
+                                stroke={colors[index]} key={s.id}>
+                                <LabelList dataKey="node" position="top" />
+                            </Line>
+                            )}
+                        </LineChart>
                     </Grid>
                     <Grid item xs={6}></Grid>
                     <Grid item xs={6} >

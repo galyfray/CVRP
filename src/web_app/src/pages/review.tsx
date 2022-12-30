@@ -12,7 +12,11 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import {useLocation} from "react-router-dom";
 import * as Types from "../types/data";
-import {getRandomColor} from "../config/utils";
+import {
+    getMaxX, getMaxY, getMinX, getMinY, getRandomColor
+} from "../config/utils";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
 
 export function ReviewPage() {
     const url = useLocation().pathname;
@@ -20,10 +24,15 @@ export function ReviewPage() {
     const log_id:string = useLocation().state.log_id;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const bench_id:string = useLocation().state.bench_id;
+    const nb_cars = bench_id.split("-")[2][1];
     const [
         colors,
         setColors
     ] = React.useState<Array<string>>([]);
+    const [
+        gen,
+        setGen
+    ] = React.useState(0);
     const [
         graphdata,
         setgraphdata
@@ -84,6 +93,21 @@ export function ReviewPage() {
     const ref = React.useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
+        console.log(nb_cars);
+    });
+
+    useEffect(() => {
+        const inter:Array<string> = [];
+        for (let i = 0;i < parseInt(nb_cars);i++) {
+            const c = getRandomColor();
+            if (!inter.find(element => element === c)) {
+                inter.push(c);
+            }
+        }
+        setColors(inter);
+    }, [nb_cars]);
+
+    useEffect(() => {
         async function getNodes() {
             await http.get(`benchmark/${bench_id}`)
                 .then(response => {
@@ -100,6 +124,8 @@ export function ReviewPage() {
                 .then(response => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                     setMainData(response.data.snapshots);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+                    setGen(response.data.snapshots.length);
                 });
         }
         void getData();
@@ -156,15 +182,7 @@ export function ReviewPage() {
         if (individual) {
             const sol: number[] = individual.solution;
             const res = getSeriesB(sol);
-            const inter:Array<string> = [];
-            for (let i = 0;i < Object.keys(res).length;i++) {
-                const c = getRandomColor();
-                if (!inter.find(element => element === c)) {
-                    inter.push(c);
-                }
-            }
             setgraphdata(res);
-            setColors(inter);
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -230,42 +248,47 @@ export function ReviewPage() {
                 </Typography>
 
                 <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={5} sx={{mt: 4}}>
-                        <LineChart
-                            width={450}
-                            height={350}
-                            data={plotdata}
-                            margin={{
-                                top   : 5,
-                                right : 30,
-                                left  : 20,
-                                bottom: 3
-                            }}
+                    <Grid item xs={6} sx={{mt: 5}}>
+                        <LineChart width={500} height={300}
+                            data={plotdata.slice(1, plotdata.length)}
                         >
                             <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2} />
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="generation" type="number"/>
+                            <XAxis dataKey="generation" type="number" domain={[
+                                1,
+                                gen + 10
+                            ]}/>
                             <YAxis dataKey="fitness" type="number"/>
                             <Tooltip />
                             <Legend />
                         </LineChart>
                     </Grid>
-                    <Grid item xs={7} sx={{mt: 2}}>
-                        <LineChart
-                            width={450}
-                            height={350}
-                        >
+                    <Grid item xs={6} sx={{mt: 2}}>
+                        <LineChart width={450} height={350}>
                             <CartesianGrid strokeDasharray="5 5" />
-                            <XAxis dataKey="x" type="number" unit="km"/>
-                            <YAxis dataKey="y" type="number" unit="km"/>
+                            <XAxis dataKey="x" type="number" unit="km" domain={[
+                                getMinX(graphdata) + 10,
+                                getMaxX(graphdata) + 10
+                            ]}/>
+                            <YAxis dataKey="y" type="number" unit="km" domain={[
+                                getMinY(graphdata) + 10,
+                                getMaxY(graphdata) + 10
+                            ]}/>
                             <Tooltip />
-                            <Legend />
                             {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
                                 stroke={colors[index]} key={s.id}>
                                 <LabelList dataKey="node" position="top" />
                             </Line>
                             )}
                         </LineChart>
+                    </Grid>
+                    <Grid item xs={6}></Grid>
+                    <Grid item xs={6} >
+                        <Stack direction="row" spacing={1} sx={{ml: 7}}>
+                            {colors.map((c, index) => <Avatar sx={{
+                                bgcolor: c, width: 24, height: 24
+                            }}>{index + 1}</Avatar>)}
+                        </Stack>
                     </Grid>
                     <Grid item xs={8}></Grid>
                     <Grid item xs={4} >

@@ -9,10 +9,12 @@ import {AppbarStyle} from "../components/appBar";
 import http from "../http-common";
 import {useLocation} from "react-router-dom";
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, LabelList
 } from "recharts";
 import * as Types from "../types/data";
-import {getRandomColor} from "../config/utils";
+import {
+    getMaxX, getMaxY, getMinX, getMinY, getRandomColor
+} from "../config/utils";
 
 const datasets = [
     "E-n112-k8-s11.evrp",
@@ -214,15 +216,17 @@ export function ResultPage() {
 
                 <Grid container spacing={2} sx={{mt: 3}}>
                     <Grid item xs={7} sx={{ml: 7}}>
-                        <LineChart
-                            width={600}
-                            height={350}
-                        >
+                        <LineChart width={600} height={350}>
                             <CartesianGrid strokeDasharray="5 5" />
-                            <XAxis dataKey="x" type="number" unit="km"/>
-                            <YAxis dataKey="y" type="number" unit="km"/>
+                            <XAxis dataKey="x" type="number" unit="km" domain={[
+                                getMinX(graph_data) + 10,
+                                getMaxX(graph_data) + 10
+                            ]}/>
+                            <YAxis dataKey="y" type="number" unit="km" domain={[
+                                getMinY(graph_data) + 10,
+                                getMaxY(graph_data) + 10
+                            ]}/>
                             <Tooltip />
-                            <Legend />
                             {graph_data.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
                                 stroke={colors[index]} key={s.id}>
                                 <LabelList dataKey="node" position="top" />
@@ -236,7 +240,7 @@ export function ResultPage() {
                                 width          : 320,
                                 height         : 210,
                                 backgroundColor: "black",
-                                mt             : 5,
+                                mt             : 7,
                                 ml             : 2
                             }}
                         >
