@@ -19,6 +19,7 @@ import {
     getMaxY,
     getMinFitness, getMinX, getMinY, getRandomColor
 } from "../config/utils";
+import Avatar from "@mui/material/Avatar";
 
 const datasets = [
     "E-n112-k8-s11.evrp",
@@ -235,47 +236,53 @@ export function OperationPage() {
                     </Badge>
                 </Stack>
 
-                <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={5} sx={{mt: 5}}>
-                        <LineChart
-                            width={450}
-                            height={300}
-                            data={plotdata.slice(1, plotdata.length)}
-                        >
-                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2} />
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="generation" type="number"
-                                domain={[
-                                    1,
-                                    gen + 10
-                                ]}/>
-                            <YAxis dataKey="fitness" type="number"/>
-                            <Tooltip/>
-                            <Legend/>
-                        </LineChart>
+                <Grid container alignItems="center">
+                    <Grid item xs={6} sx={{mt: 5}}>
+                        <ResponsiveContainer width={500} height={300}>
+                            <LineChart
+                                data={plotdata.slice(1, plotdata.length)}
+                            >
+                                <Line type="monotone" dataKey="fitness" stroke="#82ca9d" isAnimationActive={false} strokeWidth={2} />
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="generation" type="number"
+                                    domain={[
+                                        1,
+                                        gen + 10
+                                    ]}/>
+                                <YAxis dataKey="fitness" type="number"/>
+                                <Tooltip/>
+                                <Legend/>
+                            </LineChart>
+                        </ResponsiveContainer>
                     </Grid>
-                    <Grid item xs={7} sx={{mt: 5}}>
-                        <LineChart
-                            width={450}
-                            height={300}
-                        >
-                            <CartesianGrid strokeDasharray="5 5" />
-                            <XAxis dataKey="x" type="number" unit="km" domain={[
-                                getMinX(graphdata) + 10,
-                                getMaxX(graphdata) + 10
-                            ]}/>
-                            <YAxis dataKey="y" type="number" unit="km" domain={[
-                                getMinY(graphdata) + 10,
-                                getMaxY(graphdata) + 10
-                            ]}/>
-                            <Legend layout="vertical" verticalAlign="middle" align="right" />
-                            <Tooltip/>
-                            {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
-                                stroke={colors[index]} key={s.id}>
-                                <LabelList dataKey="node" position="top" />
-                            </Line>
-                            )}
-                        </LineChart>
+                    <Grid item xs={6} sx={{mt: 2}}>
+                        <ResponsiveContainer width={500}height={300}>
+                            <LineChart>
+                                <CartesianGrid strokeDasharray="5 5" />
+                                <XAxis dataKey="x" type="number" unit="km" domain={[
+                                    getMinX(graphdata) + 10,
+                                    getMaxX(graphdata) + 10
+                                ]}/>
+                                <YAxis dataKey="y" type="number" unit="km" domain={[
+                                    getMinY(graphdata) + 10,
+                                    getMaxY(graphdata) + 10
+                                ]}/>
+                                <Tooltip/>
+                                {graphdata.map((s, index) => <Line isAnimationActive={false} dataKey="y" data={s.data} name={"voiture " + s.id} type="linear"
+                                    stroke={colors[index]} key={s.id}>
+                                    <LabelList dataKey="node" position="top" />
+                                </Line>
+                                )}
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </Grid>
+                    <Grid item xs={6}></Grid>
+                    <Grid item xs={6} >
+                        <Stack direction="row" spacing={1} sx={{ml: 7}}>
+                            {colors.map((c, index) => <Avatar sx={{
+                                bgcolor: c, width: 24, height: 24
+                            }}>{index + 1}</Avatar>)}
+                        </Stack>
                     </Grid>
                     <Grid item xs={8}></Grid>
                     <Grid item xs={4} >

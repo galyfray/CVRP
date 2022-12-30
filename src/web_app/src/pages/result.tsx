@@ -109,7 +109,7 @@ export function ResultPage() {
 
     useEffect(() => {
         async function getNodes() {
-            await http.get(`benchmark?bench_id=${bench_id}`)
+            await http.get(`benchmark/${bench_id}`)
                 .then(response => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment
                     setNodes(response.data);
@@ -126,7 +126,7 @@ export function ResultPage() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     setLogs(response.data);
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                    setLength(response.data.snapshots[0].individuals.length);
+                    setLength(response.data.snapshots.individuals.length);
                 });
         }
         void getResults();
