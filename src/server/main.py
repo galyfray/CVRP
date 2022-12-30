@@ -386,4 +386,4 @@ class Server:
 
 
 if __name__ == "__main__":
-    Server(__name__).run()
+    Server(__name__).run(host='0.0.0.0')
