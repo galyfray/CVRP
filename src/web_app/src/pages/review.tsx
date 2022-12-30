@@ -256,11 +256,11 @@ export function ReviewPage() {
                         <LineChart width={450} height={350}>
                             <CartesianGrid strokeDasharray="5 5" />
                             <XAxis dataKey="x" type="number" unit="km" domain={[
-                                getMinX(graphdata) + 10,
+                                getMinX(graphdata),
                                 getMaxX(graphdata) + 10
                             ]}/>
                             <YAxis dataKey="y" type="number" unit="km" domain={[
-                                getMinY(graphdata) + 10,
+                                getMinY(graphdata),
                                 getMaxY(graphdata) + 10
                             ]}/>
                             <Tooltip />

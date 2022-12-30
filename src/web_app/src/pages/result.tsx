@@ -219,11 +219,11 @@ export function ResultPage() {
                         <LineChart width={600} height={350}>
                             <CartesianGrid strokeDasharray="5 5" />
                             <XAxis dataKey="x" type="number" unit="km" domain={[
-                                getMinX(graph_data) + 10,
+                                getMinX(graph_data),
                                 getMaxX(graph_data) + 10
                             ]}/>
                             <YAxis dataKey="y" type="number" unit="km" domain={[
-                                getMinY(graph_data) + 10,
+                                getMinY(graph_data),
                                 getMaxY(graph_data) + 10
                             ]}/>
                             <Tooltip />
@@ -285,11 +285,11 @@ export function ResultPage() {
                             </Grid>
                         </Box>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={7}>
                         <Typography sx={{fontWeight: "bold", ml: 8}}>
                             Solution Finale:<br/>
                         </Typography>
-                        <Typography sx={{ml: 13}}>
+                        <Typography sx={{ml: 8}}>
                             {sol}0
                         </Typography>
                     </Grid>
