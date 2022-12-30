@@ -93,10 +93,6 @@ export function ReviewPage() {
     const ref = React.useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        console.log(nb_cars);
-    });
-
-    useEffect(() => {
         const inter:Array<string> = [];
         for (let i = 0;i < parseInt(nb_cars);i++) {
             const c = getRandomColor();
@@ -186,7 +182,7 @@ export function ReviewPage() {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (count === mainData.length) {
+        if (count + 1 === mainData.length) {
             setToggle(false);
             setEnableButton(true);
         }
@@ -196,25 +192,19 @@ export function ReviewPage() {
     ]);
 
     useEffect(() => {
-        setPlotdata(
-            [
-                {
-                    "generation": 0,
-                    "fitness"   : mainData[0].individuals[0].fitness
-                }
-            ]
-        );
-        let count = 1;
-        ref.current = setInterval(() => {
+        let count = 0;
+        const ID = setInterval(() => {
             if (toggle) {
                 count = count + 1;
                 void update_plot(count);
+            } else {
+                clearInterval(ID);
             }
-        }, 3000);
+        }, 1500);
 
         return () => {
-            if (ref.current) {
-                clearInterval(ref.current);
+            if (ID) {
+                clearInterval(ID);
             }
         };
     }, [
@@ -241,14 +231,14 @@ export function ReviewPage() {
                     color="text.primary"
                     gutterBottom
                     sx={{
-                        fontWeight: "bold", mb: 2, mt: 12
+                        fontWeight: "bold", mb: 2, mt: 10
                     }}
                 >
                     Evolution de la fitness au cours des générations
                 </Typography>
 
                 <Grid container alignItems="center" spacing={2}>
-                    <Grid item xs={6} sx={{mt: 5}}>
+                    <Grid item xs={6} sx={{mt: 4}}>
                         <LineChart width={500} height={300}
                             data={plotdata.slice(1, plotdata.length)}
                         >

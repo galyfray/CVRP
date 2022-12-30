@@ -238,7 +238,7 @@ export function ResultPage() {
                         <Box
                             sx={{
                                 width          : 320,
-                                height         : 210,
+                                height         : 215,
                                 backgroundColor: "black",
                                 mt             : 7,
                                 ml             : 2
