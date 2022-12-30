@@ -557,7 +557,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
 
-        return [e_1, e_2]
+        childs = [e_1, e_2]
+        childs = [child for child in childs if child.is_valid()]
+
+        return childs
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
