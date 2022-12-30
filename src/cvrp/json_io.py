@@ -45,7 +45,8 @@ class JsonWriter:
                 root: str,
                 name: str,
                 bench_name: str,
-                method: str
+                method: str,
+                version: str = "1.3-"
             ):
         """
         Initialize the JsonWriter class.
@@ -59,6 +60,7 @@ class JsonWriter:
         self.__name = name
         self.__bench_name = bench_name
         self.__method = method
+        self.__version = version
 
     def add_snapshot(self, snapshot: list[ECVRPSolution], time: float) \
             -> dict[str, Union[float, list[dict[str, Union[int, tuple[int, ...]]]]]]:
@@ -90,7 +92,8 @@ class JsonWriter:
         data = {
             "bench_id": self.__bench_name,
             "method": self.__method,
-            "snapshots": self.__snapshots
+            "snapshots": self.__snapshots,
+            "version": self.__version
         }
         with BZ2File(str(self.__root.joinpath(f"{self.__name}.json.bz2")), "wb") as file:
             dump = json.dumps(data, separators=(",", ":")).encode("U7")
@@ -113,7 +116,11 @@ def read_json(root: str, name: str) -> dict[str, any]:
         data = file.read()
         file.close()
 
-    return json.loads(data.decode("U7"))
+    json_data: dict = json.loads(data.decode("U7"))
+    if "version" not in json_data:
+        json_data["version"] = "1.3-"
+
+    return json_data
 
 
 def get_header(root: str, name: str) -> dict[str, any]:
@@ -125,8 +132,10 @@ def get_header(root: str, name: str) -> dict[str, any]:
         data = file.read()
         file.close()
 
-    data = json.loads(data.decode("U7"))
+    json_data: dict = json.loads(data.decode("U7"))
 
-    data["log_id"] = name
+    json_data["log_id"] = name
+    if "version" not in json_data:
+        json_data["version"] = "1.3-"
 
-    return data
+    return json_data

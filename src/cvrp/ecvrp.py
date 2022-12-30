@@ -8,8 +8,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Marie Aspro
 @license: GPL-3
 @date: 2022-12-08
-@version: 1.2
 """
+__version__ = "1.3"
 
 # CVRP
 # Copyright (C) 2022  A.Marie, K.Sonia, M.Jean, O.Cyril, V.Axel
@@ -557,6 +557,9 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
 
+        e_1.validate()
+        e_2.validate()
+
         childs = [e_1, e_2]
         childs = [child for child in childs if child.is_valid()]
 
@@ -566,6 +569,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         """Run all of its validator and return False if one of them fail."""
         for validator in self._validators:
             if not validator.is_valid(self):
+                print(f"Invalid due to {validator.__class__}")
                 return False
 
         return True

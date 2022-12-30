@@ -29,12 +29,11 @@ This module holds the rest server that bridge the solvers and the front end.
 import time
 import random
 import json
-from copy import copy
 
 from flask import Flask, request
 from flask_cors import CORS
 
-from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
+from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance, __version__
 from src.cvrp.json_io import JsonWriter, read_json, get_header
 from src.cvrp.ga import GA
 from src.cvrp import constraints_validators
@@ -249,7 +248,8 @@ class Server:
             self._latest = {
                  "bench_id": data["bench_id"],
                  "method": metho,
-                 "snapshots": {}
+                 "snapshots": {},
+                 "version": __version__
             }
 
             random.seed(int(hyper["seed"]))
@@ -257,6 +257,8 @@ class Server:
             self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
             for param in hyper.values():
                 self._name += f"_{param}"
+
+            self._name += f"__{__version__}"
 
             if metho == "ga":
                 g_a = GA(
@@ -273,7 +275,8 @@ class Server:
                 str(utils.PATH_TO_LOGS),
                 self._name,
                 data["bench_id"],
-                metho
+                metho,
+                __version__
             )
 
             return {"busy": False}
