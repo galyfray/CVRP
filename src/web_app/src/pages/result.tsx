@@ -64,6 +64,7 @@ export function ResultPage() {
             "bench_id": "",
             "log_id"  : "",
             "method"  : "",
+            "version" : "",
             "snapshots":
                 {
                     "time"       : 0,

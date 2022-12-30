@@ -28,6 +28,7 @@ export type Log = {
   "bench_id" : string,
   "log_id": string,
   "method" : string,
+  "version" : string,
   "snapshots": {
     "time" : number,
     "individuals": [individual]

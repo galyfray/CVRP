@@ -50,6 +50,9 @@ export default function Row(props: { row: Types.Log }) {
                     {row.method}
                 </TableCell>
                 <TableCell align="right">
+                    {row.version}
+                </TableCell>
+                <TableCell align="right">
                     {row.snapshots.time}
                 </TableCell>
                 <TableCell align="right">

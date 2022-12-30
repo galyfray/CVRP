@@ -24,6 +24,7 @@ export function LogsPage() {
             "bench_id": "",
             "log_id"  : "",
             "method"  : "",
+            "version" : "",
             "snapshots":
                 {
                     "time"       : 0,
@@ -84,6 +85,7 @@ export function LogsPage() {
                                 <TableCell />
                                 <TableCell>Bench_ID</TableCell>
                                 <TableCell align="right">Method</TableCell>
+                                <TableCell align="right">Version</TableCell>
                                 <TableCell align="right">Runtime</TableCell>
                                 <TableCell align="right">Option</TableCell>
                             </TableRow>
