@@ -53,7 +53,13 @@ export function OperationPage() {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const gen:number = useLocation().state.nb_epochs;
     const dataset_choice = url.split("/")[2];
-    const nb_cars = datasets[parseInt(dataset_choice)].split("-")[2][1];
+    const [
+        nb_cars,
+        setNb_cars
+    ] = React.useState("1");
+    if (datasets[parseInt(dataset_choice)]) {
+        setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2][1]);
+    }
     const [
         nb_epochs,
         setNb_epochs
@@ -275,7 +281,7 @@ export function OperationPage() {
                     <Grid item xs={6}></Grid>
                     <Grid item xs={6} >
                         <Stack direction="row" spacing={1} sx={{ml: 7}}>
-                            {colors.map((c, index) => <Avatar sx={{
+                            {colors.map((c, index) => <Avatar key={index} sx={{
                                 bgcolor: c, width: 24, height: 24
                             }}>{index + 1}</Avatar>)}
                         </Stack>

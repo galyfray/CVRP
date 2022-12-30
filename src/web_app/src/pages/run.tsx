@@ -12,17 +12,12 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import logging from "../config/logging";
 import {useLocation} from "react-router-dom";
 import http from "../http-common";
 import Alert from "@mui/material/Alert";
 
 export function RunPage() {
     const url = useLocation().pathname;
-
-    useEffect(() => {
-        logging.info(`Loading ${url}`);
-    });
 
     const theme = useTheme();
     const [
@@ -55,9 +50,6 @@ export function RunPage() {
                     .then(response => {
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         setDatasets(response.data);
-                    })
-                    .catch(error => {
-                        console.log(error);
                     });
             }
         )();
@@ -68,9 +60,6 @@ export function RunPage() {
             async() => {
                 await http.get("status")
                     .then(response => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-                        logging.info(`server is ${response.data.status}`);
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                         setStatus(response.data.status);
                         if (status === "free") {
@@ -78,9 +67,6 @@ export function RunPage() {
                         } else {
                             setOpen(true);
                         }
-                    })
-                    .catch(error => {
-                        console.log(error);
                     });
             }
         )();
@@ -115,6 +101,7 @@ export function RunPage() {
                     variant="h4"
                     align="center"
                     color="text.primary"
+                    data-testid = "run_title"
                     gutterBottom
                     sx={{
                         fontWeight: "bold", mb: 5, mt: 5

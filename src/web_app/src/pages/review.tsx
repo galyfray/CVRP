@@ -226,7 +226,7 @@ export function ReviewPage() {
                 <Typography
                     variant="h5"
                     align="center"
-                    data-testid = "operation_title"
+                    data-testid = "review_title"
                     color="text.primary"
                     gutterBottom
                     sx={{
@@ -274,7 +274,7 @@ export function ReviewPage() {
                     <Grid item xs={6}></Grid>
                     <Grid item xs={6} >
                         <Stack direction="row" spacing={1} sx={{ml: 7}}>
-                            {colors.map((c, index) => <Avatar sx={{
+                            {colors.map((c, index) => <Avatar key={index} sx={{
                                 bgcolor: c, width: 24, height: 24
                             }}>{index + 1}</Avatar>)}
                         </Stack>
