@@ -436,6 +436,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             solution.append(self._road_correction(road))
         self._solution = self.__merge_roads(solution)
 
+
     def get_solution(self) -> list[list[int]]:
         """
         Get solutions from ECVRPSolution and prepare it for crossover process.

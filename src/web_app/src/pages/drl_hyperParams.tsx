@@ -92,7 +92,7 @@ export function DrlHyperParamsPage() {
             snapshot_rate: 3
         });
 
-        axios.post("http://127.0.0.1:5000/operation_params/drl", {
+        axios.post("http://localhost:5001/operation_params/drl", {
             "d_c"         : dataset_choice,
             "hyper_params": JSON.stringify(param)
         }, {headers: {"Content-Type": "multipart/form-data"}})
