@@ -62,6 +62,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :param instance: The instance this object aims to represent a solution.
         """
         super().__init__(validators)
+        self._weak_validator = [
+            validator for validator in validators if
+            "CapacityValidator" in validator.__class__.__name__
+        ]
         self._solution = solution
         self.__instance = instance
         self._roads = None
@@ -169,8 +173,6 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         min_fit = float("inf")
         best_position = (-1, -1)
         number_roads = len(solution)
-        from .constraints_validators import CapacityValidator
-        validators = [CapacityValidator()]
 
         for index_road, road in enumerate(solution):
             # we start at index 1 because the index 0 is depot
@@ -178,7 +180,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             best_index = -1
             for index_point in range(1, len(road)):
                 road.insert(index_point, point)
-                if ECVRPSolution(validators, road, self.__instance).is_valid():
+                if ECVRPSolution(self._weak_validator, road, self.__instance).is_valid():
                     fitness = self._compute_road_fitness(road)
                     if fitness < min_roads:
                         min_roads = fitness
