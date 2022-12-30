@@ -90,7 +90,6 @@ export function ReviewPage() {
         toggle,
         setToggle
     ] = React.useState<boolean>(true);
-    const ref = React.useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const inter:Array<string> = [];
