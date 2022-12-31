@@ -57,9 +57,6 @@ export function OperationPage() {
         nb_cars,
         setNb_cars
     ] = React.useState("1");
-    if (datasets[parseInt(dataset_choice)]) {
-        setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2][1]);
-    }
     const [
         nb_epochs,
         setNb_epochs
@@ -113,6 +110,9 @@ export function OperationPage() {
     ] = React.useState<boolean>(true);
 
     useEffect(() => {
+        if (datasets[parseInt(dataset_choice)]) {
+            setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2][1]);
+        }
         async function getNodes() {
             await http.get(`benchmark/${datasets[parseInt(dataset_choice)]}`)
                 .then(response => {
