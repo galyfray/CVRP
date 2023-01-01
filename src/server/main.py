@@ -231,7 +231,7 @@ class Server:
 
         if request.method == "POST":
             data = json.loads(request.data)["data"]
-            
+
             metho = data["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -261,6 +261,8 @@ class Server:
             self._name += f"__{__version__}"
 
             if metho == "ga":
+                print(hyper["mutation_rate"])
+                print(type(hyper["mutation_rate"]))
                 g_a = GA(
                         build_first_gen(hyper["pop_size"], bench),
                         hyper["mutation_rate"],
