@@ -30,7 +30,6 @@ from typing import Generic
 import random
 import time
 from .individual import TypeIndividual
-from tqdm import tqdm
 
 
 class GA(Generic[TypeIndividual]):
