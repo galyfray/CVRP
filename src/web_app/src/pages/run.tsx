@@ -151,15 +151,15 @@ export function RunPage() {
                     direction="row"
                     justifyContent="center"
                 >
-                    <Button variant="contained" sx={{height: 40, width: 120}}
+                    <Button variant="contained" sx={{height: 40, width: 120}} disabled={open}
                         href={url + "/" + activeStep.toString() + "/algo_choice"} >
-                Suivant
+                        Suivant
                     </Button>
                 </Stack>
                 { open &&
             <Alert onClose={handleClose} severity="warning" sx={{width: "100%"}}>
-            Le solveur est actuellement entrain de tourner. En cliquant sur
-            Suivant, vous redémarrez une nouvelle résolution.
+                Le solveur est actuellement entrain de tourner. Vous ne pouvez pas
+                démarrer une nouvelle résolution. <br/>Veuillez patienter !
             </Alert>}
             </Container>
         </React.Fragment>

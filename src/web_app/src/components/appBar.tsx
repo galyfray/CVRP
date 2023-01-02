@@ -17,7 +17,7 @@ export function AppbarStyle() {
                 <Typography variant="h4" color="inherit" noWrap sx={{
                     fontWeight: "bold", flexGrow: 1, ml: 5
                 }}>
-            Semita
+            Semina
                 </Typography>
                 <nav>
                     <Link

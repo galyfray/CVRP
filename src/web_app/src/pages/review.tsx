@@ -241,7 +241,7 @@ export function ReviewPage() {
                         <LineChart width={500} height={300}
                             data={plotdata.slice(1, plotdata.length)}
                         >
-                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" strokeWidth={2} />
+                            <Line type="monotone" dataKey="fitness" stroke="#82ca9d" isAnimationActive={false} strokeWidth={2} />
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="generation" type="number" domain={[
                                 1,
