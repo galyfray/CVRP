@@ -28,8 +28,8 @@
     "test": "jest --env=jsdom",
     "test-watch": "jest --watch",
     "build-watch": "webpack --watch --config webpack.config.dev.js",
-    "coverage": "react-scripts test --no-watchman --reporter=html --coverage --watchAll=false",
-    "coverage-ci": "react-scripts test --no-watchman --reporter=lcovonly --coverage --watchAll=false",
+    "coverage": "jest --env=jsdom --no-watchman --reporter=html --coverage --watchAll=false",
+    "coverage-ci": "jest --env=jsdom --no-watchman --reporter=lcovonly --coverage --watchAll=false",
     "format": "prettier ./src/code/**/* --write",
     "lint": "eslint src --ext js,ts,tsx --fix"
   },
