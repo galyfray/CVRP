@@ -18,6 +18,8 @@ import {
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 
+const enable = false;
+
 export function ReviewPage() {
     const url = useLocation().pathname;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
@@ -281,7 +283,7 @@ export function ReviewPage() {
                     </Grid>
                     <Grid item xs={8}></Grid>
                     <Grid item xs={4} >
-                        {enableButton && <Button variant="contained" color="success" sx={{
+                        {enable && enableButton && <Button variant="contained" color="success" sx={{
                             height: 25, width: 200, mr: 0
                         }}
                         href={url + "/result"}
