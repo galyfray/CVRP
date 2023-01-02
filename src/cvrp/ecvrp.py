@@ -8,8 +8,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Marie Aspro
 @license: GPL-3
 @date: 2022-12-08
-@version: 1.2
 """
+__version__ = "1.3"
 
 # CVRP
 # Copyright (C) 2022  A.Marie, K.Sonia, M.Jean, O.Cyril, V.Axel
@@ -62,6 +62,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :param instance: The instance this object aims to represent a solution.
         """
         super().__init__(validators)
+        self._weak_validator = [
+            validator for validator in validators if
+            "CapacityValidator" in validator.__class__.__name__
+        ]
         self._solution = solution
         self.__instance = instance
         self._roads = None
@@ -176,18 +180,19 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
             best_index = -1
             for index_point in range(1, len(road)):
                 road.insert(index_point, point)
-                fitness = self._compute_road_fitness(road)
-                if fitness < min_roads:
-                    min_roads = fitness
-                    best_index = index_point
+                if ECVRPSolution(self._weak_validator, road, self.__instance).is_valid():
+                    fitness = self._compute_road_fitness(road)
+                    if fitness < min_roads:
+                        min_roads = fitness
+                        best_index = index_point
                 road.pop(index_point)
-
-            road.insert(best_index, point)
-            fitness = self._compute_fitness(solution)
-            if fitness < min_fit:
-                min_fit = fitness
-                best_position = (index_road, best_index)
-            road.pop(best_index)
+            if best_index != -1:
+                road.insert(best_index, point)
+                fitness = self._compute_fitness(solution)
+                if fitness < min_fit:
+                    min_fit = fitness
+                    best_position = (index_road, best_index)
+                road.pop(best_index)
 
         if self.__instance.get_ev_count() > number_roads:
             # If the number of roads is less than the number of vehicules,
@@ -558,7 +563,13 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
 
-        return [e_1, e_2]
+        e_1.validate()
+        e_2.validate()
+
+        childs = [e_1, e_2]
+        childs = [child for child in childs if child.is_valid()]
+
+        return childs
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""

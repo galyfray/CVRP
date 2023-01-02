@@ -29,12 +29,11 @@ This module holds the rest server that bridge the solvers and the front end.
 import time
 import random
 import json
-from copy import copy
 
 from flask import Flask, request
 from flask_cors import CORS
 
-from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance
+from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance, __version__
 from src.cvrp.json_io import JsonWriter, read_json, get_header
 from src.cvrp.ga import GA
 from src.cvrp import constraints_validators
@@ -232,7 +231,7 @@ class Server:
 
         if request.method == "POST":
             data = json.loads(request.data)["data"]
-            
+
             metho = data["type"]
             if metho not in HYPER_LIST:
                 raise TypeError(f"Unkown method {metho}")
@@ -246,13 +245,24 @@ class Server:
 
             bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
 
+            self._latest = {
+                 "bench_id": data["bench_id"],
+                 "method": metho,
+                 "snapshots": {},
+                 "version": __version__
+            }
+
             random.seed(int(hyper["seed"]))
 
             self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
             for param in hyper.values():
                 self._name += f"_{param}"
 
+            self._name += f"__{__version__}"
+
             if metho == "ga":
+                print(hyper["mutation_rate"])
+                print(type(hyper["mutation_rate"]))
                 g_a = GA(
                         build_first_gen(hyper["pop_size"], bench),
                         hyper["mutation_rate"],
@@ -267,7 +277,8 @@ class Server:
                 str(utils.PATH_TO_LOGS),
                 self._name,
                 data["bench_id"],
-                metho
+                metho,
+                __version__
             )
 
             return {"busy": False}
@@ -315,17 +326,13 @@ class Server:
         compute = time.thread_time() - compute
         self._tot_time += compute
 
+        self._latest["snapshots"] = self._snapshot.add_snapshot(gen, self._tot_time)
+
         base = {
                 "has_next": not self._count == self._nb_it,
-                "snapshot": [],
+                "snapshot": self._latest["snapshots"]["individuals"],
                 "generation": self._count
             }
-
-        base["snapshot"] = self._snapshot.add_snapshot(gen, self._tot_time)
-
-        self._latest = copy(base)
-
-        base["snapshot"] = base["snapshot"]["individuals"]
 
         if self._count == self._nb_it:
             if self._override or self._name not in utils.get_logs():
