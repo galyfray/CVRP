@@ -181,7 +181,7 @@ export function DrlHyperParamsPage() {
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
                             defaultValue={momentum}
-                            onChange={e => setMomentum(parseInt(e.target.value))}>
+                            onChange={e => setMomentum(parseFloat(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={12}>

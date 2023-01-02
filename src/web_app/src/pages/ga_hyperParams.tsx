@@ -108,7 +108,7 @@ export function GaHyperParamsPage() {
                 setOpen(true);
                 setTimeout(() => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    navigate(url + "operation", {state: {nb_epochs: inter.params.nb_epochs}}); //Comment this because the operation page not ready yet
+                    navigate(url + "operation", {state: {nb_epochs: inter.params.nb_epochs}});
                     setOpen(false);
                 }, 5000);
             })
@@ -182,7 +182,7 @@ export function GaHyperParamsPage() {
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
                             defaultValue={mutation_rate}
-                            onChange={e => setMutation_rate(parseInt(e.target.value))}>
+                            onChange={e => setMutation_rate(parseFloat(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={12}>

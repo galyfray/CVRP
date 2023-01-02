@@ -2,10 +2,25 @@ import {Link} from "../types/d3Types";
 import * as Types from "../types/data";
 import * as d3Types from "../types/d3Types";
 
+function randomInteger(max: number) {
+    return Math.floor(Math.random()*(max + 1));
+}
+
+function randomRgbColor() {
+    const r = randomInteger(255);
+    const g = randomInteger(255);
+    const b = randomInteger(255);
+    return [r,g,b];
+}
+
 export function getRandomColor() {
-    return "#" + Math.floor(Math.random() * 16777215).toString(16)
-        .padStart(6, "0")
-        .toUpperCase();
+    const [r,g,b] =randomRgbColor();
+
+    const hr = r.toString(16).padStart(2, '0');
+    const hg = g.toString(16).padStart(2, '0');
+    const hb = b.toString(16).padStart(2, '0');
+
+    return "#" + hr + hg + hb;
 }
 
 export function getLinks(sol: []) {

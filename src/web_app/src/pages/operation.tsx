@@ -111,7 +111,7 @@ export function OperationPage() {
 
     useEffect(() => {
         if (datasets[parseInt(dataset_choice)]) {
-            setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2][1]);
+            setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2].slice(0, -1));
         }
         async function getNodes() {
             await http.get(`benchmark/${datasets[parseInt(dataset_choice)]}`)
