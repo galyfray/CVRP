@@ -8,8 +8,8 @@ the genetic algorithm applyed to the ECVRP problem.
 @author: Marie Aspro
 @license: GPL-3
 @date: 2022-12-08
-@version: 1.2
 """
+__version__ = "1.3"
 
 # CVRP
 # Copyright (C) 2022  A.Marie, K.Sonia, M.Jean, O.Cyril, V.Axel
@@ -62,6 +62,10 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :param instance: The instance this object aims to represent a solution.
         """
         super().__init__(validators)
+        self._weak_validator = [
+            validator for validator in validators if
+            "CapacityValidator" in validator.__class__.__name__
+        ]
         self._solution = solution
         self.__instance = instance
         self._roads = None
@@ -169,40 +173,38 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         min_fit = float("inf")
         best_position = (-1, -1)
         number_roads = len(solution)
-        initial_solution = solution
 
-        for index_road, road in enumerate(initial_solution):
-
-            size_road = len(road)
-            if size_road != 2:
-
-                # we start at index 1 because the index 0 is depot
-                for index_point in range(1, size_road):
-                    road.insert(index_point, point)
-                    fitness = self._compute_fitness(solution)
-                    if fitness < min_fit:
-                        min_fit = fitness
-                        best_position = (index_road, index_point)
-                    road.remove(point)
-            else:
-                road.insert(1, point)
+        for index_road, road in enumerate(solution):
+            # we start at index 1 because the index 0 is depot
+            min_roads = float("inf")
+            best_index = -1
+            for index_point in range(1, len(road)):
+                road.insert(index_point, point)
+                if ECVRPSolution(self._weak_validator, road, self.__instance).is_valid():
+                    fitness = self._compute_road_fitness(road)
+                    if fitness < min_roads:
+                        min_roads = fitness
+                        best_index = index_point
+                road.pop(index_point)
+            if best_index != -1:
+                road.insert(best_index, point)
                 fitness = self._compute_fitness(solution)
                 if fitness < min_fit:
                     min_fit = fitness
-                    best_position = (index_road, 1)
-                road.remove(point)
+                    best_position = (index_road, best_index)
+                road.pop(best_index)
 
-            if self.__instance.get_ev_count() > number_roads:
-                # If the number of roads is less than the number of vehicules,
-                # the better road can be an additionnal road.
-                depot = self.__instance.get_depot()
-                new_road = [depot, point, depot]
-                solution.append(new_road)
-                fitness = self._compute_fitness(solution)
-                if fitness < min_fit:
-                    min_fit = fitness
-                    best_position = (number_roads, 1)
-                solution.remove(new_road)
+        if self.__instance.get_ev_count() > number_roads:
+            # If the number of roads is less than the number of vehicules,
+            # the better road can be an additionnal road.
+            depot = self.__instance.get_depot()
+            new_road = [depot, point, depot]
+            solution.append(new_road)
+            fitness = self._compute_fitness(solution)
+            if fitness < min_fit:
+                min_fit = fitness
+                best_position = (number_roads, 1)
+            solution.pop()
 
         if min_fit == float("inf"):
             best_position = (number_roads, 1)
@@ -328,8 +330,8 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         return road
 
     def __reversed_content(self, road: list[int], index1: int, index2: int) -> list[int]:
-        """Reverse the content of a road between the point 1 and 2 (included).
-
+        """
+        Reverse the content of a road between the point 1 and 2 (included).
 
         :param road: a road that needs to be reversed in part
         :type road: list[int]
@@ -372,7 +374,7 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         :rtype: list[int]
         """
         best_distance = self._compute_road_fitness(road)
-        best_road = road
+        best_road = [*road]
 
         depot = self.__instance.get_depot()
 
@@ -429,6 +431,16 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
         solution = self._delete_empty_road(solution)
 
         self._solution = self.__merge_roads(solution)
+        self._fitness = None
+
+    def validate(self) -> None:
+        """Try to correct the solution."""
+        solution_tuple = self.get_roads()
+        solution = []
+        for road in tuple_to_list(solution_tuple):
+            solution.append(self._road_correction(road))
+        self._solution = self.__merge_roads(solution)
+
 
     def get_solution(self) -> list[list[int]]:
         """
@@ -551,11 +563,21 @@ class ECVRPSolution(Individual["ECVRPSolution"]):
 
         e_2 = ECVRPSolution(self._validators, s_final_2, self.__instance)
 
-        return [e_1, e_2]
+        e_1.validate()
+        e_2.validate()
+
+        childs = [e_1, e_2]
+        childs = [child for child in childs if child.is_valid()]
+
+        return childs
 
     def is_valid(self) -> bool:
         """Run all of its validator and return False if one of them fail."""
-        return len([v for v in self._validators if not v.is_valid(self)]) == 0
+        for validator in self._validators:
+            if not validator.is_valid(self):
+                return False
+
+        return True
 
     def __copy__(self) -> "ECVRPSolution":
         """Create a copy."""

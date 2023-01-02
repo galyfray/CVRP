@@ -26,6 +26,8 @@ with the CVRP solver.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from pathlib import Path
+import sys
+
 import pytest
 from src.server.utils.utils import get_datasets, parse_dataset, compute_distance_matrix, \
                                    create_ecvrp
@@ -44,8 +46,8 @@ parsed_data = {
     'DEMANDS': {0: 0, 1: 1100, 2: 700},
     'STATIONS': {3, 4},
     'TIME_WINDOWS': {
-        0: (0, float('inf')), 1: (0, float('inf')), 2: (0, float('inf')),
-        3: (0, float('inf')), 4: (0, float('inf'))},
+        0: (0, sys.maxsize), 1: (0, sys.maxsize), 2: (0, sys.maxsize),
+        3: (0, sys.maxsize), 4: (0, sys.maxsize)},
     'DEPOT': 0}
 
 distance_matrix = [
@@ -78,7 +80,7 @@ def test_create_evrp():
     assert evrp.get_ev_capacity() == 6000
     assert evrp.get_demand(1) == 1100
     assert evrp.get_ev_count() == 4
-    assert evrp.get_tw(1) == (0, float('inf'))
+    assert evrp.get_tw(1) == (0, sys.maxsize)
     assert evrp.get_towns() == [1, 2]
     assert evrp.get_ev_battery() == 99
     assert evrp.is_charger(2) is False and evrp.is_charger(3) is True

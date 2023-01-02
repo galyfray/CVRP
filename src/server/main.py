@@ -3,10 +3,11 @@
 """
 This module holds the rest server that bridge the solvers and the front end.
 
-@authors: ["Cyril Obrecht", "Sonia Kwassi"]
+@author: Cyril Obrecht
+@author: Sonia Kwassi
 @license: GPL-3
 @date: 2022-11-02
-@version: 0.1
+@version: 0.2
 """
 
 # CVRP
@@ -26,23 +27,83 @@ This module holds the rest server that bridge the solvers and the front end.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 import time
+import random
+import json
+
 from flask import Flask, request
 from flask_cors import CORS
 
-from src.cvrp.ecvrp import ECVRPInstance
+from src.cvrp.ecvrp import ECVRPSolution, ECVRPInstance, __version__
+from src.cvrp.json_io import JsonWriter, read_json, get_header
+from src.cvrp.ga import GA
+from src.cvrp import constraints_validators
+from .utils import utils
 
 HYPER_LIST = {
     "ga": [
         "nb_epochs",
         "pop_size",
         "mutation_rate",
-        "crossover_rate"
+        "seed"
     ]
 }
 
 
+def build_first_gen(size: int, instance: ECVRPInstance):
+    """Build a first generation of n valid individuals."""
+    validators = [
+        constraints_validators.BatteryTWValidator(),
+        constraints_validators.CapacityValidator(),
+        constraints_validators.VehiculeCountValidator()
+    ]
+
+    towns = instance.get_towns()
+
+    first_gen: list[ECVRPSolution] = []
+
+    while len(first_gen) < size:
+        solution = [*towns]
+        roads = [
+            [instance.get_depot()]
+            for _ in range(instance.get_ev_count())
+        ]
+        cumulatives = [0] * instance.get_ev_count()
+        random.shuffle(solution)
+        not_inserted = True
+        for point in solution:
+            not_inserted = True
+            i = 0
+            while not_inserted:
+                if i >= len(cumulatives):
+                    print("i is too big")
+                    break
+                if cumulatives[i] + instance.get_demand(point) <= instance.get_ev_capacity():
+                    cumulatives[i] += instance.get_demand(point)
+                    roads[i].append(point)
+                    not_inserted = False
+                i += 1
+            if not_inserted:
+                print("not inserted")
+                break
+        if not_inserted:
+            continue
+
+        solution = []
+        for road in roads:
+            solution.extend(road)
+        solution.append(instance.get_depot())
+        element = ECVRPSolution(validators, solution, instance)
+
+        element.validate()
+
+        if element.is_valid():
+            first_gen.append(element)
+
+    return first_gen
+
+
 class Server:
-    """This class holds the server, its state and routes"""
+    """This class holds the server, its state and routes."""
 
     def __init__(self, name: str) -> None:
         """
@@ -51,6 +112,14 @@ class Server:
         :param name: The name of the Flask application
         """
         self._runner = None
+        self._snapshot = None
+        self._nb_it = 0
+        self._count = 0
+        self._tot_time = 0
+        self._override = True
+        self._name = ""
+        self._rate = 0
+        self._latest = {}
 
         self.app = Flask(name)
         # app = Flask(__name__, static_url_path='', static_folder='react_client/build')
@@ -61,12 +130,16 @@ class Server:
         self.app.add_url_rule("/status", view_func=self.route_status, methods=["GET"])
         self.app.add_url_rule("/snapshot", view_func=self.route_snapshot, methods=["GET"])
         self.app.add_url_rule("/benchmarks", view_func=self.route_benchmarks, methods=["GET"])
-        self.app.add_url_rule("/benchmark", view_func=self.route_benchmark, methods=["GET"])
+        self.app.add_url_rule(
+                "/benchmark/<bench_id>", view_func=self.route_benchmark, methods=["GET"]
+                )
         self.app.add_url_rule("/logs", view_func=self.route_logs, methods=["GET"])
+        self.app.add_url_rule("/log/<log_id>", view_func=self.route_log, methods=["GET"])
         self.app.add_url_rule("/results", view_func=self.route_results, methods=["GET"])
 
     def run(self, **kwargs):
-        """Runs the application on a local development server.
+        """Run the application on a local development server.
+
         Do not use ``run()`` in a production setting. It is not intended to
         meet security and performance requirements for a production server.
         Instead, see :doc:`/deploying/index` for WSGI server recommendations.
@@ -125,9 +198,9 @@ class Server:
 
     def route_run(self):
         """
-        Method handling the start of an instance
+        Handle the start of an instance.
 
-        expected form :
+        expected data :
 
         {
             "type":"drl|ga",
@@ -138,7 +211,8 @@ class Server:
                 "crossover_rate?":"float",
                 "learning_rate?":"float",
                 "batch_size?":"int",
-                "momentum?":"float"
+                "momentum?":"float",
+                "seed":"int"
             },
             "override":"bool",
             "bench_id":"string",
@@ -156,22 +230,63 @@ class Server:
             return {"busy": True}
 
         if request.method == "POST":
-            metho = request.form["type"]
-            if metho not in HYPER_LIST:
-                pass  # raise error
-            hyper = {key: request.form["param"][key] for key in HYPER_LIST[metho]}
+            data = json.loads(request.data)["data"]
 
-            # parsing benchmark
-            # create a snapshot
-            # Seed the random
+            metho = data["type"]
+            if metho not in HYPER_LIST:
+                raise TypeError(f"Unkown method {metho}")
+
+            hyper = {key: data["params"][key] for key in HYPER_LIST[metho]}
+
+            self._nb_it = hyper["nb_epochs"]
+            self._count = 0
+
+            self._rate = int(data["snapshot_rate"])
+
+            bench = utils.create_ecvrp(utils.parse_dataset(data["bench_id"]))
+
+            self._latest = {
+                 "bench_id": data["bench_id"],
+                 "method": metho,
+                 "snapshots": {},
+                 "version": __version__
+            }
+
+            random.seed(int(hyper["seed"]))
+
+            self._name = f"{data['bench_id']}_{metho}_{hyper['seed']}"
+            for param in hyper.values():
+                self._name += f"_{param}"
+
+            self._name += f"__{__version__}"
 
             if metho == "ga":
-                pass  # create the instance
+                print(hyper["mutation_rate"])
+                print(type(hyper["mutation_rate"]))
+                g_a = GA(
+                        build_first_gen(hyper["pop_size"], bench),
+                        hyper["mutation_rate"],
+                        hyper["seed"]
+                    )
+                self._runner = g_a.run(hyper["nb_epochs"])
+                self._tot_time = 0
+
+            self._override = data["override"]
+
+            self._snapshot = JsonWriter(
+                str(utils.PATH_TO_LOGS),
+                self._name,
+                data["bench_id"],
+                metho,
+                __version__
+            )
+
+            return {"busy": False}
 
         return None
 
     def route_status(self):
-        """Provide a way to check the status of the server"""
+        """Provide a way to check the status of the server."""
         return {"status": "free"} if self._runner is None else {"status": "busy"}
 
     def route_snapshot(self):
@@ -186,7 +301,7 @@ class Server:
 
         {
             "has_next":"bool",
-            "snapshot":"snapshot",
+            "snapshot":"[Individual]",
             "generation":"int"
         }
 
@@ -200,62 +315,82 @@ class Server:
                 "generation": -1
             }
 
-        # TODO : run a genration, send snap to json_io, handle the end of run.
+        self._count += 1
+        compute = time.thread_time()
+        gen = next(self._runner)
 
-        return {
-                "has_next": True,
-                "snapshot": [
-                    {"time": time.thread_time(), "individuals": [
-                        {"solution": (0, 1, 2, 0, 4, 3, 0), "fitness": 1}
-                    ]}
-                ],
-                "generation": 0
+        while self._count != self._nb_it and self._count % self._rate != 0:
+            gen = next(self._runner)
+            self._count += 1
+
+        compute = time.thread_time() - compute
+        self._tot_time += compute
+
+        self._latest["snapshots"] = self._snapshot.add_snapshot(gen, self._tot_time)
+
+        base = {
+                "has_next": not self._count == self._nb_it,
+                "snapshot": self._latest["snapshots"]["individuals"],
+                "generation": self._count
             }
 
-    def route_benchmarks(self):
-        """Provide a list of all the available benchmarks"""
-        # TODO: import bench_dir from parser and list all files in the directory
-        # should I cache this information ?
-        return ["None"]
+        if self._count == self._nb_it:
+            if self._override or self._name not in utils.get_logs():
+                self._snapshot.dump()
+            self._runner = None
 
-    def route_benchmark(self):
+        return base
+
+    def route_benchmarks(self):
+        """Provide a list of all the available benchmarks."""
+        return [{"name": b, "details": utils.get_ds_description(b)} for b in utils.get_datasets()]
+
+    def route_benchmark(self, bench_id: str):
         """
         Load and return a specific benchmark.
 
         The benchmark is returned in the same format as provider by the benchmark reader.
         """
-        # load the bench
-        # convert the bench to JSON
-        return {}
+        bench = utils.parse_dataset(bench_id)
+        bench["STATIONS"] = list(bench["STATIONS"])
+        return bench
 
     def route_logs(self):
         """
         Provide a list of all available logs.
 
+        The snapshot provided is the last used.
+
         returns :
 
         [
             {
-                name: str,
-                first_gen: "snaphshot"
+                bench_id: str,
+                method: ga|drl
+                snapshots: "snapshot"
             }
         ]
 
         """
-        # list all files from the logs folder
-        # transform data according to what needs the front
-        # return the data
-        # This should be cached.
+        logs = []
 
-    def route_results(self):
+        for log in utils.get_logs():
+            logs.append(get_header(utils.PATH_TO_LOGS, log))
+
+        return logs
+
+    def route_log(self, log_id):
         """
         Load a log file and provide its content.
 
         returns the same json as stored.
         """
-        # load the correct JSON
-        # return it.
+        return read_json(utils.PATH_TO_LOGS, log_id)
+
+    def route_results(self):
+        """Return the latest snapshot to date or an empty dict if no snapshot was computed."""
+        return self._latest
 
 
 if __name__ == "__main__":
-    Server(__name__).run(debug=True)
+    Server(__name__).run(host="0.0.0.0")

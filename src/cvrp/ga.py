@@ -73,19 +73,22 @@ class GA(Generic[TypeIndividual]):
         """
         self._len = generations
 
-        self._current_pop.sort()
+        self._current_pop.sort(key=lambda x: x.get_fitness())
 
         parents_count = len(self._current_pop) // 2
         children_count = len(self._current_pop) - parents_count
 
         for _ in range(generations):
             fitnesses = [i.get_fitness() for i in self._current_pop]
-            sum_fit = sum(fitnesses)
+            maxi = max(fitnesses)
+
+            fitnesses = [2*maxi - i for i in fitnesses]
 
             cum = [0]*len(fitnesses)
             parents = [None] * parents_count
 
             for j in range(parents_count):
+                sum_fit = sum(fitnesses)
                 for i, fit in enumerate(fitnesses):
                     cum[i] = fit/sum_fit + (cum[i - 1] if i > 0 else 0)
 
@@ -99,10 +102,11 @@ class GA(Generic[TypeIndividual]):
 
             children = self._mutate(self._crossbreed(parents, children_count))
             self._current_pop = [*parents, *children]
-            self._current_pop.sort()
+            self._current_pop.sort(key=lambda x: x.get_fitness())
             yield self._current_pop
 
     def _crossbreed(self, parents: list[TypeIndividual], count: int) -> list[TypeIndividual]:
+        """Hold internal logic."""
         children = []
         while len(children) < count:
 
@@ -116,11 +120,12 @@ class GA(Generic[TypeIndividual]):
         return children
 
     def _mutate(self, children: list[TypeIndividual]) -> list[TypeIndividual]:
+        """Hold internal logic."""
         for child in children:
             if random.random() < self._mutation_rate:
                 child.mutate()
         return children
 
     def __len__(self):
-        """Rturns he number of iteration given to the run method."""
+        """Return the number of iteration given to the run method."""
         return self._len
