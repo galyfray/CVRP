@@ -99,7 +99,7 @@ export function DrlHyperParamsPage() {
             "snapshot_rate": 3
         };
 
-        axios.post("http://127.0.0.1:5000/run", {
+        axios.post("http://localhost:5001/run", {
             "data"   : inter,
             "headers": {"content-type": "text/json"}
         })
