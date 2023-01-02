@@ -16,7 +16,7 @@ import {GaHyperParamsPage} from "./pages/ga_hyperParams";
 import {OperationPage} from "./pages/operation";
 import {ResultPage} from "./pages/result";
 import {DrlHyperParamsPage} from "./pages/drl_hyperParams";
-
+import {ReviewPage} from "./pages/review";
 
 function App() {
 
@@ -33,14 +33,18 @@ function App() {
                     <Route path="/logs" element={<LogsPage />} />
                     <Route path="/run" element={<RunPage />}>
                     </Route>
+                    <Route path="/logs/review" element={<ReviewPage/>}>
+                    </Route>
+                    <Route path="/logs/review/result" element={<ResultPage />}>
+                    </Route>
                     <Route path="/run/:bench_type/algo_choice" element={<AlgoChoosingPage />} />
                     <Route path="/run/:bench_type/algo_choice/ga" element={<GaHyperParamsPage />}>
                     </Route>
                     <Route path="/run/:bench_type/algo_choice/drl" element={<DrlHyperParamsPage />}>
                     </Route>
                     <Route path="/run/:bench_type/algo_choice/:algo_type/operation" element={<OperationPage />}>
-                        <Route index path="result" element={<ResultPage />}/>
                     </Route>
+                    <Route path="/run/:bench_type/algo_choice/:algo_type/operation/result" element={<ResultPage />}/>
                     <Route element={<NotFoundPage />} />
                 </Routes>
             </BrowserRouter>

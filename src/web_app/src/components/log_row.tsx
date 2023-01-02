@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import IconButton from "@mui/material/IconButton";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
@@ -11,14 +12,24 @@ import Typography from "@mui/material/Typography";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import Button from "@mui/material/Button";
+import {useLocation, useNavigate} from "react-router-dom";
 
 
 export default function Row(props: { row: Types.Log }) {
     const {row} = props;
+    const url = useLocation().pathname;
+    const navigate = useNavigate();
     const [
         open,
         setOpen
     ] = React.useState(false);
+
+    const handleClick = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        navigate(url + "/review", {state: {log_id: row.log_id, bench_id: row.bench_id}});
+    };
 
     return (
         <React.Fragment>
@@ -33,10 +44,22 @@ export default function Row(props: { row: Types.Log }) {
                     </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row">
-                    {row.id}
+                    {row.bench_id}
                 </TableCell>
                 <TableCell align="right">
                     {row.method}
+                </TableCell>
+                <TableCell align="right">
+                    {row.version}
+                </TableCell>
+                <TableCell align="right">
+                    {row.snapshots.time}
+                </TableCell>
+                <TableCell align="right">
+                    <Button onClick={handleClick}
+                    >
+                        <PlayCircleFilledIcon sx={{ml: 2}}/>
+                    </Button>
                 </TableCell>
             </TableRow>
             <TableRow>
@@ -44,21 +67,21 @@ export default function Row(props: { row: Types.Log }) {
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{margin: 1}}>
                             <Typography variant="h6" gutterBottom component="div">
-                  Performance
+                                Snapshots
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Time</TableCell>
                                         <TableCell>Fitness</TableCell>
+                                        <TableCell>Solution</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {row.logs.map(perf => <TableRow key={perf.time}>
+                                    {row.snapshots.individuals.map(perf => <TableRow key={perf.fitness}>
                                         <TableCell component="th" scope="row">
-                                            {perf.time}
+                                            {perf.fitness}
                                         </TableCell>
-                                        <TableCell>{perf.fitness}</TableCell>
+                                        <TableCell>{perf.solution.slice(0, -1).map(el => el + "-")}0</TableCell>
                                     </TableRow>
                                     )}
                                 </TableBody>

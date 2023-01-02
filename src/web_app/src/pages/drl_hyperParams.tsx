@@ -10,13 +10,37 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
-import * as Types from "../types/data";
 import axios from "axios";
 import Backdrop from "@mui/material/Backdrop";
-import sleep from "../config/sleep_funct";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+const datasets = [
+    "E-n112-k8-s11.evrp",
+    "E-n29-k4-s7.evrp",
+    "E-n30-k3-s7.evrp",
+    "E-n35-k3-s5.evrp",
+    "E-n37-k4-s4.evrp",
+    "E-n60-k5-s9.evrp",
+    "E-n89-k7-s13.evrp",
+    "F-n140-k5-s5.evrp",
+    "F-n49-k4-s4.evrp",
+    "F-n80-k4-s8.evrp",
+    "M-n110-k10-s9.evrp",
+    "M-n126-k7-s5.evrp",
+    "M-n163-k12-s12.evrp",
+    "M-n212-k16-s12.evrp",
+    "X-n1006-k43-s5.evrp",
+    "X-n147-k7-s4.evrp",
+    "X-n221-k11-s7.evrp",
+    "X-n360-k40-s9.evrp",
+    "X-n469-k26-s10.evrp",
+    "X-n577-k30-s4.evrp",
+    "X-n698-k75-s13.evrp",
+    "X-n759-k98-s10.evrp",
+    "X-n830-k171-s11.evrp",
+    "X-n920-k207-s4.evrp"
+];
 
 export function DrlHyperParamsPage() {
     const url = useLocation().pathname;
@@ -48,27 +72,9 @@ export function DrlHyperParamsPage() {
         setBatch_size
     ] = React.useState<number>(32);
     const [
-        momemtum,
+        momentum,
         setMomentum
     ] = React.useState<number>(0.2);
-    const [
-        param,
-        setParam
-    ] = React.useState<Types.Hyper_parameters>({
-        type  : "drl",
-        params: {
-            "nb_epochs"    : 1000,
-            "pop_size"     : 512,
-            "seed"         : 0.5,
-            "mutation_rate": 0.2,
-            "learning_rate": 0.9,
-            "batch_size"   : 32,
-            "momentum"     : 0.2
-        },
-        override     : false,
-        bench_id     : "nothing",
-        snapshot_rate: 3
-    });
 
     useEffect(() => {
         logging.info(`Loading ${url}`);
@@ -76,7 +82,8 @@ export function DrlHyperParamsPage() {
 
     const handleClickNext = () => {
         setEnablebutton(false);
-        setParam({
+
+        const inter = {
             "type"  : "drl",
             "params": {
                 "nb_epochs"    : nb_epochs,
@@ -85,23 +92,24 @@ export function DrlHyperParamsPage() {
                 "mutation_rate": 0.2,
                 "learning_rate": learning_rate,
                 "batch_size"   : batch_size,
-                "momentum"     : momemtum
+                "momentum"     : momentum
             },
-            override     : override_check,
-            bench_id     : "nothing",
-            snapshot_rate: 3
-        });
+            "override"     : override_check,
+            "bench_id"     : datasets[parseInt(dataset_choice)],
+            "snapshot_rate": 3
+        };
 
-        axios.post("http://localhost:5001/operation_params/drl", {
-            "d_c"         : dataset_choice,
-            "hyper_params": JSON.stringify(param)
-        }, {headers: {"Content-Type": "multipart/form-data"}})
-            .then(async() => {
+        axios.post("http://localhost:5001/run", {
+            "data"   : inter,
+            "headers": {"content-type": "text/json"}
+        })
+            .then(() => {
                 setOpen(true);
-                await sleep(5000);
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                navigate(url + "operation");
-                setOpen(false);
+                setTimeout(() => {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    navigate(url + "operation", {state: {nb_epochs: inter.params.nb_epochs}});
+                    setOpen(false);
+                }, 5000);
             })
             .catch(error => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -125,7 +133,9 @@ export function DrlHyperParamsPage() {
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
                 Entrez les hyperparamètres
                 </Typography>
@@ -142,13 +152,13 @@ export function DrlHyperParamsPage() {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.params.nb_epochs}
+                            defaultValue={nb_epochs}
                             onChange={e => setNb_epochs(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.params.learning_rate}
+                            defaultValue={learning_rate}
                             onChange={e => setLearning_rate(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
@@ -164,14 +174,14 @@ export function DrlHyperParamsPage() {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.params.batch_size}
+                            defaultValue={batch_size}
                             onChange={e => setBatch_size(parseInt(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField id="filled-basic" variant="filled"
-                            defaultValue={param.params.momentum}
-                            onChange={e => setMomentum(parseInt(e.target.value))}>
+                            defaultValue={momentum}
+                            onChange={e => setMomentum(parseFloat(e.target.value))}>
                         </TextField>
                     </Grid>
                     <Grid item xs={12}>

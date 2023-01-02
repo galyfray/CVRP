@@ -2,27 +2,27 @@ import * as ShallowRenderer from "react-test-renderer/shallow";
 import {render, screen} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import {AppbarStyle} from "../components/appBar";
-import {OperationPage} from "../pages/operation";
+import {ReviewPage} from "../pages/review";
 
 // TODO test to check the type of the get request
 
-describe("<OperationPage />", () => {
+describe("<ReviewPage />", () => {
     test("checking components", () => {
-        render(<OperationPage />);
+        render(<ReviewPage />);
         const utils = ShallowRenderer.createRenderer();
         utils.render(<AppbarStyle />);
         const view = utils.getRenderOutput();
         expect(view).toBeDefined();
-        expect(screen.getByTestId("operation_title")).toBeVisible();
+        expect(screen.getByTestId("review_title")).toBeVisible();
     });
 });
 
 jest.mock("react-router-dom", () => ({
     __esModule : true,
     useLocation: jest.fn().mockReturnValue({
-        pathname: "/run/:bench_type/algo_choice/:algo_type/operation/result",
+        pathname: "/logs/review",
         search  : "",
         hash    : "",
-        state   : {nb_epochs: 100}
+        state   : {log_id: "E-n112-k8-s11.evrp_ga_0_2_4_0.1_1", bench_id: "E-n112-k8-s11.evrp"}
     })
 }));

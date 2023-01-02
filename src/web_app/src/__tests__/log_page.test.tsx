@@ -4,7 +4,15 @@ import "@testing-library/jest-dom";
 import {AppbarStyle} from "../components/appBar";
 import {LogsPage} from "../pages/log_page";
 
+const mockedUsedNavigate = jest.fn();
+
 // TODO test to check the type of the get request
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+jest.mock("react-router-dom", () => ({
+    ...jest.requireActual("react-router-dom"),
+    useLocation: () => ({pathname: "localhost:3000/testing"}),
+    useNavigate: () => mockedUsedNavigate
+}));
 
 describe("<LogsPage />", () => {
     test("the rendering of the components", () => {

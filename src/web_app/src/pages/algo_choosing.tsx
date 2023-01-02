@@ -1,9 +1,8 @@
-import React, {useEffect} from "react";
+import React from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import Container from "@mui/material/Container";
-import logging from "../config/logging";
 import {useLocation} from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
@@ -14,10 +13,6 @@ import drl_image from "../images/drl.png";
 
 export function AlgoChoosingPage() {
     const url = useLocation().pathname;
-
-    useEffect(() => {
-        logging.info(`Loading ${url}`);
-    });
 
     return (
         <React.Fragment>
@@ -35,7 +30,9 @@ export function AlgoChoosingPage() {
                     align="center"
                     color="text.primary"
                     gutterBottom
-                    sx={{fontWeight: "bold", mb: 5}}
+                    sx={{
+                        fontWeight: "bold", mb: 5, mt: 5
+                    }}
                 >
                     Choisir un algorithme pour la résolution
                 </Typography>
