@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import * as Types from "../types/data";
 import {
     getMaxX, getMaxY, getMinX, getMinY, getRandomColor
@@ -92,6 +92,12 @@ export function ReviewPage() {
         toggle,
         setToggle
     ] = React.useState<boolean>(true);
+
+    const navigate = useNavigate();
+    const handleClick = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        navigate(url + "/result", {state: {benchmarks: []}});
+    };
 
     useEffect(() => {
         const inter:Array<string> = [];
@@ -285,9 +291,7 @@ export function ReviewPage() {
                     <Grid item xs={4} >
                         {enable && enableButton && <Button variant="contained" color="success" sx={{
                             height: 25, width: 200, mr: 0
-                        }}
-                        href={url + "/result"}
-                        >
+                        }} onClick={handleClick}>
                             Continuer
                         </Button>}
                     </Grid>

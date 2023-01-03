@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import * as Types from "../types/data";
 import Badge from "@mui/material/Badge";
 import Stack from "@mui/material/Stack";
@@ -21,35 +21,10 @@ import {
 } from "../config/utils";
 import Avatar from "@mui/material/Avatar";
 
-const datasets = [
-    "E-n112-k8-s11.evrp",
-    "E-n29-k4-s7.evrp",
-    "E-n30-k3-s7.evrp",
-    "E-n35-k3-s5.evrp",
-    "E-n37-k4-s4.evrp",
-    "E-n60-k5-s9.evrp",
-    "E-n89-k7-s13.evrp",
-    "F-n140-k5-s5.evrp",
-    "F-n49-k4-s4.evrp",
-    "F-n80-k4-s8.evrp",
-    "M-n110-k10-s9.evrp",
-    "M-n126-k7-s5.evrp",
-    "M-n163-k12-s12.evrp",
-    "M-n212-k16-s12.evrp",
-    "X-n1006-k43-s5.evrp",
-    "X-n147-k7-s4.evrp",
-    "X-n221-k11-s7.evrp",
-    "X-n360-k40-s9.evrp",
-    "X-n469-k26-s10.evrp",
-    "X-n577-k30-s4.evrp",
-    "X-n698-k75-s13.evrp",
-    "X-n759-k98-s10.evrp",
-    "X-n830-k171-s11.evrp",
-    "X-n920-k207-s4.evrp"
-];
-
 export function OperationPage() {
     const url = useLocation().pathname;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const datasets: [] = useLocation().state.benchmarks;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const gen:number = useLocation().state.nb_epochs;
     const dataset_choice = url.split("/")[2];
@@ -109,19 +84,28 @@ export function OperationPage() {
         setToggle
     ] = React.useState<boolean>(true);
 
+    const navigate = useNavigate();
+    const handleClick = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        navigate(url + "/result", {state: {benchmarks: datasets}});
+    };
+
     useEffect(() => {
-        if (datasets[parseInt(dataset_choice)]) {
-            setNb_cars(datasets[parseInt(dataset_choice)].split("-")[2].slice(0, -1));
+        const benchmark:string = datasets[parseInt(dataset_choice)];
+        if (benchmark) {
+            // eslint-disable-next-line
+            setNb_cars(benchmark.split("-")[2].slice(0, -1));
         }
         async function getNodes() {
-            await http.get(`benchmark/${datasets[parseInt(dataset_choice)]}`)
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            await http.get(`benchmark/${benchmark}`)
                 .then(response => {
                     // eslint-disable-next-line
                     setNodes(response.data["NODES"]);
                 });
         }
         void getNodes();
-    }, [dataset_choice]);
+    }, [dataset_choice, datasets]);
 
     useEffect(() => {
         const inter:Array<string> = [];
@@ -290,9 +274,7 @@ export function OperationPage() {
                     <Grid item xs={4} >
                         {enableButton && <Button variant="contained" color="success" sx={{
                             height: 25, width: 200, mr: 0
-                        }}
-                        href={url + "/result"}
-                        >
+                        }} onClick={handleClick}>
                             Continuer
                         </Button>}
                     </Grid>
