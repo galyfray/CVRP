@@ -385,7 +385,14 @@ class Server:
 
         returns the same json as stored.
         """
-        return read_json(utils.PATH_TO_LOGS, log_id)
+        log = read_json(utils.PATH_TO_LOGS, log_id)
+        self._latest = {
+                "bench_id": log["bench_id"],
+                "method": log["method"],
+                "snapshots": log["snapshots"][-1],
+                "version": __version__
+        }
+        return log
 
     def route_results(self):
         """Return the latest snapshot to date or an empty dict if no snapshot was computed."""
