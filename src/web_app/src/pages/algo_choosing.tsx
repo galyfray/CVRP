@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
@@ -13,6 +13,12 @@ import drl_image from "../images/drl.png";
 
 export function AlgoChoosingPage() {
     const url = useLocation().pathname;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const datasets = useLocation().state.benchmarks;
+    useEffect(() => {
+        console.log(datasets);
+    });
 
     return (
         <React.Fragment>

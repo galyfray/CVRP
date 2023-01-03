@@ -12,7 +12,7 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import MobileStepper from "@mui/material/MobileStepper";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import http from "../http-common";
 import Alert from "@mui/material/Alert";
 
@@ -85,6 +85,12 @@ export function RunPage() {
 
     const handleBack = () => {
         setActiveStep(prevActiveStep => prevActiveStep - 1);
+    };
+
+    const navigate = useNavigate();
+    const handleClick = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        navigate(url + "/" + activeStep.toString() + "/algo_choice", {state: {benchmarks: datasets}});
     };
 
     return (
