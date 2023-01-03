@@ -91,9 +91,12 @@ export function OperationPage() {
     };
 
     useEffect(() => {
-        const benchmark:string = datasets[parseInt(dataset_choice)];
+        const obj: Types.BenchType = datasets[parseInt(dataset_choice)];
         // eslint-disable-next-line
-            setNb_cars(benchmark.split("-")[2].slice(0, -1));
+        const benchmark: string = obj.name;
+        // eslint-disable-next-line
+        const veh:string = obj.name.split("-")[2];
+        setNb_cars(veh.slice(1, veh.length));
 
         const inter:Array<string> = [];
         for (let i = 0;i < parseInt(nb_cars);i++) {
@@ -268,7 +271,7 @@ export function OperationPage() {
                         </Stack>
                     </Grid>
                     <Grid item xs={8}></Grid>
-                    <Grid item xs={4} >
+                    <Grid item xs={4} sx= {{mt: 3}}>
                         {enableButton && <Button variant="contained" color="success" sx={{
                             height: 25, width: 200, mr: 0
                         }} onClick={handleClick}>

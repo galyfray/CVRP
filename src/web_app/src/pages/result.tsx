@@ -21,6 +21,8 @@ export function ResultPage() {
     const dataset_choice = url.split("/")[2];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
     const datasets: [] = useLocation().state.benchmarks;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const b_id = useLocation().state.bench_id;
     const [
         colors,
         setColors
@@ -86,8 +88,16 @@ export function ResultPage() {
     );
 
     useEffect(() => {
-        const bench_id:string = datasets[parseInt(dataset_choice)];
-        setBench_id(bench_id);
+        if (b_id) {
+            // eslint-disable-next-line
+            setBench_id(b_id);
+        } else {
+            const obj: Types.BenchType = datasets[parseInt(dataset_choice)];
+            // eslint-disable-next-line
+        const bench_id: string = obj.name;
+            setBench_id(bench_id);
+        }
+
         async function getNodes() {
             await http.get(`benchmark/${bench_id}`)
                 .then(response => {
@@ -96,9 +106,24 @@ export function ResultPage() {
                 });
         }
         void getNodes();
-    }, [bench_id, dataset_choice, datasets]);
+    }, [
+        b_id,
+        bench_id,
+        dataset_choice,
+        datasets
+    ]);
 
     useEffect(() => {
+        if (b_id) {
+            // eslint-disable-next-line
+            setBench_id(b_id);
+        } else {
+            const obj: Types.BenchType = datasets[parseInt(dataset_choice)];
+            // eslint-disable-next-line
+            const bench_id: string = obj.name;
+            setBench_id(bench_id);
+        }
+
         async function getResults() {
             if (bench_id.length > 1) {
                 await http.get(`results?id=${bench_id}`)
@@ -114,6 +139,7 @@ export function ResultPage() {
     }, [
         bench_id,
         dataset_choice,
+        datasets,
         length
     ]);
 

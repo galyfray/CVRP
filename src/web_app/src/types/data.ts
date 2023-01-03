@@ -46,3 +46,7 @@ export type Snapshot = {
   "snapshot": [individual]
 }
 
+export type BenchType = {
+  "details": string,
+  "name": string
+}

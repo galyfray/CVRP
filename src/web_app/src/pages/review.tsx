@@ -18,7 +18,7 @@ import {
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 
-const enable = false;
+const enable = true;
 
 export function ReviewPage() {
     const url = useLocation().pathname;
@@ -96,7 +96,7 @@ export function ReviewPage() {
     const navigate = useNavigate();
     const handleClick = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        navigate(url + "/result", {state: {benchmarks: []}});
+        navigate(url + "/result", {state: {benchmarks: [], bench_id: bench_id}});
     };
 
     useEffect(() => {
