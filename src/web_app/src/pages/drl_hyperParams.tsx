@@ -15,6 +15,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import * as Types from "../types/data";
 
 export function DrlHyperParamsPage() {
     const url = useLocation().pathname;
@@ -58,7 +59,9 @@ export function DrlHyperParamsPage() {
 
     const handleClickNext = () => {
         setEnablebutton(false);
-
+        const obj: Types.BenchType = datasets[parseInt(dataset_choice)];
+        // eslint-disable-next-line
+        const benchmark: string = obj.name;
         const inter = {
             "type"  : "drl",
             "params": {
@@ -71,7 +74,7 @@ export function DrlHyperParamsPage() {
                 "momentum"     : momentum
             },
             "override"     : override_check,
-            "bench_id"     : datasets[parseInt(dataset_choice)],
+            "bench_id"     : benchmark,
             "snapshot_rate": 3
         };
 
