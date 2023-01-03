@@ -92,10 +92,18 @@ export function OperationPage() {
 
     useEffect(() => {
         const benchmark:string = datasets[parseInt(dataset_choice)];
-        if (benchmark) {
-            // eslint-disable-next-line
+        // eslint-disable-next-line
             setNb_cars(benchmark.split("-")[2].slice(0, -1));
+
+        const inter:Array<string> = [];
+        for (let i = 0;i < parseInt(nb_cars);i++) {
+            const c = getRandomColor();
+            if (!inter.find(element => element === c)) {
+                inter.push(c);
+            }
         }
+        setColors(inter);
+        
         async function getNodes() {
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             await http.get(`benchmark/${benchmark}`)
@@ -105,18 +113,7 @@ export function OperationPage() {
                 });
         }
         void getNodes();
-    }, [dataset_choice, datasets]);
-
-    useEffect(() => {
-        const inter:Array<string> = [];
-        for (let i = 0;i < parseInt(nb_cars);i++) {
-            const c = getRandomColor();
-            if (!inter.find(element => element === c)) {
-                inter.push(c);
-            }
-        }
-        setColors(inter);
-    }, [nb_cars]);
+    }, [dataset_choice, datasets, nb_cars]);
 
     const getSeries = useCallback((s: Array<Types.individual>) => {
         const bestFitness = getMinFitness(s);
