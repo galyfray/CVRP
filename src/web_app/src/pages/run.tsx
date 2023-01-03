@@ -157,8 +157,7 @@ export function RunPage() {
                     direction="row"
                     justifyContent="center"
                 >
-                    <Button variant="contained" sx={{height: 40, width: 120}} disabled={open}
-                        href={url + "/" + activeStep.toString() + "/algo_choice"} >
+                    <Button variant="contained" sx={{height: 40, width: 120}} disabled={open} onClick={handleClick}>
                         Suivant
                     </Button>
                 </Stack>
