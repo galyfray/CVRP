@@ -3,16 +3,17 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import CssBaseline from "@mui/material/CssBaseline";
 import {AppbarStyle} from "../components/appBar";
 import Container from "@mui/material/Container";
-import {useLocation} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import algo_gene_image from "../images/algo_gene.png";
 import drl_image from "../images/drl.png";
 
 export function AlgoChoosingPage() {
     const url = useLocation().pathname;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const datasets: [] = useLocation().state.benchmarks;
 
     return (
         <React.Fragment>
@@ -39,7 +40,7 @@ export function AlgoChoosingPage() {
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <Stack alignItems="center" >
-                            <Link href={url + "/ga/"}>
+                            <Link to={url + "/ga/"} state={{benchmarks: datasets}}>
                                 <img src={algo_gene_image} alt="algo_gene_image" width= "75%"/>
                             </Link>
                             <Typography gutterBottom variant="h6" align="center" component="div" sx={{mr: 5}}>
@@ -50,7 +51,7 @@ export function AlgoChoosingPage() {
                     <Grid item xs={6}>
                         <Stack alignItems="center"
                         >
-                            <Link href={url + "/drl/"}>
+                            <Link to={url + "/drl/"} state= {{benchmarks: datasets}}>
                                 <img src={drl_image} alt="drl_image" width= "180%"/>
                             </Link>
                             <Typography gutterBottom variant="h6" align="center" component="div" sx={{ml: 20}}>
